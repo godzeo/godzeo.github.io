@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="创建项目1django-admin startproject Your_Project_Name  1234567Your_Project_Name&#x2F; # 你存放项目的文件夹    manage.py      # 命令行工具，可以用来启动Django，等等做很多事    Your_Project_Name&#x2F; # 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名        __">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django-笔记-创建">
+<meta property="og:url" content="https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="创建项目1django-admin startproject Your_Project_Name  1234567Your_Project_Name&#x2F; # 你存放项目的文件夹    manage.py      # 命令行工具，可以用来启动Django，等等做很多事    Your_Project_Name&#x2F; # 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名        __">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-02-07T03:26:54.000Z">
+<meta property="article:modified_time" content="2020-05-08T07:43:29.301Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Django-笔记-创建</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/02/07/Python%20%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&text=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&is_video=false&description=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Django-笔记-创建&body=Check out this article: https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&name=Django-笔记-创建&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&t=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#创建项目"><span class="toc-number">1.</span> <span class="toc-text">创建项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#APP模块添加"><span class="toc-number">2.</span> <span class="toc-text">APP模块添加</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动服务"><span class="toc-number">3.</span> <span class="toc-text">启动服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#路由urls-py"><span class="toc-number">4.</span> <span class="toc-text">路由urls.py</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Django-笔记-创建
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-02-07T03:26:54.000Z" itemprop="datePublished">2020-02-07</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">安全开发</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<h2 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">django-admin startproject Your_Project_Name</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Your_Project_Name/ <span class="comment"># 你存放项目的文件夹</span></span><br><span class="line">    manage.py      <span class="comment"># 命令行工具，可以用来启动Django，等等做很多事</span></span><br><span class="line">    Your_Project_Name/ <span class="comment"># 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名</span></span><br><span class="line">        __init__.py       <span class="comment"># 定义包的空文件</span></span><br><span class="line">        settings.py       <span class="comment"># 项目的主配置文件</span></span><br><span class="line">        urls.py           <span class="comment"># 路由管理，相当于Flask中自己写的app.route('/')，不过这里统一管理，很方便</span></span><br><span class="line">        wsgi.py           <span class="comment"># 基于WSGI的web服务器进入点，提供底层的网络通信功能</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="APP模块添加"><a href="#APP模块添加" class="headerlink" title="APP模块添加"></a>APP模块添加</h2><p>比如你的项目下有个登陆功能，暂且把这个登陆的模块名叫做login，这个登陆的应用需要你使用命令生成然后进行配置，首先到你创建项目的文件夹下面，使用命令</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 manage.py startapp login</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">login/        <span class="comment"># 该登陆模块的文件夹</span></span><br><span class="line">    __init__.py <span class="comment"># 包空文件</span></span><br><span class="line">    admin.py    <span class="comment"># 自动生成强大的后台管理文件</span></span><br><span class="line">    apps.py        <span class="comment"># 具体我不清楚</span></span><br><span class="line">    migrations/ <span class="comment"># 这个文件夹用来操作管理数据库的数据，可以做数据库的迁移之类</span></span><br><span class="line">        __init__.py <span class="comment"># </span></span><br><span class="line">    models.py    <span class="comment"># 用来生成数据库的文件，和Flask中的modules.py一毛一样呢</span></span><br><span class="line">    tests.py    <span class="comment"># 用来做测试代码的文件，啊，真是贴心呢</span></span><br><span class="line">    views.py    <span class="comment"># 就像Flask中的视图函数，不过这里专门分了一个文件让你写视图函数</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">python3 manage.py runserver</span><br><span class="line"><span class="comment"># 启动,默认端口8000</span></span><br><span class="line">python3 manage.py runserver <span class="number">8080</span></span><br><span class="line"><span class="comment"># 启动，使用8080端口</span></span><br><span class="line">python3 manage.py runserver <span class="number">0</span>:<span class="number">8080</span></span><br><span class="line">并且修改文件settings.py</span><br><span class="line">ALLOWED_HOSTS = [<span class="string">'*'</span>,]</span><br><span class="line"><span class="comment"># 启动，监听所有人的访问，即允许所有人访问</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="路由urls-py"><a href="#路由urls-py" class="headerlink" title="路由urls.py"></a>路由urls.py</h2><p>urls.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.urls <span class="keyword">import</span> path</span><br><span class="line"><span class="comment"># 这个path函数的功能比较重要，最下面会说</span></span><br><span class="line"><span class="keyword">from</span> .views <span class="keyword">import</span> index,error</span><br><span class="line"><span class="comment"># 从视图函数文件中导入创建的两个视图函数</span></span><br><span class="line"></span><br><span class="line">urlpatterns = [</span><br><span class="line">    path(<span class="string">''</span>, index, name=<span class="string">'index'</span>),</span><br><span class="line">    <span class="comment"># 这里第一个是网址路由，第二个是视图函数，第三个是视图函数指定的名称，可以在任何地方使用这个名称调用这个视图函数</span></span><br><span class="line">    <span class="comment"># 哇塞，真实贴心实用呢</span></span><br><span class="line">    path(<span class="string">'error/'</span>, error, name=<span class="string">'error'</span>)</span><br><span class="line">    <span class="comment"># 这个的url目录就是error啦</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>使用静态文件<br>然后再根目录下面的settings.py中，</p>
+<p>在底部添加：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">STATIC_URL = <span class="string">'/static/'</span></span><br><span class="line">STATICFILES_DIRS = (</span><br><span class="line">    os.path.join(os.path.join(BASE_DIR, <span class="string">'static'</span>)),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>设置html</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;% load static %&#125;</span><br><span class="line"><span class="comment">#这句添加在html文件的最上面  </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后在需要的地方按照这个格式进行调用，如：</span></span><br><span class="line">&lt;img src=<span class="string">"&#123;% static 'image/404.jpg' %&#125;"</span>/&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里是引用z</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PATH函数功能</span><br><span class="line">path() 参数： route</span><br><span class="line">route 是一个匹配 URL 的准则（类似正则表达式）。当 Django 响应一个请求时，它会从 urlpatterns 的第一项开始，按顺序依次匹配列表中的项，直到找到匹配的项。</span><br><span class="line"></span><br><span class="line">这些准则不会匹配 GET 和 POST 参数或域名。例如，URLconf 在处理请求 https:<span class="comment">//www.example.com/myapp/ 时，它会尝试匹配 myapp/ 。处理请求 https://www.example.com/myapp/?page=3 时，也只会尝试匹配 myapp/。</span></span><br><span class="line"></span><br><span class="line">path() 参数： view</span><br><span class="line">当 Django 找到了一个匹配的准则，就会调用这个特定的视图函数，并传入一个 HttpRequest 对象作为第一个参数，被“捕获”的参数以关键字参数的形式传入。稍后，我们会给出一个例子。</span><br><span class="line"></span><br><span class="line">path() 参数： kwargs</span><br><span class="line">任意个关键字参数可以作为一个字典传递给目标视图函数。本教程中不会使用这一特性。</span><br><span class="line"></span><br><span class="line">path() 参数： name</span><br><span class="line">为你的 URL 取名能使你在 Django 的任意地方唯一地引用它，尤其是在模板中。这个有用的特性允许你只改一个文件就能全局地修改某个 URL 模式。</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#创建项目"><span class="toc-number">1.</span> <span class="toc-text">创建项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#APP模块添加"><span class="toc-number">2.</span> <span class="toc-text">APP模块添加</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动服务"><span class="toc-number">3.</span> <span class="toc-text">启动服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#路由urls-py"><span class="toc-number">4.</span> <span class="toc-text">路由urls.py</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&text=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&is_video=false&description=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Django-笔记-创建&body=Check out this article: https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&title=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&name=Django-笔记-创建&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/&t=Django-笔记-创建" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

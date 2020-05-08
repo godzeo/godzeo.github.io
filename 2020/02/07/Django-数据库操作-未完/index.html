@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &#39;default&#39;: &amp;#123;        &#39;ENGI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django-数据库操作-未完">
+<meta property="og:url" content="https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &#39;default&#39;: &amp;#123;        &#39;ENGI">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-02-07T07:19:15.000Z">
+<meta property="article:modified_time" content="2020-05-08T07:43:29.404Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Django-数据库操作-未完</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/02/12/ThinkPHP%206.0.1%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%EF%BC%89/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&text=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&is_video=false&description=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Django-数据库操作-未完&body=Check out this article: https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&name=Django-数据库操作-未完&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&t=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数据增删改查"><span class="toc-number">1.</span> <span class="toc-text">数据增删改查</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#查"><span class="toc-number">1.0.1.</span> <span class="toc-text">查</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常规的有5种方法获取数据，返回都是数据集"><span class="toc-number">2.</span> <span class="toc-text">常规的有5种方法获取数据，返回都是数据集</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取单个对象"><span class="toc-number">2.0.1.</span> <span class="toc-text">获取单个对象</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Django-数据库操作-未完
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-02-07T07:19:15.000Z" itemprop="datePublished">2020-02-07</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">安全开发</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<p>Django-数据库操作</p>
+<p>在settings.py文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql         <span class="comment"># 一定要添加这两行！通过pip install pymysql！</span></span><br><span class="line">pymysql.install_as_MySQLdb()</span><br><span class="line"><span class="comment"># 修改DATABASES的值</span></span><br><span class="line">DATABASES = &#123;</span><br><span class="line">    <span class="string">'default'</span>: &#123;</span><br><span class="line">        <span class="string">'ENGINE'</span>: <span class="string">'django.db.backends.mysql'</span>,</span><br><span class="line">        <span class="string">'NAME'</span>: <span class="string">'mysite'</span>,</span><br><span class="line">        <span class="string">'HOST'</span>: <span class="string">'192.168.1.1'</span>,</span><br><span class="line">        <span class="string">'USER'</span>: <span class="string">'root'</span>,</span><br><span class="line">        <span class="string">'PASSWORD'</span>: <span class="string">'pwd'</span>,</span><br><span class="line">        <span class="string">'PORT'</span>: <span class="string">'3306'</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建数据 数据类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserInfo</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    uid = models.AutoField(primary_key=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 自增长ID,必须带参数为primary_key=True,并且是唯一主键</span></span><br><span class="line">    user = models.CharField(max_length=<span class="number">10</span>)</span><br><span class="line">    <span class="comment"># 字符串类型，最大长度为10</span></span><br><span class="line">    age = models.IntegerField(default=<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 数字类型，默认为1</span></span><br><span class="line">    sex = models.BooleanField()</span><br><span class="line">    <span class="comment"># BOOL类型</span></span><br><span class="line">    email = models.EmailField()</span><br><span class="line">    <span class="comment"># 自带检查 Email 合法性的 CharField</span></span><br><span class="line">    Intor = models.TextField()</span><br><span class="line">    <span class="comment"># 长文本类型</span></span><br><span class="line">    Blog = models.URLField()</span><br><span class="line">    <span class="comment"># 自带检查 URL 合法性的 CharField</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># -------------------文件上传-----------------</span></span><br><span class="line">    upload = models.FileField(upload_to=<span class="string">'uploads/'</span>)</span><br><span class="line">    <span class="comment"># 文件上传到 MEDIA_ROOT/uploads</span></span><br><span class="line">    <span class="comment"># 这个字段不能设置primary_key和unique选项.在数据库中存储类型是varchar，默认最大长度为100.</span></span><br><span class="line">    upload_s = models.FileField(upload_to=<span class="string">'uploads/%Y/%m/%d/'</span>)</span><br><span class="line">    <span class="comment"># 文件上传到 MEDIA_ROOT/uploads/2019/07/04</span></span><br><span class="line"></span><br><span class="line">    upload_e = models.FilePathField(path=<span class="string">"/home/images"</span>, match=<span class="string">"foo.*"</span>, recursive=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 这个字段的值被限制在系统上某个目录中的所有文件名集合中。有三个参数</span></span><br><span class="line">    <span class="comment"># 　　　　path = '':  该参数必需。上行所说的‘某个目录’的绝对路径。Example: "/home/images".</span></span><br><span class="line">    <span class="comment"># 　　　　match = 'pattern':  可选参数。格式是正则表达式。用来拣选符合匹配正则表达式的文件</span></span><br><span class="line">    <span class="comment"># 　　　　recursive = True / False: 可选参数，默认为False。设定是否递归该目录下所有子目录的所有文件</span></span><br><span class="line"></span><br><span class="line">    add_date = models.DateTimeField(auto_now_add=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 设置初次创建的时间</span></span><br><span class="line">    update_date = models.DateTimeField(auto_now=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 设置最后修改的时间</span></span><br></pre></td></tr></table></figure>
+<p>创建数据库一共需要三步：</p>
+<p>修改models.py中模型<br>运行python3 manage.py makemigrations为改动创建迁移记录<br>运行python3 manage.py migrate，将操作同步到数据库。</p>
+<h2 id="数据增删改查"><a href="#数据增删改查" class="headerlink" title="数据增删改查"></a>数据增删改查</h2><p>数据的添加方法：一步到位的方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data.objects.create(User=<span class="string">'zz'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>单个赋值的方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">datas = data()</span><br><span class="line">datas.User = <span class="string">'陈二狗'</span></span><br><span class="line">datas.save()</span><br></pre></td></tr></table></figure>
+
+<h4 id="查"><a href="#查" class="headerlink" title="查"></a>查</h4><h2 id="常规的有5种方法获取数据，返回都是数据集"><a href="#常规的有5种方法获取数据，返回都是数据集" class="headerlink" title="常规的有5种方法获取数据，返回都是数据集"></a>常规的有5种方法获取数据，返回都是数据集</h2><p>第一种是 data.objects.all()</p>
+<p>这种方法获取的是这张表里面的所有数据</p>
+<p>第二种是 data.objects.get(id=1)</p>
+<p><strong>这个比较坑，不常用，找不到直接异常</strong><br>这种方法必须确保获取的结果只有一个（多个对象会直接异常），没有匹配条件的时候会报异常，获取的条件是id=1</p>
+<p>第三种方法是 data.objects.filter(id=2)</p>
+<p>这种方法是筛选出id=2的数据,括号内还能有多个条件，比如(id=2,gender=’boy’)</p>
+<p>第四种方法是 data.objects.exclude(id=2)</p>
+<p>这种方法是获取到id不等于2的数据</p>
+<p>第五种方法是 data.objects.order_by(name)</p>
+<p>这种方法获取到的结果是按照name进行排序后的结果</p>
+<h4 id="获取单个对象"><a href="#获取单个对象" class="headerlink" title="获取单个对象"></a>获取单个对象</h4><p>第一种方法是 data.objects.first(name=’zeo’)<br>                        data.objects.last(name=’zeo’)</p>
+<p>这种方法获取到的结果是符合条件的第一个对象，当然还有最后一个对象，使用的是.last(name=’小桃红’)</p>
+<p><strong>注释：这些方法都可迭代使用</strong></p>
+<p>按照日期获取当天数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.utils <span class="keyword">import</span> timezone</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> timedelta</span><br><span class="line">now = timezone.now()</span><br><span class="line">start = now - timedelta(hours=<span class="number">23</span>,minutes=<span class="number">59</span>,seconds=<span class="number">59</span>)</span><br><span class="line">CurrentDaySubdomain = URL.objects.filter(change_time__gt=start)</span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> CurrentDaySubdomain:</span><br><span class="line">    print(c.url)</span><br></pre></td></tr></table></figure>
+<p><strong><em>其他按照时间获取数据方法</em></strong></p>
+<p>1、gt：大于某个时间<br>now = datetime.datetime.now()</p>
+<p>start = now – datetime.timedelta(hours=23, minutes=59, seconds=59)<br>a=yourobject.objects .filter(youdatetimcolumn__gt=start)#前一天</p>
+<p>2、gte：大于等于某个时间：<br>a=yourobject.objects .filter(youdatetimcolumn__gte=start)</p>
+<p>3、lt：小于<br>a=yourobject.objects .filter(youdatetimcolumn__lt=start)</p>
+<p>4、lte：小于等于<br>a=yourobject.objects .filter(youdatetimcolumn__lte=start)</p>
+<p>5、range：查询时间段<br>start_date = datetime.date(2005, 1, 1)<br>end_date = datetime.date(2005, 3, 31)<br>Entry.objects.filter(pub_date__range=(start_date, end_date))</p>
+<p>6、year：查询某年<br>Entry.objects.filter(pub_date__year=2005)</p>
+<p>7、month：查询某月<br>Entry.objects.filter(pub_date__month=12)</p>
+<p>8、day：某天<br>Entry.objects.filter(pub_date__day=3)</p>
+<p>9、week_day：星期几<br>Entry.objects.filter(pub_date__week_day=2)</p>
+<p>10、获取今天的日期，日期格式为yyyy-MM-dd</p>
+<p>from django.utils.timezone import now, timedelta<br>date = now().date() + timedelta(days=-1) #昨天<br>date = now().date() + timedelta(days=0) #今天<br>date = now().date() + timedelta(days=1) #明天</p>
+<p><strong>以上方法获取的数据的结果是QuerySet()类型的数据，是一个结果类，想要获取最后的实际结果，需要使用索引获取</strong></p>
+<p>datas = data.objects.filter(id=2).values()[0]<br>这样的结果是一个字典，索引0即是获取values()列表的第一个结果</p>
+<p>当然你也可以使用赋予变量的形式进行获取</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">datas = data.objects.get(id=<span class="number">1</span>)</span><br><span class="line">u_id = datas.id</span><br><span class="line">u_User = datas.User</span><br><span class="line"></span><br><span class="line">这种方式进行获取数据，这个前提是在只有一个数据的情况下进行</span><br></pre></td></tr></table></figure>
+
+<p>如果是all()或者其他方法获取较多的数据集时候，也可以这样获取每个结果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">data_0 = data.objects.all()</span><br><span class="line"><span class="comment"># 这里的结果是一个数据集合，可以循环迭代和使用索引获取值</span></span><br><span class="line">data_1 = data_0[<span class="number">0</span>]</span><br><span class="line">u_id = data_1.id</span><br><span class="line">u_User = data_1.User</span><br><span class="line"><span class="comment"># 通过这样的方式，就可以实现进行单独数据的获取</span></span><br></pre></td></tr></table></figure>
+
+<p>像这种的集合，如果想要把里面的数据全都打印出来，可以这么处理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ret = <span class="string">''</span></span><br><span class="line">data_0 = data.objects.all()</span><br><span class="line"><span class="keyword">for</span> data_1 <span class="keyword">in</span> data_0:</span><br><span class="line">    ret += data_1.id + <span class="string">'|'</span> + data_1.User + <span class="string">'&lt;br&gt;'</span></span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数据增删改查"><span class="toc-number">1.</span> <span class="toc-text">数据增删改查</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#查"><span class="toc-number">1.0.1.</span> <span class="toc-text">查</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常规的有5种方法获取数据，返回都是数据集"><span class="toc-number">2.</span> <span class="toc-text">常规的有5种方法获取数据，返回都是数据集</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取单个对象"><span class="toc-number">2.0.1.</span> <span class="toc-text">获取单个对象</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&text=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&is_video=false&description=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Django-数据库操作-未完&body=Check out this article: https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&title=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&name=Django-数据库操作-未完&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/&t=Django-数据库操作-未完" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

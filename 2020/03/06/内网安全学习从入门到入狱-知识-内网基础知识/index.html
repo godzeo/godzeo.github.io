@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="内网安全学习从入门到入狱-知识-内网基础知识@[toc] 内网渗透基础 首先本文章基本上学习笔记    基本的名词介绍工作组 工作组(Work Group)是最常见最简单最普通的资源管理模式，就是将不同的电脑按功能分别列入不同的组中，以方便管理。 工作组简单来说就是计算机在一个局域网中的的一个圈子，这个圈子大家都是平等的，想来就来想走就走，基本上没有什么约束，自我感觉就是一个组织的名称而已没有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网安全学习从入门到入狱-知识-内网基础知识">
+<meta property="og:url" content="https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="内网安全学习从入门到入狱-知识-内网基础知识@[toc] 内网渗透基础 首先本文章基本上学习笔记    基本的名词介绍工作组 工作组(Work Group)是最常见最简单最普通的资源管理模式，就是将不同的电脑按功能分别列入不同的组中，以方便管理。 工作组简单来说就是计算机在一个局域网中的的一个圈子，这个圈子大家都是平等的，想来就来想走就走，基本上没有什么约束，自我感觉就是一个组织的名称而已没有">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-06T02:19:05.000Z">
+<meta property="article:modified_time" content="2020-05-08T07:43:29.349Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>内网安全学习从入门到入狱-知识-内网基础知识</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%A5%9E%E5%99%A8-Cobalt%20Strike-%E4%B8%80-CS%E7%9A%84%E5%9F%BA%E7%A1%80%E5%92%8C%E4%BB%8B%E7%BB%8D/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/03/04/docker%E5%9F%BA%E7%A1%80%E7%AF%87-%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&text=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&is_video=false&description=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网安全学习从入门到入狱-知识-内网基础知识&body=Check out this article: https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&name=内网安全学习从入门到入狱-知识-内网基础知识&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&t=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#内网安全学习从入门到入狱-知识-内网基础知识"><span class="toc-number">1.</span> <span class="toc-text">内网安全学习从入门到入狱-知识-内网基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网渗透基础"><span class="toc-number">1.1.</span> <span class="toc-text">内网渗透基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本的名词介绍"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本的名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#工作组"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#活动目录（AD）"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DC-域控制器（DC）"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">DC 域控制器（DC）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS域名服务器"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">DNS域名服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全域的划分"><span class="toc-number">1.1.2.</span> <span class="toc-text">安全域的划分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DMZ是什么？"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">DMZ是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域中有哪些电脑？"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">域中有哪些电脑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#域内的权限分类"><span class="toc-number">1.1.3.</span> <span class="toc-text">域内的权限分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#域本地组"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">域本地组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局组"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">全局组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通用组"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">通用组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-G-DL-P-策略"><span class="toc-number">1.1.4.</span> <span class="toc-text">A-G-DL-P 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用本地域组的权限"><span class="toc-number">1.1.5.</span> <span class="toc-text">常用本地域组的权限</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        内网安全学习从入门到入狱-知识-内网基础知识
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-03-06T02:19:05.000Z" itemprop="datePublished">2020-03-06</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/">内网安全研究</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<h1 id="内网安全学习从入门到入狱-知识-内网基础知识"><a href="#内网安全学习从入门到入狱-知识-内网基础知识" class="headerlink" title="内网安全学习从入门到入狱-知识-内网基础知识"></a>内网安全学习从入门到入狱-知识-内网基础知识</h1><p>@[toc]</p>
+<h2 id="内网渗透基础"><a href="#内网渗透基础" class="headerlink" title="内网渗透基础"></a>内网渗透基础</h2><ul>
+<li>首先本文章基本上学习笔记</li>
+<li></li>
+</ul>
+<hr>
+<h3 id="基本的名词介绍"><a href="#基本的名词介绍" class="headerlink" title="基本的名词介绍"></a>基本的名词介绍</h3><h4 id="工作组"><a href="#工作组" class="headerlink" title="工作组"></a>工作组</h4><ul>
+<li>工作组(Work Group)是最常见最简单最普通的资源管理模式，就是将不同的电脑按功能分别列入不同的组中，以方便管理。</li>
+<li>工作组简单来说就是计算机在一个局域网中的的一个圈子，这个圈子大家都是平等的，想来就来想走就走，基本上没有什么约束，自我感觉就是一个组织的名称而已没有什么管理功能。</li>
+</ul>
+<hr>
+<h4 id="域"><a href="#域" class="headerlink" title="域"></a>域</h4><ul>
+<li><p>域是一个有安全边界的计算机集合,在同一个域中的计算机, <em>计算机域</em>彼此之间已经建立了信任关系,在域内访问其他机器,不再需要被访问机器的许可。</p>
+</li>
+<li><p>和工作组比较，相当于加入了管理功能，有一些身份验证的功能，更加智能和安全</p>
+</li>
+</ul>
+<hr>
+<h4 id="活动目录（AD）"><a href="#活动目录（AD）" class="headerlink" title="活动目录（AD）"></a>活动目录（AD）</h4><ul>
+<li>活动目录（Active Directory，AD）是指域环境中提供目录服务的组件</li>
+<li>活动目录主要提供以下功能。<br> 账号集中管理：所有账号均存储在服务器上，以便对账号进行重置命令/重置密码等。<br> 软件集中管理：统一推送软件、安装网络打印机等。利用软件发布策略分发软件，可以让<br>用户自由选择要安装的软件。<br> 环境集中管理：统一客户端桌面、IE、TCP/IP 协议等的设置。<br> 增强安全性：统一部署杀毒软件和扫毒任务、集中管理用户的计算机权限、统一制订用户<br>密码策略等。可以监控网络，对资料进行统一管理。<br> 更可靠，更短的宕机时间：例如，利用活动目录控制用户访问权限，利用群集、负载均衡<br>等技术对文件服务器进行容灾设定。更可靠，宕机时间更短。</li>
+</ul>
+<hr>
+<h4 id="DC-域控制器（DC）"><a href="#DC-域控制器（DC）" class="headerlink" title="DC 域控制器（DC）"></a>DC 域控制器（DC）</h4><ul>
+<li><p>域控制器( Domain controller，DC)是活动目录的存储位置,安装了活动目录（AD）的计算机称为域控制器。在第一次安装活动目录时,安装活动目录的那台计算机就成为域控制器,简称“域控”</p>
+</li>
+<li><p>是一个域中的一台类似管理员一台机子，域控制器负责每一台联入的计算机和用户的验证工作，可以控制域中的计算机，鉴别是不是我们域中的机子。</p>
+</li>
+</ul>
+<hr>
+<h4 id="DNS域名服务器"><a href="#DNS域名服务器" class="headerlink" title="DNS域名服务器"></a>DNS域名服务器</h4><ul>
+<li><p>DNS（Domain Name Server，域名服务器）是进行域名(domain name)和与之相对应的IP地址 (IP address)转换的服务器。DNS中保存了一张域名(domain name)和与之相对应的IP地址 (IP address)的表，以解析消息的域名。 域名是Internet上某一台计算机或计算机组的名称，用于在数据传输时标识计算机的电子方位（有时也指地理位置）。域名是由一串用点分隔的名字组成的，通常包含组织名，而且始终包括两到三个字母的后缀，以指明组织的类型或该域所在的国家或地区</p>
+</li>
+<li><p>一般情况下DC和DNS是一个服务器</p>
+</li>
+</ul>
+<hr>
+<h3 id="安全域的划分"><a href="#安全域的划分" class="headerlink" title="安全域的划分"></a>安全域的划分</h3><h4 id="DMZ是什么？"><a href="#DMZ是什么？" class="headerlink" title="DMZ是什么？"></a>DMZ是什么？</h4><p>英文全名“Demilitarized Zone”，中文含义是“隔离区”。在安全领域的具体含义是“内外网防火墙之间的区域”。</p>
+<p>俗称非军事化区</p>
+<p>最主要的知识点，访问控制的情况：</p>
+<ol>
+<li>内网可以访问外网：内网用户访问外网，内网的人也是要上网办公的。</li>
+<li>内网可以访问 DMZ：也得管理自己的网站邮箱服务器</li>
+<li>外网不能访问内网</li>
+<li>外网可以访问DMZ：DMZ中的服务器需要为外界提供服务</li>
+<li>DMZ 不能访问内网</li>
+<li>DMZ 不能访问外网，这个也是不一定，有些服务也是需要访问的，所以这个看情况</li>
+</ol>
+<hr>
+<h4 id="域中有哪些电脑？"><a href="#域中有哪些电脑？" class="headerlink" title="域中有哪些电脑？"></a>域中有哪些电脑？</h4><p>域控制器：DC一般是一个或者两个</p>
+<p>成员服务器：域控底下没有按照AD的普通电脑</p>
+<p>客户机：有一些办公的电脑，例如运维的电脑</p>
+<p>独立的服务器：在一个网里面，但是没加入域环境</p>
+<hr>
+<h3 id="域内的权限分类"><a href="#域内的权限分类" class="headerlink" title="域内的权限分类"></a>域内的权限分类</h3><h4 id="域本地组"><a href="#域本地组" class="headerlink" title="域本地组"></a>域本地组</h4><p>单个域里面自己指派屋多个域来访问，就是把我自己本域的资源授权别人，但是只能在本地使用，只有自己是特权</p>
+<p>全林 干 我</p>
+<h4 id="全局组"><a href="#全局组" class="headerlink" title="全局组"></a>全局组</h4><p>Donain Admin是最大全局组</p>
+<p>单域用户访问多域资源（必须是同一个域里面的用户），我就是域管理员。</p>
+<p>本域 干 全林</p>
+<h4 id="通用组"><a href="#通用组" class="headerlink" title="通用组"></a>通用组</h4><p>通用组成员来自域森林中任何域的用户</p>
+<p>账户非常适于域森林中的跨域访问</p>
+<p>全林 干 全林</p>
+<hr>
+<h3 id="A-G-DL-P-策略"><a href="#A-G-DL-P-策略" class="headerlink" title="A-G-DL-P 策略"></a>A-G-DL-P 策略</h3><p>常用的策略形式</p>
+<ul>
+<li>A（Account）表示用户账号。</li>
+<li>G（Global Group）表示全局组。</li>
+<li>U（Universal Group）表示通用组。</li>
+<li>DL（Domain Local Group）表示域本地组。</li>
+<li>P（Permission，许可）表示资源权限。</li>
+<li>按照 A-G-DL-P 策略对用户进行组织和管理会更容易</li>
+<li>A-G-DL-P 策略是指，将用户账号添加到全局组中，将全局组添加到域本地组中，然后为域本<br>地组分配资源权限。</li>
+</ul>
+<hr>
+<h3 id="常用本地域组的权限"><a href="#常用本地域组的权限" class="headerlink" title="常用本地域组的权限"></a>常用本地域组的权限</h3><p><strong>管理员组（Administrators）的成员可以完全不受限制地存取计算机/域的资源，最强组吧。</strong></p>
+<p>备份操作员组（Backup Operators）的成员可以在域控制器上执行备份和还原操作，并可以<br>在本地登录和关闭域控制器。</p>
+<p>远程登录组（Remote Desktop Users）的成员被授予远程登录的权限</p>
+<p><strong>域管理员组（Domain Admins）的成员在所有加入域的服务器和工作站、域控制器和活动目</strong><br><strong>录上均默认拥有完整的管理员权限。 我们俗称的域管理员。</strong></p>
+<p><strong>企业系统管理员组（Enterprise Admins）是域森林根域中的一个组。该组在域森林中的每个</strong><br><strong>域内都是 Administrators 组的成员，因此对所有域控制器都有完全访问权</strong></p>
+<p>打印机操作员组（Print Operators）的成员可以管理网络打印机</p>
+<p>账号操作员组（Account Operators）的成员可以创建和管理该域中的用户和组，并可以设置<br>其权限</p>
+<p>域用户组（Domain Users）是所有域的成员</p>
+<hr>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#内网安全学习从入门到入狱-知识-内网基础知识"><span class="toc-number">1.</span> <span class="toc-text">内网安全学习从入门到入狱-知识-内网基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网渗透基础"><span class="toc-number">1.1.</span> <span class="toc-text">内网渗透基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本的名词介绍"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本的名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#工作组"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#活动目录（AD）"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DC-域控制器（DC）"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">DC 域控制器（DC）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS域名服务器"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">DNS域名服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全域的划分"><span class="toc-number">1.1.2.</span> <span class="toc-text">安全域的划分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DMZ是什么？"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">DMZ是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域中有哪些电脑？"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">域中有哪些电脑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#域内的权限分类"><span class="toc-number">1.1.3.</span> <span class="toc-text">域内的权限分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#域本地组"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">域本地组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局组"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">全局组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通用组"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">通用组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-G-DL-P-策略"><span class="toc-number">1.1.4.</span> <span class="toc-text">A-G-DL-P 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用本地域组的权限"><span class="toc-number">1.1.5.</span> <span class="toc-text">常用本地域组的权限</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&text=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&is_video=false&description=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网安全学习从入门到入狱-知识-内网基础知识&body=Check out this article: https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&name=内网安全学习从入门到入狱-知识-内网基础知识&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&t=内网安全学习从入门到入狱-知识-内网基础知识" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

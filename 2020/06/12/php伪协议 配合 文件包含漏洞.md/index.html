@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on  默认开启   allow_url_include：om  默认关闭  PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php伪协议 配合 文件包含漏洞.md">
+<meta property="og:url" content="https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on  默认开启   allow_url_include：om  默认关闭  PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMjEyMjMucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzQ5MjIucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzQ5NDgucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDA0MjEucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzU3NTgucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDAxMDkucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDA1MjMucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDE0MjIucG5n?x-oss-process=image/format,png">
+<meta property="article:published_time" content="2020-06-11T16:39:32.000Z">
+<meta property="article:modified_time" content="2020-07-03T03:53:42.554Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMjEyMjMucG5n?x-oss-process=image/format,png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>php伪协议 配合 文件包含漏洞.md</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/06/23/Linux%20%E5%86%85%E7%BD%91%E6%9C%AC%E6%9C%BA%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E9%80%9F%E6%9F%A5/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/06/05/CVE-2020-0796_RCE%E6%BC%8F%E6%B4%9Eexp%E5%A4%8D%E7%8E%B0(%E9%9D%9E%E8%93%9D%E5%B1%8F)/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&text=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&is_video=false&description=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php伪协议 配合 文件包含漏洞.md&body=Check out this article: https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&name=php伪协议 配合 文件包含漏洞.md&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&t=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-起因"><span class="toc-number">1.</span> <span class="toc-text">0x00 起因</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-环境"><span class="toc-number">2.</span> <span class="toc-text">0x01 环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-具体的协议"><span class="toc-number">3.</span> <span class="toc-text">0x02 具体的协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#php-访问输入输出流"><span class="toc-number">3.1.</span> <span class="toc-text">php:&#x2F;&#x2F; 访问输入输出流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#php-filter-简介"><span class="toc-number">3.1.1.</span> <span class="toc-text">php:&#x2F;&#x2F;filter 简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php-input-协议"><span class="toc-number">3.1.2.</span> <span class="toc-text">php:&#x2F;&#x2F;input 协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#file-协议"><span class="toc-number">3.2.</span> <span class="toc-text">file:&#x2F;&#x2F; 协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#data-协议"><span class="toc-number">3.3.</span> <span class="toc-text">data:&#x2F;&#x2F;协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zip-压缩协议"><span class="toc-number">3.4.</span> <span class="toc-text">zip:&#x2F;&#x2F;压缩协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-后记"><span class="toc-number">3.5.</span> <span class="toc-text">0x04 后记</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        php伪协议 配合 文件包含漏洞.md
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-06-11T16:39:32.000Z" itemprop="datePublished">2020-06-12</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<h1 id="0x00-起因"><a href="#0x00-起因" class="headerlink" title="0x00 起因"></a>0x00 起因</h1><p>被问到了php的一伪协议</p>
+<p>后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番</p>
+<p>又感觉自己学了半天不知道自己在干嘛。。。哎。。。</p>
+<h1 id="0x01-环境"><a href="#0x01-环境" class="headerlink" title="0x01 环境"></a>0x01 环境</h1><p>PHP版本：5.4.45</p>
+<p>PHP.ini：</p>
+<p>allow_url_fopen ：on  默认开启  </p>
+<p>allow_url_include：om  默认关闭</p>
+<p> PHP版本&lt;=5.2 可以使用%00进行截断，但是少有低版本的了。。。</p>
+<p>先站在前人的大肩膀看看总结 ，主要是两个选项的开关，实验我默认都开了</p>
+<p> freebuff上看到的</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMjEyMjMucG5n?x-oss-process=image/format,png" alt="img"></p>
+<h1 id="0x02-具体的协议"><a href="#0x02-具体的协议" class="headerlink" title="0x02 具体的协议"></a>0x02 具体的协议</h1><p>我的实验代码cmd.php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">include($_GET[&#39;file&#39;])</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="php-访问输入输出流"><a href="#php-访问输入输出流" class="headerlink" title="php:// 访问输入输出流"></a>php:// 访问输入输出流</h2><p>其中主要有两个协议：</p>
+<h3 id="php-filter-简介"><a href="#php-filter-简介" class="headerlink" title="php://filter 简介"></a>php://filter 简介</h3><p>PHP 过滤器用于对来自非安全来源的数据（比如用户输入）进行验证和过滤。</p>
+<p>在文件包含中常用到这个协议（因为文件包含的特性，只有包含php标签就会解析，就算是PHP后缀但是里面没有PHP标签也不会解析）</p>
+<p>所以如果想要读取运行php文件的源码，可以先base64编码，再传入include函数，这样就不会被认为是php文件，不会执行，会输出文件的base64编码，再解码即可。</p>
+<p>常用payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;cmd.php</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzQ5MjIucG5n?x-oss-process=image/format,png" alt="image-20200611234922747"></p>
+<p>解码即可</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzQ5NDgucG5n?x-oss-process=image/format,png" alt="image-20200611234948231"></p>
+<h3 id="php-input-协议"><a href="#php-input-协议" class="headerlink" title="php://input 协议"></a>php://input 协议</h3><p>这个协议的利用方法是 :</p>
+<p>将要执行的语法php代码写在post中提交，只写代码即可。</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDA0MjEucG5n?x-oss-process=image/format,png" alt="image-20200612000421438"></p>
+<h2 id="file-协议"><a href="#file-协议" class="headerlink" title="file:// 协议"></a>file:// 协议</h2><p>file:// 用于访问本地文件系统，</p>
+<p>不受allow_url_fopen与allow_url_include的影响</p>
+<p>注意需要绝对路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file:&#x2F;&#x2F;文件的绝对路径和文件名</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzU3NTgucG5n?x-oss-process=image/format,png" alt="image-20200611235758574"></p>
+<h2 id="data-协议"><a href="#data-协议" class="headerlink" title="data://协议"></a>data://协议</h2><p>data://协议需要满足双on条件</p>
+<p><strong>PHP.ini：</strong></p>
+<p>data://协议必须双在on才能正常使用；</p>
+<p>allow_url_fopen ：on</p>
+<p>allow_url_include：on</p>
+<p>利用payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cmd.php?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,&lt;?php phpinfo()?&gt;</span><br><span class="line">cmd.php?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain;base64,PD9waHAgcGhwaW5mbygpPz4&#x3D;</span><br><span class="line">cmd.php?file&#x3D;data:text&#x2F;plain,&lt;?php phpinfo()?&gt;</span><br><span class="line">cmd.php?file&#x3D;data:text&#x2F;plain;base64,PD9waHAgcGhwaW5mbygpPz4&#x3D;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDAxMDkucG5n?x-oss-process=image/format,png" alt="image-20200612000109840"></p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDA1MjMucG5n?x-oss-process=image/format,png" alt="image-20200612000523051"></p>
+<h2 id="zip-压缩协议"><a href="#zip-压缩协议" class="headerlink" title="zip://压缩协议"></a>zip://压缩协议</h2><p>条件：</p>
+<p>需要绝对路径</p>
+<p>allow_url_fopen ：off/on 任意</p>
+<p>allow_url_include：off/on 任意</p>
+<p>zip://, bzip2://, zlib:// 均属于压缩流，可以访问压缩文件中的子文件</p>
+<p>要点：不需要指定后缀名也可以利用</p>
+<p>我只实验了zip协议</p>
+<p>利用的时候：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file&#x3D;zip:&#x2F;&#x2F;绝对路径#压缩文件内的子文件名</span><br></pre></td></tr></table></figure>
+
+<p>只能传入绝对路径。</p>
+<p>要用#分隔压缩包和压缩包里的内容，并且#要用url编码%23</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;cmd.php?file&#x3D;zip:&#x2F;&#x2F;&#x2F;Applications&#x2F;MAMP&#x2F;htdocs&#x2F;xieyi.zip%23sd.php</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDE0MjIucG5n?x-oss-process=image/format,png" alt="image-20200612001422357"></p>
+<h2 id="0x04-后记"><a href="#0x04-后记" class="headerlink" title="0x04 后记"></a>0x04 后记</h2><p>留下了菜的泪水，发现学的有点杂，但是有些东西学的不到位吧。<br>纯自学有时候有点迷啊，学的乱七八糟的。<br>而且也是醉了，最近不过脑子，把二进制的坏字符串到web里面了。。。<br>还有几个协议没写完，先把常用的写了，后续补上</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-起因"><span class="toc-number">1.</span> <span class="toc-text">0x00 起因</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-环境"><span class="toc-number">2.</span> <span class="toc-text">0x01 环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-具体的协议"><span class="toc-number">3.</span> <span class="toc-text">0x02 具体的协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#php-访问输入输出流"><span class="toc-number">3.1.</span> <span class="toc-text">php:&#x2F;&#x2F; 访问输入输出流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#php-filter-简介"><span class="toc-number">3.1.1.</span> <span class="toc-text">php:&#x2F;&#x2F;filter 简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php-input-协议"><span class="toc-number">3.1.2.</span> <span class="toc-text">php:&#x2F;&#x2F;input 协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#file-协议"><span class="toc-number">3.2.</span> <span class="toc-text">file:&#x2F;&#x2F; 协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#data-协议"><span class="toc-number">3.3.</span> <span class="toc-text">data:&#x2F;&#x2F;协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zip-压缩协议"><span class="toc-number">3.4.</span> <span class="toc-text">zip:&#x2F;&#x2F;压缩协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-后记"><span class="toc-number">3.5.</span> <span class="toc-text">0x04 后记</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&text=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&is_video=false&description=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php伪协议 配合 文件包含漏洞.md&body=Check out this article: https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&title=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&name=php伪协议 配合 文件包含漏洞.md&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/&t=php伪协议 配合 文件包含漏洞.md" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

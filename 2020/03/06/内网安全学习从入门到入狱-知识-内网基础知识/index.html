@@ -6,17 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="内网安全学习从入门到入狱-知识-内网基础知识@[toc] 内网渗透基础 首先本文章基本上学习笔记    基本的名词介绍工作组 工作组(Work Group)是最常见最简单最普通的资源管理模式，就是将不同的电脑按功能分别列入不同的组中，以方便管理。 工作组简单来说就是计算机在一个局域网中的的一个圈子，这个圈子大家都是平等的，想来就来想走就走，基本上没有什么约束，自我感觉就是一个组织的名称而已没有">
+    <meta name="description" content="内网安全学习从入门到入狱-知识-内网基础知识文章目录 内网安全学习从入门到入狱-知识-内网基础知识  内网渗透基础  基本的名词介绍  工作组 域 活动目录（AD） DC 域控制器（DC） DNS域名服务器   安全域的划分  DMZ是什么？ 域中有哪些电脑？   域内的权限分类  域本地组 全局组 通用组   A-G-DL-P 策略  常用本地域组的权限       内网渗透基础 首先本">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网安全学习从入门到入狱-知识-内网基础知识">
 <meta property="og:url" content="https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="内网安全学习从入门到入狱-知识-内网基础知识@[toc] 内网渗透基础 首先本文章基本上学习笔记    基本的名词介绍工作组 工作组(Work Group)是最常见最简单最普通的资源管理模式，就是将不同的电脑按功能分别列入不同的组中，以方便管理。 工作组简单来说就是计算机在一个局域网中的的一个圈子，这个圈子大家都是平等的，想来就来想走就走，基本上没有什么约束，自我感觉就是一个组织的名称而已没有">
+<meta property="og:description" content="内网安全学习从入门到入狱-知识-内网基础知识文章目录 内网安全学习从入门到入狱-知识-内网基础知识  内网渗透基础  基本的名词介绍  工作组 域 活动目录（AD） DC 域控制器（DC） DNS域名服务器   安全域的划分  DMZ是什么？ 域中有哪些电脑？   域内的权限分类  域本地组 全局组 通用组   A-G-DL-P 策略  常用本地域组的权限       内网渗透基础 首先本">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-03-06T02:19:05.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.362Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:05.782Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -54,6 +55,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -116,7 +119,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#内网安全学习从入门到入狱-知识-内网基础知识"><span class="toc-number">1.</span> <span class="toc-text">内网安全学习从入门到入狱-知识-内网基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网渗透基础"><span class="toc-number">1.1.</span> <span class="toc-text">内网渗透基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本的名词介绍"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本的名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#工作组"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#活动目录（AD）"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DC-域控制器（DC）"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">DC 域控制器（DC）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS域名服务器"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">DNS域名服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全域的划分"><span class="toc-number">1.1.2.</span> <span class="toc-text">安全域的划分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DMZ是什么？"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">DMZ是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域中有哪些电脑？"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">域中有哪些电脑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#域内的权限分类"><span class="toc-number">1.1.3.</span> <span class="toc-text">域内的权限分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#域本地组"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">域本地组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局组"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">全局组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通用组"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">通用组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-G-DL-P-策略"><span class="toc-number">1.1.4.</span> <span class="toc-text">A-G-DL-P 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用本地域组的权限"><span class="toc-number">1.1.5.</span> <span class="toc-text">常用本地域组的权限</span></a></li></ol></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#内网安全学习从入门到入狱-知识-内网基础知识"><span class="toc-number">1.</span> <span class="toc-text">内网安全学习从入门到入狱-知识-内网基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文章目录"><span class="toc-number">1.0.1.</span> <span class="toc-text">文章目录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内网渗透基础"><span class="toc-number">1.1.</span> <span class="toc-text">内网渗透基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本的名词介绍"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本的名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#工作组"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#活动目录（AD）"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DC-域控制器（DC）"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">DC 域控制器（DC）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS域名服务器"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">DNS域名服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全域的划分"><span class="toc-number">1.1.2.</span> <span class="toc-text">安全域的划分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DMZ是什么？"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">DMZ是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域中有哪些电脑？"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">域中有哪些电脑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#域内的权限分类"><span class="toc-number">1.1.3.</span> <span class="toc-text">域内的权限分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#域本地组"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">域本地组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局组"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">全局组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通用组"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">通用组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-G-DL-P-策略"><span class="toc-number">1.1.4.</span> <span class="toc-text">A-G-DL-P 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用本地域组的权限"><span class="toc-number">1.1.5.</span> <span class="toc-text">常用本地域组的权限</span></a></li></ol></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -162,7 +165,44 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-<h1 id="内网安全学习从入门到入狱-知识-内网基础知识"><a href="#内网安全学习从入门到入狱-知识-内网基础知识" class="headerlink" title="内网安全学习从入门到入狱-知识-内网基础知识"></a>内网安全学习从入门到入狱-知识-内网基础知识</h1><p>@[toc]</p>
+
+
+<h1 id="内网安全学习从入门到入狱-知识-内网基础知识"><a href="#内网安全学习从入门到入狱-知识-内网基础知识" class="headerlink" title="内网安全学习从入门到入狱-知识-内网基础知识"></a>内网安全学习从入门到入狱-知识-内网基础知识</h1><h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><p><a href="#_0">内网安全学习从入门到入狱-知识-内网基础知识</a></p>
+<ul>
+<li><p><a href="#_3">内网渗透基础</a></p>
+<ul>
+<li><p><a href="#_10">基本的名词介绍</a></p>
+<ul>
+<li><a href="#_12">工作组</a></li>
+<li><a href="#_20">域</a></li>
+<li><a href="#AD_32">活动目录（AD）</a></li>
+<li><a href="#DC_DC_51">DC 域控制器（DC）</a></li>
+<li><a href="#DNS_63">DNS域名服务器</a></li>
+</ul>
+</li>
+<li><p><a href="#_73">安全域的划分</a></p>
+<ul>
+<li><a href="#DMZ_75">DMZ是什么？</a></li>
+<li><a href="#_94">域中有哪些电脑？</a></li>
+</ul>
+</li>
+<li><p><a href="#_106">域内的权限分类</a></p>
+<ul>
+<li><a href="#_108">域本地组</a></li>
+<li><a href="#_114">全局组</a></li>
+<li><a href="#_122">通用组</a></li>
+</ul>
+</li>
+<li><p><a href="#AGDLP__134">A-G-DL-P 策略</a></p>
+</li>
+<li><p><a href="#_153">常用本地域组的权限</a></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="内网渗透基础"><a href="#内网渗透基础" class="headerlink" title="内网渗透基础"></a>内网渗透基础</h2><ul>
 <li>首先本文章基本上学习笔记</li>
 <li></li>
@@ -174,7 +214,7 @@
 </ul>
 <hr>
 <h4 id="域"><a href="#域" class="headerlink" title="域"></a>域</h4><ul>
-<li><p>域是一个有安全边界的计算机集合,在同一个域中的计算机, <em>计算机域</em>彼此之间已经建立了信任关系,在域内访问其他机器,不再需要被访问机器的许可。</p>
+<li><p>域是一个有安全边界的计算机集合,在同一个域中的计算机, _计算机域_彼此之间已经建立了信任关系,在域内访问其他机器,不再需要被访问机器的许可。</p>
 </li>
 <li><p>和工作组比较，相当于加入了管理功能，有一些身份验证的功能，更加智能和安全</p>
 </li>
@@ -274,7 +314,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#内网安全学习从入门到入狱-知识-内网基础知识"><span class="toc-number">1.</span> <span class="toc-text">内网安全学习从入门到入狱-知识-内网基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网渗透基础"><span class="toc-number">1.1.</span> <span class="toc-text">内网渗透基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本的名词介绍"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本的名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#工作组"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#活动目录（AD）"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DC-域控制器（DC）"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">DC 域控制器（DC）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS域名服务器"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">DNS域名服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全域的划分"><span class="toc-number">1.1.2.</span> <span class="toc-text">安全域的划分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DMZ是什么？"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">DMZ是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域中有哪些电脑？"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">域中有哪些电脑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#域内的权限分类"><span class="toc-number">1.1.3.</span> <span class="toc-text">域内的权限分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#域本地组"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">域本地组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局组"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">全局组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通用组"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">通用组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-G-DL-P-策略"><span class="toc-number">1.1.4.</span> <span class="toc-text">A-G-DL-P 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用本地域组的权限"><span class="toc-number">1.1.5.</span> <span class="toc-text">常用本地域组的权限</span></a></li></ol></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#内网安全学习从入门到入狱-知识-内网基础知识"><span class="toc-number">1.</span> <span class="toc-text">内网安全学习从入门到入狱-知识-内网基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文章目录"><span class="toc-number">1.0.1.</span> <span class="toc-text">文章目录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内网渗透基础"><span class="toc-number">1.1.</span> <span class="toc-text">内网渗透基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本的名词介绍"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本的名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#工作组"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#活动目录（AD）"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DC-域控制器（DC）"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">DC 域控制器（DC）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS域名服务器"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">DNS域名服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全域的划分"><span class="toc-number">1.1.2.</span> <span class="toc-text">安全域的划分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DMZ是什么？"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">DMZ是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#域中有哪些电脑？"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">域中有哪些电脑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#域内的权限分类"><span class="toc-number">1.1.3.</span> <span class="toc-text">域内的权限分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#域本地组"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">域本地组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局组"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">全局组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通用组"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">通用组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-G-DL-P-策略"><span class="toc-number">1.1.4.</span> <span class="toc-text">A-G-DL-P 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用本地域组的权限"><span class="toc-number">1.1.5.</span> <span class="toc-text">常用本地域组的权限</span></a></li></ol></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

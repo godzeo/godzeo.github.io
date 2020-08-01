@@ -6,18 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="漏洞描述2020年1月10日，ThinkPHP团队发布一个补丁更新，修复了一处由不安全的SessionId导致的任意文件操作漏洞。该漏洞允许攻击者在目标环境启用session的条件下创建任意文件以及删除任意文件，在特定情况下还可以getshell。 具体受影响版ThinkPHP6.0.0-6.0.1。 环境准备&#x2F;tp60&#x2F;app&#x2F;middleware.php 文件开启session 去掉se">
+    <meta name="description" content="漏洞描述2020年1月10日，ThinkPHP团队发布一个补丁更新，修复了一处由不安全的SessionId导致的任意文件操作漏洞。该漏洞允许攻击者在目标环境启用session的条件下创建任意文件以及删除任意文件，在特定情况下还可以getshell。 具体受影响版ThinkPHP6.0.0-6.0.1。 环境准备&#x2F;tp60&#x2F;app&#x2F;middleware.php 文件开启session 去掉s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ThinkPHP 6.0.1 漏洞分析（任意文件操作）">
 <meta property="og:url" content="https://godzeo.github.io/2020/02/12/ThinkPHP%206.0.1%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%EF%BC%89/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="漏洞描述2020年1月10日，ThinkPHP团队发布一个补丁更新，修复了一处由不安全的SessionId导致的任意文件操作漏洞。该漏洞允许攻击者在目标环境启用session的条件下创建任意文件以及删除任意文件，在特定情况下还可以getshell。 具体受影响版ThinkPHP6.0.0-6.0.1。 环境准备&#x2F;tp60&#x2F;app&#x2F;middleware.php 文件开启session 去掉se">
+<meta property="og:description" content="漏洞描述2020年1月10日，ThinkPHP团队发布一个补丁更新，修复了一处由不安全的SessionId导致的任意文件操作漏洞。该漏洞允许攻击者在目标环境启用session的条件下创建任意文件以及删除任意文件，在特定情况下还可以getshell。 具体受影响版ThinkPHP6.0.0-6.0.1。 环境准备&#x2F;tp60&#x2F;app&#x2F;middleware.php 文件开启session 去掉s">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200212175854419.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2020-02-12T10:03:48.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.493Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:05.895Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -56,6 +57,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -165,28 +168,29 @@
     <a id="more"></a>
 
 
+
 <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>2020年1月10日，ThinkPHP团队发布一个补丁更新，修复了一处由不安全的SessionId导致的任意文件操作漏洞。该漏洞允许攻击者在目标环境启用session的条件下创建任意文件以及删除任意文件，在特定情况下还可以getshell。</p>
 <h4 id="具体受影响版"><a href="#具体受影响版" class="headerlink" title="具体受影响版"></a>具体受影响版</h4><p>ThinkPHP6.0.0-6.0.1。</p>
 <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>/tp60/app/middleware.php 文件开启session</p>
 <p>去掉se注释session的</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// 全局中间件定义文件</span></span><br><span class="line"><span class="keyword">return</span> [</span><br><span class="line">    <span class="comment">// 全局请求缓存</span></span><br><span class="line">    <span class="comment">// \think\middleware\CheckRequestCache::class,</span></span><br><span class="line">    <span class="comment">// 多语言加载</span></span><br><span class="line">    <span class="comment">// \think\middleware\LoadLangPack::class,</span></span><br><span class="line">    <span class="comment">// Session初始化</span></span><br><span class="line">    \think\middleware\SessionInit::class</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
 
-
-<p>tp5/public/index.php  在控制器中加入测试session的代码</p>
+<p>tp5/public/index.php 在控制器中加入测试session的代码</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">test1</span><span class="params">()</span></span>&#123;</span><br><span class="line">        $sid =$_POST[<span class="string">'key'</span>];</span><br><span class="line">        session(<span class="string">'zeo'</span>,$sid);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">666</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
 <p>意思是获取一个key设置写入session中<br>注：使用thinkphp6 最好使用高版本 的php</p>
 <h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>首先这个洞，我理解是sessionid为进行效验，可以导致传入任意字符，例如xxx.php。而且一般来说sessionid会作为文件名创建对应的文件保存。这是第一步我们的已经实现文件可控，如果session文件再往里面写东西要是可控的话，这样不就可以getshell了，所以我构造了上面的控制器。</p>
-<p>漏洞首先出现的地方是  sessionid可控<br>tp6/vendor/topthink/framework/src/think/session/Store.php<br>121行</p>
+<p>漏洞首先出现的地方是 sessionid可控<br>tp6/vendor/topthink/framework/src/think/session/Store.php<br>121行</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * session_id设置</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@access</span> public</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> string $id session_id</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> void</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setId</span><span class="params">($id = null)</span>: <span class="title">void</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;id = is_string($id) &amp;&amp; strlen($id) === <span class="number">32</span> ? $id : md5(microtime(<span class="keyword">true</span>) . session_create_id());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>sessionid的设置的时候 为进行效验，只要是32位的就可以</p>
-<p>同一个文件看一下session保存<br>tp6/vendor/topthink/framework/src/think/session/Store.php  254行</p>
+<p>同一个文件看一下session保存<br>tp6/vendor/topthink/framework/src/think/session/Store.php 254行</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 保存session数据</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@access</span> public</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> void</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">save</span><span class="params">()</span>: <span class="title">void</span></span></span><br><span class="line"><span class="function">   </span>&#123;</span><br><span class="line">       <span class="keyword">$this</span>-&gt;clearFlashData();</span><br><span class="line"></span><br><span class="line">       $sessionId = <span class="keyword">$this</span>-&gt;getId();</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (!<span class="keyword">empty</span>(<span class="keyword">$this</span>-&gt;data)) &#123;</span><br><span class="line">           $data = <span class="keyword">$this</span>-&gt;serialize(<span class="keyword">$this</span>-&gt;data);</span><br><span class="line"></span><br><span class="line">           <span class="keyword">$this</span>-&gt;handler-&gt;write($sessionId, $data);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">$this</span>-&gt;handler-&gt;delete($sessionId);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">$this</span>-&gt;init = <span class="keyword">false</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
-<p>先获取session id  然后是  <code>$this-&gt;handler-&gt;write($sessionId, $data);;</code><br>在跟进一下handler<br>只有一个构造函数的初始化 变成一个 SessionHandlerInterface $handler</p>
+<p>先获取session id 然后是 <code>$this-&gt;handler-&gt;write($sessionId, $data);;</code><br>在跟进一下handler<br>只有一个构造函数的初始化 变成一个 SessionHandlerInterface $handler</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($name, SessionHandlerInterface $handler, array $serialize = null)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;name    = $name;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;handler = $handler;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">empty</span>($serialize)) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;serialize = $serialize;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;setId();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-
-<p>tp6/vendor/topthink/framework/src/think/middleware/SessionInit.php<br>这里获取到 PHPSESSID 的值  session id传入</p>
+<p>tp6/vendor/topthink/framework/src/think/middleware/SessionInit.php<br>这里获取到 PHPSESSID 的值 session id传入</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ($varSessionId &amp;&amp; $request-&gt;request($varSessionId)) &#123;</span><br><span class="line">          $sessionId = $request-&gt;request($varSessionId);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          $sessionId = $request-&gt;cookie($cookieName);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ($sessionId) &#123;</span><br><span class="line">          <span class="keyword">$this</span>-&gt;session-&gt;setId($sessionId);</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$request-&gt;cookie($cookieName);这个里面看一下</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> $name = <span class="string">'PHPSESSID'</span>; 发现是这个参数</span><br><span class="line"></span><br><span class="line">所以这个值就从PHPSESSID传就好了</span><br></pre></td></tr></table></figure>
@@ -194,8 +198,10 @@
 <p>然后传入Store 中 setId(）函数判断，值检查了32位 就是第一个说的地方</p>
 <p>最后保存session数据 在代码tp6/vendor/topthink/framework/src/think/session/Store.php<br>跟进这个write方法</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">$this</span>-&gt;handler-&gt;write($sessionId, $data);</span><br><span class="line">这里的 handler 是  继承的think\session\driver\file.php</span><br></pre></td></tr></table></figure>
+
 <p>跟进这个write方法<br>tp6/vendor/topthink/framework/src/think/session/driver/File.php</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">write</span><span class="params">(string $sessID, string $sessData)</span>: <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $filename = <span class="keyword">$this</span>-&gt;getFileName($sessID, <span class="keyword">true</span>);</span><br><span class="line">        $data     = $sessData;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;config[<span class="string">'data_compress'</span>] &amp;&amp; function_exists(<span class="string">'gzcompress'</span>)) &#123;</span><br><span class="line">            <span class="comment">//数据压缩</span></span><br><span class="line">            $data = gzcompress($data, <span class="number">3</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;writeFile($filename, $data);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
 <p>这里有文件名的处理</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getFileName($sessID, <span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
 
@@ -204,6 +210,7 @@
 <p>文件名只进行了路径拼接和加前缀</p>
 <p>数据压缩没啥用 跟进 <code>$this-&gt;writeFile($filename, $data);</code></p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">writeFile</span><span class="params">($path, $content)</span>: <span class="title">bool</span></span></span><br><span class="line"><span class="function">   </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> (bool) file_put_contents($path, $content, LOCK_EX);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
 <p>直接写入了。这样就出现问题了，文件名可控，XXX.php 里面的内容是序列化之后的，但是可控制话也说直接getshell</p>
 <h2 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h2><p>根据我写的控制器<br>构造数据包</p>
 <p>注意 session PHPSESSID= 后面要按照要求必须 32位 可以随便构造</p>
@@ -215,8 +222,6 @@
 <h2 id="修复方法"><a href="#修复方法" class="headerlink" title="修复方法"></a>修复方法</h2><p>官方也给出方案</p>
 <p>对session id 加一个过滤 使用 ctype_alnum（）</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">$this</span>-&gt;id = is_string($id) &amp;&amp; strlen($id) === <span class="number">32</span> ctype_alnum（$id） &amp;&amp; ? $id : md5(microtime(<span class="keyword">true</span>) . session_create_id());</span><br></pre></td></tr></table></figure>
-
-
   </div>
 </article>
 

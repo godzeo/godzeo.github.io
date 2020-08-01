@@ -6,19 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="@TOC 0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给lsass进程，这个进程中会存一份明文密码，将明文密码加密成NTLM Hash，和SAM数据库比较认证。  注：  winlogon.exe（Windows Logon Process），用于管理用户登录和退出。 LSASS用于微软Windows系统的安全机制，它用于本地安全和登陆策略。  0x02 网络认证">
+    <meta name="description" content="NTML认证流程和PTH原理. 0x01 本地认证流程  0x02 网络认证  LM Hash和NTML Hash NTLM Hash NTLM V2协议   0x03 NTLM 认证  0x04 Pass The Hash （PTH）原理  主要作用： 前提： 原理： 使用方法： 绕过补丁，进行哈希传递    0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给ls">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网安全:NTML认证流程和PTH原理">
 <meta property="og:url" content="https://godzeo.github.io/2020/05/14/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!NTML%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E5%92%8CPTH%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="@TOC 0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给lsass进程，这个进程中会存一份明文密码，将明文密码加密成NTLM Hash，和SAM数据库比较认证。  注：  winlogon.exe（Windows Logon Process），用于管理用户登录和退出。 LSASS用于微软Windows系统的安全机制，它用于本地安全和登陆策略。  0x02 网络认证">
+<meta property="og:description" content="NTML认证流程和PTH原理. 0x01 本地认证流程  0x02 网络认证  LM Hash和NTML Hash NTLM Hash NTLM V2协议   0x03 NTLM 认证  0x04 Pass The Hash （PTH）原理  主要作用： 前提： 原理： 使用方法： 绕过补丁，进行哈希传递    0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给ls">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3MzQucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3NTcucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-05-14T05:41:28.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.355Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:03.895Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -57,6 +58,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -119,7 +122,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-本地认证流程"><span class="toc-number">1.</span> <span class="toc-text">0x01 本地认证流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-网络认证"><span class="toc-number">2.</span> <span class="toc-text">0x02 网络认证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LM-Hash和NTML-Hash"><span class="toc-number">2.1.</span> <span class="toc-text">LM Hash和NTML Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-Hash"><span class="toc-number">2.2.</span> <span class="toc-text">NTLM Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-V2协议"><span class="toc-number">2.3.</span> <span class="toc-text">NTLM V2协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-NTLM-认证"><span class="toc-number">3.</span> <span class="toc-text">0x03 NTLM 认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Pass-The-Hash-（PTH）原理"><span class="toc-number">4.</span> <span class="toc-text">0x04 Pass The Hash （PTH）原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主要作用："><span class="toc-number">4.1.</span> <span class="toc-text">主要作用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#前提："><span class="toc-number">4.2.</span> <span class="toc-text">前提：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理："><span class="toc-number">4.3.</span> <span class="toc-text">原理：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用方法："><span class="toc-number">4.4.</span> <span class="toc-text">使用方法：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绕过补丁，进行哈希传递"><span class="toc-number">4.5.</span> <span class="toc-text">绕过补丁，进行哈希传递</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#NTML认证流程和PTH原理"><span class="toc-number">1.</span> <span class="toc-text">NTML认证流程和PTH原理.</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-本地认证流程"><span class="toc-number"></span> <span class="toc-text">0x01 本地认证流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-网络认证"><span class="toc-number"></span> <span class="toc-text">0x02 网络认证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LM-Hash和NTML-Hash"><span class="toc-number">1.</span> <span class="toc-text">LM Hash和NTML Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-Hash"><span class="toc-number">2.</span> <span class="toc-text">NTLM Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-V2协议"><span class="toc-number">3.</span> <span class="toc-text">NTLM V2协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-NTLM-认证"><span class="toc-number"></span> <span class="toc-text">0x03 NTLM 认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Pass-The-Hash-（PTH）原理"><span class="toc-number"></span> <span class="toc-text">0x04 Pass The Hash （PTH）原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主要作用："><span class="toc-number">1.</span> <span class="toc-text">主要作用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#前提："><span class="toc-number">2.</span> <span class="toc-text">前提：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理："><span class="toc-number">3.</span> <span class="toc-text">原理：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用方法："><span class="toc-number">4.</span> <span class="toc-text">使用方法：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绕过补丁，进行哈希传递"><span class="toc-number">5.</span> <span class="toc-text">绕过补丁，进行哈希传递</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -166,7 +169,29 @@
     <a id="more"></a>
 
 
-<p>@<a href="NTML认证流程和PTH原理.">TOC</a></p>
+
+<h3 id="NTML认证流程和PTH原理"><a href="#NTML认证流程和PTH原理" class="headerlink" title="NTML认证流程和PTH原理."></a>NTML认证流程和PTH原理.</h3><ul>
+<li><p><a href="#0x01__3">0x01 本地认证流程</a></p>
+</li>
+<li><p><a href="#0x02__26">0x02 网络认证</a></p>
+<ul>
+<li><a href="#LM_HashNTML_Hash_32">LM Hash和NTML Hash</a></li>
+<li><a href="#NTLM_Hash_38">NTLM Hash</a></li>
+<li><a href="#NTLM_V2_73">NTLM V2协议</a></li>
+</ul>
+</li>
+<li><p><a href="#0x03_NTLM__87">0x03 NTLM 认证</a></p>
+</li>
+<li><p><a href="#0x04_Pass_The_Hash_PTH_105">0x04 Pass The Hash （PTH）原理</a></p>
+<ul>
+<li><a href="#_107">主要作用：</a></li>
+<li><a href="#_113">前提：</a></li>
+<li><a href="#_122">原理：</a></li>
+<li><a href="#_132">使用方法：</a></li>
+<li><a href="#_140">绕过补丁，进行哈希传递</a></li>
+</ul>
+</li>
+</ul>
 <h2 id="0x01-本地认证流程"><a href="#0x01-本地认证流程" class="headerlink" title="0x01 本地认证流程"></a>0x01 本地认证流程</h2><p>操作系统会显示登录界面，接收输入密码后，将密码交给lsass进程，这个进程中会存一份明文密码，将明文密码加密成NTLM Hash，和SAM数据库比较认证。</p>
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3MzQucG5n?x-oss-process=image/format,png" alt="image-20200514133734007"></p>
 <p>注：</p>
@@ -181,10 +206,6 @@
 
 <p>例如：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">admin -&gt; hex(16进制编码) &#x3D; 61646d696e</span><br><span class="line"></span><br><span class="line">61646d696e -&gt; Unicode &#x3D; 610064006d0069006e00</span><br><span class="line"></span><br><span class="line">610064006d0069006e00 -&gt; MD4 &#x3D; 209c6174da490caeb422f3fa5a7ae634</span><br></pre></td></tr></table></figure>
-
-
-
-
 
 <table>
 <thead>
@@ -260,8 +281,8 @@
 <h2 id="0x04-Pass-The-Hash-（PTH）原理"><a href="#0x04-Pass-The-Hash-（PTH）原理" class="headerlink" title="0x04 Pass The Hash （PTH）原理"></a>0x04 Pass The Hash （PTH）原理</h2><h3 id="主要作用："><a href="#主要作用：" class="headerlink" title="主要作用："></a>主要作用：</h3><p>哈希传递是能够在不需要账户明文密码的情况下完成认证的一个技术。</p>
 <h3 id="前提："><a href="#前提：" class="headerlink" title="前提："></a>前提：</h3><p>抓取管理员的密码、NTLM Hash</p>
 <ul>
-<li>认证的用户名  （质询第一步需要）</li>
-<li>认证用户的NTLM Hash </li>
+<li>认证的用户名 （质询第一步需要）</li>
+<li>认证用户的NTLM Hash</li>
 </ul>
 <h3 id="原理："><a href="#原理：" class="headerlink" title="原理："></a>原理：</h3><p>哈希传递就是伪造一个客户端，和正常的NTML认证一样</p>
 <p>只是我们用户名对应的NTLM Hash传递到其它主机，给出的 Chanllenge加密，生成一个Response，来完成认证。</p>
@@ -279,9 +300,7 @@
 <p>管理员权限运行mimikatz</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz &quot;privilege::debug&quot; &quot;sekurlsa::pth &#x2F;user:Administrator &#x2F;domain:zeo.com &#x2F;aes256:&lt;AES-256密钥&gt;&quot;</span><br></pre></td></tr></table></figure>
 
-
-
-<p>还有很多工具 MSF CS  impacket Smbexec </p>
+<p>还有很多工具 MSF CS impacket Smbexec</p>
 
   </div>
 </article>
@@ -311,7 +330,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-本地认证流程"><span class="toc-number">1.</span> <span class="toc-text">0x01 本地认证流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-网络认证"><span class="toc-number">2.</span> <span class="toc-text">0x02 网络认证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LM-Hash和NTML-Hash"><span class="toc-number">2.1.</span> <span class="toc-text">LM Hash和NTML Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-Hash"><span class="toc-number">2.2.</span> <span class="toc-text">NTLM Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-V2协议"><span class="toc-number">2.3.</span> <span class="toc-text">NTLM V2协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-NTLM-认证"><span class="toc-number">3.</span> <span class="toc-text">0x03 NTLM 认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Pass-The-Hash-（PTH）原理"><span class="toc-number">4.</span> <span class="toc-text">0x04 Pass The Hash （PTH）原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主要作用："><span class="toc-number">4.1.</span> <span class="toc-text">主要作用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#前提："><span class="toc-number">4.2.</span> <span class="toc-text">前提：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理："><span class="toc-number">4.3.</span> <span class="toc-text">原理：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用方法："><span class="toc-number">4.4.</span> <span class="toc-text">使用方法：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绕过补丁，进行哈希传递"><span class="toc-number">4.5.</span> <span class="toc-text">绕过补丁，进行哈希传递</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#NTML认证流程和PTH原理"><span class="toc-number">1.</span> <span class="toc-text">NTML认证流程和PTH原理.</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-本地认证流程"><span class="toc-number"></span> <span class="toc-text">0x01 本地认证流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-网络认证"><span class="toc-number"></span> <span class="toc-text">0x02 网络认证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LM-Hash和NTML-Hash"><span class="toc-number">1.</span> <span class="toc-text">LM Hash和NTML Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-Hash"><span class="toc-number">2.</span> <span class="toc-text">NTLM Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-V2协议"><span class="toc-number">3.</span> <span class="toc-text">NTLM V2协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-NTLM-认证"><span class="toc-number"></span> <span class="toc-text">0x03 NTLM 认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Pass-The-Hash-（PTH）原理"><span class="toc-number"></span> <span class="toc-text">0x04 Pass The Hash （PTH）原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主要作用："><span class="toc-number">1.</span> <span class="toc-text">主要作用：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#前提："><span class="toc-number">2.</span> <span class="toc-text">前提：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理："><span class="toc-number">3.</span> <span class="toc-text">原理：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用方法："><span class="toc-number">4.</span> <span class="toc-text">使用方法：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绕过补丁，进行哈希传递"><span class="toc-number">5.</span> <span class="toc-text">绕过补丁，进行哈希传递</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

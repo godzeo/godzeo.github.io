@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="进制的定义二进制：由两个符号组成，分别是0 、1  八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7  十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9 十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F 度量单位:1byte 字节 &#x3D; 8 bit 比特      char WORD &#x3D; 2 BYTE &#x3D; 16 bi">
+    <meta name="description" content="进制的定义二进制：由两个符号组成，分别是0 、1 八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7 十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9 十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F 度量单位:1byte 字节 &#x3D; 8 bit 比特 char WORD &#x3D; 2 BYTE &#x3D; 16 bit sho">
 <meta property="og:type" content="article">
 <meta property="og:title" content="二进制安全-汇编基础">
 <meta property="og:url" content="https://godzeo.github.io/2020/06/27/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8-%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="进制的定义二进制：由两个符号组成，分别是0 、1  八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7  十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9 十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F 度量单位:1byte 字节 &#x3D; 8 bit 比特      char WORD &#x3D; 2 BYTE &#x3D; 16 bi">
+<meta property="og:description" content="进制的定义二进制：由两个符号组成，分别是0 、1 八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7 十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9 十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F 度量单位:1byte 字节 &#x3D; 8 bit 比特 char WORD &#x3D; 2 BYTE &#x3D; 16 bit sho">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTAxODEzMDAucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTAxODIxNDIucG5n?x-oss-process=image/format,png">
@@ -20,9 +20,10 @@
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MjcxNjEyMjIucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTMyMzQwNTMucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-06-27T04:09:38.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.503Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:02.967Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -61,6 +62,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -169,13 +172,15 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-<h1 id="进制的定义"><a href="#进制的定义" class="headerlink" title="进制的定义"></a>进制的定义</h1><p>二进制：由两个符号组成，分别是0 、1 </p>
-<p>八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7 </p>
+
+
+<h1 id="进制的定义"><a href="#进制的定义" class="headerlink" title="进制的定义"></a>进制的定义</h1><p>二进制：由两个符号组成，分别是0 、1</p>
+<p>八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7</p>
 <p>十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9</p>
 <p>十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F</p>
-<h2 id="度量单位"><a href="#度量单位" class="headerlink" title="度量单位:"></a>度量单位:</h2><p>1byte 字节 = 8 bit 比特      char</p>
-<p>WORD = 2 BYTE = 16 bit       short  int</p>
-<p>DWORD = 4 BYTE  = 32 bit</p>
+<h2 id="度量单位"><a href="#度量单位" class="headerlink" title="度量单位:"></a>度量单位:</h2><p>1byte 字节 = 8 bit 比特 char</p>
+<p>WORD = 2 BYTE = 16 bit short int</p>
+<p>DWORD = 4 BYTE = 32 bit</p>
 <p>QWORD = 8 BYTE = 64 bit</p>
 <p>1kb = 1024 byte = 8192 bit</p>
 <p>1mb = 1024 kb</p>
@@ -257,21 +262,21 @@
 <p>EFLAGS寄存器的状态标志(0、2、4、6、7以及11位)指示算术指令（如ADD, SUB, MUL以及DIV指令）的结果，这些状态标志的作用如下：</p>
 <h2 id="内部数据类型"><a href="#内部数据类型" class="headerlink" title="内部数据类型"></a>内部数据类型</h2><p>整数</p>
 <ul>
-<li>BYTE 8位  </li>
+<li>BYTE 8位</li>
 <li>SBYTE 8位 有符号</li>
 <li>WORD 16位 符号</li>
 <li>SWORD 16位 有符号</li>
 <li>DWORD 32位 符号</li>
 <li>SDWORD 32位 有符号</li>
-<li>FWORD 48位  保护模式的远指针</li>
+<li>FWORD 48位 保护模式的远指针</li>
 <li>QWORD 64位 整数</li>
 <li>TBYTE 80位 整数</li>
 </ul>
 <p>实数</p>
 <ul>
-<li>REAL4 32位  短实数</li>
-<li>REAL8 64位   长实数</li>
-<li>REAL10 80位   扩展实数</li>
+<li>REAL4 32位 短实数</li>
+<li>REAL8 64位 长实数</li>
+<li>REAL10 80位 扩展实数</li>
 </ul>
 <p>伪指令</p>
 <ul>
@@ -297,18 +302,18 @@
 <h4 id="减"><a href="#减" class="headerlink" title="减"></a>减</h4><p>减法指令SUB<br>格式：SUB OPRD1,OPRD2</p>
 <p>功能：两个操作数的相减，即从OPRD1减去OPRD2，其结果放在OPRD1中，指令的类型及标识位的影响与ADD指令相同，注意立即数不能用于目的操作数，两个存储器操作数之间不能直接相减，操作数可为8位或16位的无符号数或符号数</p>
 <p>————————————————————————————————</p>
-<p> 带错位减法指令SBB</p>
+<p>带错位减法指令SBB</p>
 <p>格式：SBB OPRD1,OPRD2</p>
-<p>功能：进行两个操作数的相减再减去CF进位标志位，即从OPRD1 = OPRD1 - OPRD2  - CF,其结果放在OPRD1中</p>
+<p>功能：进行两个操作数的相减再减去CF进位标志位，即从OPRD1 = OPRD1 - OPRD2 - CF,其结果放在OPRD1中</p>
 <h4 id="乘"><a href="#乘" class="headerlink" title="乘"></a>乘</h4><p>无符号数指令MUL</p>
 <p>格式：MUL OPRD</p>
-<p>两个相乘数，要么都是8位，要么都是16位。   8位乘法，16位乘法。</p>
+<p>两个相乘数，要么都是8位，要么都是16位。 8位乘法，16位乘法。</p>
 <p>如果是8位，一个数字默认存放在al中，另外一个数字存放在其他8位寄存器中或者字节型内存单元中。</p>
-<p>mul 8位寄存器               ;结果存放在ax中</p>
+<p>mul 8位寄存器 ;结果存放在ax中</p>
 <p>如果是16位，一个数字默认存放在ax中，另外一个数字存放在其他16位寄存器中或者字型内存单元中。</p>
-<p>mul 16位寄存器             ;结果存放在dx, ax中</p>
-<p>8位乘法,得到一个16位数，  结果存放在ax中</p>
-<p>16位乘法，得到一个32位数，  低16位存放在ax中，高16位存放在dx中————————————————————————————————<br>带符号数指令IMUL</p>
+<p>mul 16位寄存器 ;结果存放在dx, ax中</p>
+<p>8位乘法,得到一个16位数， 结果存放在ax中</p>
+<p>16位乘法，得到一个32位数， 低16位存放在ax中，高16位存放在dx中————————————————————————————————<br>带符号数指令IMUL</p>
 <p>功能：乘法操作</p>
 <p>OPRD为通用寄存器或存储器操作数</p>
 <p>本指令会影响标志位CF及OF</p>
@@ -365,13 +370,13 @@
 <p>jmp eip</p>
 <h1 id="常用的JCC指令"><a href="#常用的JCC指令" class="headerlink" title="常用的JCC指令"></a>常用的JCC指令</h1><p>JMP：无条件跳转</p>
 <p>JZ/JE：ZF = 1（jump When Zero和jump When Equal） 等于0或相等</p>
-<p>JNZ（jump no Zero）与JNE（jump no Equals ）  ZF=0    不等于0或者不相等</p>
+<p>JNZ（jump no Zero）与JNE（jump no Equals ） ZF=0 不等于0或者不相等</p>
 <p>比较两个有符号数，高低用greater和less表示：</p>
-<p>JG  前&gt;后   Jump if  greater<br>JL   前&lt;后   Jump if  less</p>
+<p>JG 前&gt;后 Jump if greater<br>JL 前&lt;后 Jump if less</p>
 <p>JL=JNGE（jump if less,or not greater equal）</p>
 <p>JGB和JLE是用于比较带符号数的转移指专令：</p>
-<p>JGE 转移条件（Jump if  greater or equal）：JGE al, bl ；al里的带符号内容大于或等于bl时跳转。</p>
-<p>JLE 转移条件 （Jump if  less or equal）：JLE al, bl ；al里的带符号内容小于或等于属bl时跳转。</p>
+<p>JGE 转移条件（Jump if greater or equal）：JGE al, bl ；al里的带符号内容大于或等于bl时跳转。</p>
+<p>JLE 转移条件 （Jump if less or equal）：JLE al, bl ；al里的带符号内容小于或等于属bl时跳转。</p>
 <p>比较两个无符号数，高低用below或者above表示：</p>
 <p><strong>JBE/JNA(jump if below or equal,or not above)比较结果为&lt;=时转移</strong></p>
 <p>JBE/JNA：CF = 1/ZF = 1 低于等于或者不高于跳转</p>
@@ -388,7 +393,7 @@
 
 <h2 id="函数返回的步骤如下"><a href="#函数返回的步骤如下" class="headerlink" title="函数返回的步骤如下"></a>函数返回的步骤如下</h2><p>三步：</p>
 <p>（1）保存返回值：通常将函数的返回值保存在寄存器 EAX 中。</p>
-<p>（2）弹出当前栈帧，恢复上一个栈帧。 </p>
+<p>（2）弹出当前栈帧，恢复上一个栈帧。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">具体包括： </span><br><span class="line"></span><br><span class="line">在堆栈平衡的基础上，给 ESP 加上栈帧的大小，降低栈顶，回收当前栈帧的空间。 </span><br><span class="line"></span><br><span class="line">将当前栈帧底部保存的前栈帧 EBP 值弹入 EBP 寄存器，恢复出上一个栈帧。 </span><br><span class="line"></span><br><span class="line">将函数返回地址弹给 EIP 寄存器。</span><br></pre></td></tr></table></figure>
 
 <p>（3）跳转：按照函数返回地址跳回母函数中继续执行。</p>
@@ -396,20 +401,11 @@
 <h1 id="汇编练习，弹个框框"><a href="#汇编练习，弹个框框" class="headerlink" title="汇编练习，弹个框框"></a>汇编练习，弹个框框</h1><p>基础知识—-汇编代码结构</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.586    代表指令集</span><br><span class="line">.MODEL flat,stdcall    调用约定 内存 常用win32        </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">includelib  user32.lib</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">.data  已经定义数据段 可读可写</span><br><span class="line">.data?  未定义的数据段 可读可写</span><br><span class="line">.code	 代码段</span><br><span class="line">.const  常量数据段</span><br><span class="line">.stack  堆栈段 自动分配 可读可写可执行</span><br><span class="line"></span><br><span class="line">.data</span><br><span class="line">Number DWORD 0</span><br></pre></td></tr></table></figure>
 
-
-
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">.586</span><br><span class="line">.MODEL flat,stdcall</span><br><span class="line">option casemap:none</span><br><span class="line"></span><br><span class="line">include windows.inc</span><br><span class="line">include user32.inc</span><br><span class="line">include kernel32.inc</span><br><span class="line">includelib user32.lib</span><br><span class="line">includelib kernel32.lib</span><br><span class="line"></span><br><span class="line">.data</span><br><span class="line">text db &quot;zeo&quot;,0</span><br><span class="line"></span><br><span class="line">.code</span><br><span class="line">main proc</span><br><span class="line">	INVOKE MessageBox,0,offset text,0,0</span><br><span class="line">	INVOKE ExitProcess,0</span><br><span class="line">main ENDP</span><br><span class="line">END main</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTMyMzQwNTMucG5n?x-oss-process=image/format,png" alt="image-20200513234048034"></p>
 <p>格式化输入输出（printf scanf）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">.586</span><br><span class="line">.MODEL flat,stdcall</span><br><span class="line">option casemap:none</span><br><span class="line"></span><br><span class="line">include windows.inc</span><br><span class="line">include user32.inc</span><br><span class="line">include kernel32.inc</span><br><span class="line">include msvcrt.inc</span><br><span class="line"></span><br><span class="line">includelib user32.lib</span><br><span class="line">includelib kernel32.lib</span><br><span class="line">includelib msvcrt.lib</span><br><span class="line"> </span><br><span class="line">.data</span><br><span class="line">text db &quot;zeo&quot;,0</span><br><span class="line">Hello db &quot;HelleWord!&quot;,0</span><br><span class="line">szformat db &quot;%s&quot;,0</span><br><span class="line"></span><br><span class="line">.code</span><br><span class="line">main proc</span><br><span class="line">	lea eax,Hello</span><br><span class="line">	push eax</span><br><span class="line">	push offset szformat</span><br><span class="line">	call crt_scanf</span><br><span class="line">	add esp,8</span><br><span class="line">	push offset Hello</span><br><span class="line">	;push offset szformat</span><br><span class="line">	call crt_printf</span><br><span class="line">	add esp,4</span><br><span class="line">	call ExitProcess</span><br><span class="line">	add esp,4</span><br><span class="line">main ENDP</span><br><span class="line">END main</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
   </div>
 </article>
 

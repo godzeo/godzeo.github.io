@@ -6,19 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="因为之前52的安装教程贴被删除了所以我自己重新记录一下方便以后的使用也是自己用的环境 —-我用的是2019的ubantu和Xshell 下载地址https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;11238215里面有三个：： 一个安装包一个破解文件一个安装说明 ** 下面开始安装**  安装环境依赖（如果有问题先更新一下源）  root@kali:~# s">
+    <meta name="description" content="因为之前52的安装教程贴被删除了所以我自己重新记录一下方便以后的使用也是自己用的环境 -—我用的是2019的ubantu和Xshell 下载地址https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god\_zzz&#x2F;11238215里面有三个：： 一个安装包一个破解文件一个安装说明 ** 下面开始安装**  安装环境依赖（如果有问题先更新一下源）  root@kali:~#">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux版awvs最新版v_190325161的安装记录">
 <meta property="og:url" content="https://godzeo.github.io/2019/06/13/Linux%E7%89%88awvs%E6%9C%80%E6%96%B0%E7%89%88v_190325161%E7%9A%84%E5%AE%89%E8%A3%85%E8%AE%B0%E5%BD%95/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="因为之前52的安装教程贴被删除了所以我自己重新记录一下方便以后的使用也是自己用的环境 —-我用的是2019的ubantu和Xshell 下载地址https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;11238215里面有三个：： 一个安装包一个破解文件一个安装说明 ** 下面开始安装**  安装环境依赖（如果有问题先更新一下源）  root@kali:~# s">
+<meta property="og:description" content="因为之前52的安装教程贴被删除了所以我自己重新记录一下方便以后的使用也是自己用的环境 -—我用的是2019的ubantu和Xshell 下载地址https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god\_zzz&#x2F;11238215里面有三个：： 一个安装包一个破解文件一个安装说明 ** 下面开始安装**  安装环境依赖（如果有问题先更新一下源）  root@kali:~#">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190612172401116.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190612185624234.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-06-13T03:58:03.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.504Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:08.730Z">
 <meta property="article:author" content="Zeo">
-<meta property="article:tag" content="AWVS 破解 Linux 无限">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img-blog.csdnimg.cn/20190612172401116.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
     
@@ -53,6 +58,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -115,7 +122,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#下面开始安装"><span class="toc-number">1.</span> <span class="toc-text">下面开始安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#找到安装目录里面去"><span class="toc-number">2.</span> <span class="toc-text">找到安装目录里面去</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#必须在里面运行"><span class="toc-number">3.</span> <span class="toc-text">必须在里面运行</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#下面开始安装"><span class="toc-number">1.</span> <span class="toc-text">下面开始安装</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -148,16 +155,11 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/%E9%85%8D%E7%8E%AF%E5%A2%83/">配环境</a>
+        <a class="category-link" href="/categories/%E9%85%8D%E7%8E%AF%E5%A2%83AWVS%E7%A0%B4%E8%A7%A3Linux%E6%97%A0%E9%99%90/">配环境AWVS破解Linux无限</a>
     </div>
 
 
       
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/AWVS-%E7%A0%B4%E8%A7%A3-Linux-%E6%97%A0%E9%99%90/" rel="tag">AWVS 破解 Linux 无限</a>
-    </div>
-
 
     </div>
   </header>
@@ -167,60 +169,60 @@
     <a id="more"></a>
 
 
-<p>因为之前52的安装教程贴被删除了<br>所以我自己重新记录一下<br>方便以后的使用<br>也是自己用的环境 —-我用的是2019的ubantu和Xshell</p>
-<p>下载地址<a href="https://download.csdn.net/download/god_zzz/11238215" target="_blank" rel="noopener">https://download.csdn.net/download/god_zzz/11238215</a><br>里面有三个：： 一个安装包一个破解文件一个安装说明</p>
+
+<p>因为之前52的安装教程贴被删除了<br>所以我自己重新记录一下<br>方便以后的使用<br>也是自己用的环境 -—我用的是2019的ubantu和Xshell</p>
+<p>下载地址<a href="https://download.csdn.net/download/god\_zzz/11238215" target="_blank" rel="noopener">https://download.csdn.net/download/god\_zzz/11238215</a><br>里面有三个：： 一个安装包一个破解文件一个安装说明</p>
 <p>**</p>
 <h2 id="下面开始安装"><a href="#下面开始安装" class="headerlink" title="下面开始安装"></a>下面开始安装</h2><p>**</p>
 <ul>
 <li>安装环境依赖（如果有问题先更新一下源）</li>
 </ul>
-<p><code>root@kali:~# sudo apt-get install libxdamage1 libgtk-3-0 libasound2 libnss3 libxss1 -y</code></p>
+<p><code>root@kali:~# sudo apt-get install libxdamage1 libgtk-3-0 libasound2 libnss3 libxss1 \-y</code></p>
 <blockquote>
-<p>正在读取软件包列表… 完成 正在分析软件包的依赖关系树        正在读取状态信息… 完成        libxss1<br>已经是最新版 (1:1.2.3-1)。 libxss1 已设置为手动安装。 将会同时安装下列软件：   libasound2-data<br>libgtk-3-common libxdamage-dev 建议安装：   alsa-utils 下列软件包将被升级：<br>libasound2 libasound2-data libgtk-3-0 libgtk-3-common libnss3<br>libxdamage-dev libxdamage1 升级了 7 个软件包，新安装了 0 个软件包，要卸载 0 个软件包，有 1115<br>个软件包未被升级。 … … …</p>
+<p>正在读取软件包列表… 完成 正在分析软件包的依赖关系树 正在读取状态信息… 完成 libxss1<br>已经是最新版 (1:1.2.3-1)。 libxss1 已设置为手动安装。 将会同时安装下列软件： libasound2-data<br>libgtk-3-common libxdamage-dev 建议安装： alsa-utils 下列软件包将被升级：<br>libasound2 libasound2-data libgtk-3-0 libgtk-3-common libnss3<br>libxdamage-dev libxdamage1 升级了 7 个软件包，新安装了 0 个软件包，要卸载 0 个软件包，有 1115<br>个软件包未被升级。 … … …</p>
 <p>正在处理用于 libc-bin (2.28-2) 的触发器 …</p>
 </blockquote>
-<p> <strong>第二部传文件</strong></p>
+<p><strong>第二部传文件</strong></p>
 <ul>
 <li><strong>传文件</strong></li>
 </ul>
-<p>r<br>    root@kali:/home# ls</p>
-<pre><code>root@kali:/home# rz                           我用的Xshell直接传
+<p>r<br>root@kali:/home# ls</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@kali:&#x2F;home# rz                           我用的Xshell直接传</span><br><span class="line"></span><br><span class="line">root@kali:&#x2F;home# ls</span><br></pre></td></tr></table></figure>
 
-root@kali:/home# ls</code></pre><p>acunetix_trial.sh  AWVS12-Linux.zip  Linux_Awvs安装说明.txt  patch_awvs</p>
+<p>acunetix_trial.sh AWVS12-Linux.zip Linux_Awvs安装说明.txt patch_awvs</p>
 <ul>
-<li><p><strong>&gt; 改文件的操作权限@@@@@@@@@</strong></p>
-<p> root@kali:/home# chmod u+x *</p>
-<p> root@kali:/home# ls</p>
+<li></li>
+</ul>
+<p><strong>&gt; 改文件的操作权限@@@@@@@@@</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@kali:&#x2F;home# chmod u+x *</span><br><span class="line"></span><br><span class="line">root@kali:&#x2F;home# ls</span><br></pre></td></tr></table></figure>
+
+<p>acunetix_trial.sh AWVS12-Linux.zip Linux_Awvs安装说明.txt patch_awvs（全绿可执行）</p>
+<p><strong>- 安装开始</strong></p>
+<ul>
+<li><p>中间输入用户名密码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@kali:&#x2F;home# .&#x2F;acunetix_trial.sh</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
-<p>acunetix_trial.sh  AWVS12-Linux.zip  Linux_Awvs安装说明.txt  patch_awvs（全绿可执行）</p>
-<p> <strong>- 安装开始</strong></p>
-<ul>
-<li>中间输入用户名密码</li>
-</ul>
-<pre><code>root@kali:/home# ./acunetix_trial.sh</code></pre><blockquote>
+<blockquote>
 <p>交互式输入用户信息:</p>
 <ol>
 <li>是否同意协议:yes</li>
 <li>输入主机名:</li>
-<li>输入管理员邮箱:<a href="mailto:xxx@xxx.com">xxx@xxx.com</a> 就是用户名</li>
-<li>输入密码:!Q2w3e4r </li>
+<li>输入管理员邮箱:xxx@xxx.com 就是用户名</li>
+<li>输入密码:!Q2w3e4r</li>
 </ol>
 </blockquote>
 <ul>
-<li><p>安装结束后访问:<br><a href="https://ip:13443/" target="_blank" rel="noopener">https://ip:13443/</a>                当然kali你的IP地址<br><img src="https://img-blog.csdnimg.cn/20190612172401116.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-</li>
-<li><p>安装pojie文件</p>
-</li>
-<li><p>##</p>
-<p>  ##拷贝 patch_awvs 到后面得安装目录<br>  root@Nessus: cp patch_awvs /home/acunetix/.acunetix_trial/v_190325161/scanner/       </p>
-<h2 id="找到安装目录里面去"><a href="#找到安装目录里面去" class="headerlink" title="找到安装目录里面去"></a>找到安装目录里面去</h2><p>  root@Nessus:cd /home/acunetix/.acunetix_trial/v_190325161/scanner</p>
-<h2 id="必须在里面运行"><a href="#必须在里面运行" class="headerlink" title="必须在里面运行"></a>必须在里面运行</h2><p>  root@Nessus:/home/acunetix/.acunetix_trial/v_190325161/scanner# ./patch_awvs </p>
-</li>
+<li>安装结束后访问:<br><a href="https://ip:13443/" target="_blank" rel="noopener">https://ip:13443/</a> 当然kali你的IP地址<br><img src="https://img-blog.csdnimg.cn/20190612172401116.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li>安装pojie文件</li>
+<li></li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">##拷贝 patch_awvs 到后面得安装目录</span><br><span class="line">root@Nessus: cp patch_awvs &#x2F;home&#x2F;acunetix&#x2F;.acunetix_trial&#x2F;v_190325161&#x2F;scanner&#x2F;       </span><br><span class="line"></span><br><span class="line">## 找到安装目录里面去</span><br><span class="line">root@Nessus:cd &#x2F;home&#x2F;acunetix&#x2F;.acunetix_trial&#x2F;v_190325161&#x2F;scanner</span><br><span class="line"></span><br><span class="line">## 必须在里面运行</span><br><span class="line">root@Nessus:&#x2F;home&#x2F;acunetix&#x2F;.acunetix_trial&#x2F;v_190325161&#x2F;scanner# .&#x2F;patch_awvs</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://img-blog.csdnimg.cn/20190612185624234.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>安装成功</p>
 <p>检查是否成功:<br>登录系统后, 点击右上角的”Administrator-&gt;Profile-&gt;License”,可以看到99999就说明成功激活</p>
-<p> 修改不检查更新:<br>登录系统后,左下角Settings-&gt;ProductUpgrades,改为”Do not automaticaly check for update[Not Recommanded]”</p>
+<p>修改不检查更新:<br>登录系统后,左下角Settings-&gt;ProductUpgrades,改为”Do not automaticaly check for update[Not Recommanded]“</p>
 
   </div>
 </article>
@@ -250,7 +252,7 @@ root@kali:/home# ls</code></pre><p>acunetix_trial.sh  AWVS12-Linux.zip  Linux_Aw
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#下面开始安装"><span class="toc-number">1.</span> <span class="toc-text">下面开始安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#找到安装目录里面去"><span class="toc-number">2.</span> <span class="toc-text">找到安装目录里面去</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#必须在里面运行"><span class="toc-number">3.</span> <span class="toc-text">必须在里面运行</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#下面开始安装"><span class="toc-number">1.</span> <span class="toc-text">下面开始安装</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">

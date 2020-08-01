@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="@TOC 0x01 前提关于这个漏洞的利用方式： ​     利用方式大致有两种：  包含日志文件。 绕过身份验证文件上传然后在文件包含。  下面主要分析第二种 0x01 漏洞介绍通达OA系统代表了协同OA的先进理念,16年研发铸就成熟OA产品,协同OA软件行业唯一央企团队研发,多次摘取国内OA软件金奖,拥有2万多家正式用户,8万多家免费版用户,超过… 主要危害： 攻击者可以在为登陆或者说，">
+    <meta name="description" content="通达OA任意文件上传&#x2F;文件包含RCE漏洞分析 0x01 前提  0x01 漏洞介绍  0x02 漏洞分析  首先下载安装 绕过身份验证文件上传部分 变量传递问题 文件包含部分    0x01 前提关于这个漏洞的利用方式： ​ 利用方式大致有两种：  包含日志文件。 绕过身份验证文件上传然后在文件包含。  下面主要分析第二种 0x01 漏洞介绍_通达OA_系统代表了协同OA的先进理念,16年">
 <meta property="og:type" content="article">
 <meta property="og:title" content="通达OA任意文件上传&#x2F;文件包含RCE漏洞分析">
 <meta property="og:url" content="https://godzeo.github.io/2020/03/30/%E9%80%9A%E8%BE%BEOA%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0!%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABRCE%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="@TOC 0x01 前提关于这个漏洞的利用方式： ​     利用方式大致有两种：  包含日志文件。 绕过身份验证文件上传然后在文件包含。  下面主要分析第二种 0x01 漏洞介绍通达OA系统代表了协同OA的先进理念,16年研发铸就成熟OA产品,协同OA软件行业唯一央企团队研发,多次摘取国内OA软件金奖,拥有2万多家正式用户,8万多家免费版用户,超过… 主要危害： 攻击者可以在为登陆或者说，">
+<meta property="og:description" content="通达OA任意文件上传&#x2F;文件包含RCE漏洞分析 0x01 前提  0x01 漏洞介绍  0x02 漏洞分析  首先下载安装 绕过身份验证文件上传部分 变量传递问题 文件包含部分    0x01 前提关于这个漏洞的利用方式： ​ 利用方式大致有两种：  包含日志文件。 绕过身份验证文件上传然后在文件包含。  下面主要分析第二种 0x01 漏洞介绍_通达OA_系统代表了协同OA的先进理念,16年">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200330094732543.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200403094623450.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
@@ -19,9 +19,10 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200330095216717.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200330095243732.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2020-03-30T02:06:34.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.606Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:04.935Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -60,6 +61,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -122,7 +125,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-前提"><span class="toc-number">1.</span> <span class="toc-text">0x01 前提</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-漏洞介绍"><span class="toc-number">2.</span> <span class="toc-text">0x01 漏洞介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-漏洞分析"><span class="toc-number">3.</span> <span class="toc-text">0x02 漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#首先下载安装"><span class="toc-number">3.1.</span> <span class="toc-text">首先下载安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过身份验证文件上传部分"><span class="toc-number">3.2.</span> <span class="toc-text">绕过身份验证文件上传部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量传递问题"><span class="toc-number">3.3.</span> <span class="toc-text">变量传递问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件包含部分"><span class="toc-number">3.4.</span> <span class="toc-text">文件包含部分</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#通达OA任意文件上传-文件包含RCE漏洞分析"><span class="toc-number">1.</span> <span class="toc-text">通达OA任意文件上传&#x2F;文件包含RCE漏洞分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-前提"><span class="toc-number"></span> <span class="toc-text">0x01 前提</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-漏洞介绍"><span class="toc-number"></span> <span class="toc-text">0x01 漏洞介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-漏洞分析"><span class="toc-number"></span> <span class="toc-text">0x02 漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#首先下载安装"><span class="toc-number"></span> <span class="toc-text">首先下载安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过身份验证文件上传部分"><span class="toc-number"></span> <span class="toc-text">绕过身份验证文件上传部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量传递问题"><span class="toc-number"></span> <span class="toc-text">变量传递问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件包含部分"><span class="toc-number"></span> <span class="toc-text">文件包含部分</span></a>
     </div>
   </span>
 </div>
@@ -155,7 +158,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90-%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">WEB 漏洞复现和分析 代码审计</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">WEB漏洞复现和分析代码审计</a>
     </div>
 
 
@@ -169,16 +172,30 @@
     <a id="more"></a>
 
 
-<p>@<a href="通达OA任意文件上传/文件包含RCE漏洞分析">TOC</a></p>
+
+<h3 id="通达OA任意文件上传-文件包含RCE漏洞分析"><a href="#通达OA任意文件上传-文件包含RCE漏洞分析" class="headerlink" title="通达OA任意文件上传/文件包含RCE漏洞分析"></a>通达OA任意文件上传/文件包含RCE漏洞分析</h3><ul>
+<li><p><a href="#0x01__4">0x01 前提</a></p>
+</li>
+<li><p><a href="#0x01__19">0x01 漏洞介绍</a></p>
+</li>
+<li><p><a href="#0x02__40">0x02 漏洞分析</a></p>
+<ul>
+<li><a href="#_53">首先下载安装</a></li>
+<li><a href="#_63">绕过身份验证文件上传部分</a></li>
+<li><a href="#_356">变量传递问题</a></li>
+<li><a href="#_484">文件包含部分</a></li>
+</ul>
+</li>
+</ul>
 <h1 id="0x01-前提"><a href="#0x01-前提" class="headerlink" title="0x01 前提"></a>0x01 前提</h1><p>关于这个漏洞的利用方式：</p>
-<p>​    </p>
+<p>​</p>
 <p>利用方式大致有两种：</p>
 <ol>
 <li>包含日志文件。</li>
 <li>绕过身份验证文件上传然后在文件包含。</li>
 </ol>
 <p>下面主要分析第二种</p>
-<h1 id="0x01-漏洞介绍"><a href="#0x01-漏洞介绍" class="headerlink" title="0x01 漏洞介绍"></a>0x01 漏洞介绍</h1><p><em>通达OA</em>系统代表了协同OA的先进理念,16年研发铸就成熟OA产品,协同OA软件行业唯一央企团队研发,多次摘取国内OA软件金奖,拥有2万多家正式用户,8万多家免费版用户,超过…</p>
+<h1 id="0x01-漏洞介绍"><a href="#0x01-漏洞介绍" class="headerlink" title="0x01 漏洞介绍"></a>0x01 漏洞介绍</h1><p>_通达OA_系统代表了协同OA的先进理念,16年研发铸就成熟OA产品,协同OA软件行业唯一央企团队研发,多次摘取国内OA软件金奖,拥有2万多家正式用户,8万多家免费版用户,超过…</p>
 <p>主要危害：</p>
 <p>攻击者可以在为登陆或者说，无任何条件触发漏洞，上传图片木马文件，请求进行文件包含最终可达成远程命令执行</p>
 <p>影响版本：</p>
@@ -220,7 +237,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$_FILES[&#39;ATTACHMENT&#39;][&#39;name&#39;]</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>第一个下标必须是我们的input name值，因此我们的POST包的Content-Disposition: form-data; name=”ATTACHMENT”; filename=”xxx.php.png”中的name必须是’ATTACHMENT’。</li>
+<li>第一个下标必须是我们的input name值，因此我们的POST包的Content-Disposition: form-data; name=“ATTACHMENT”; filename=”xxx.php.png”中的name必须是’ATTACHMENT’。</li>
 <li>也就是有文件上传就会调用upload函数</li>
 <li>后续对获取的文件名处理了一下，对获取的文件名行一次url解码，对比文件名长度是否有变化，如果有变化，则将url解码后的文件名作为最后的文件名</li>
 <li>在45行有upload函数，要跟进看一下干了什么，inc/utility_file.php的1321行</li>
@@ -259,8 +276,6 @@
 </li>
 <li><p>但是UPLOAD_MODE这个参数名仅存在于upload.php中</p>
 </li>
-</ul>
-<ul>
 <li><p>开始追溯，发现下面的路径</p>
 </li>
 <li><p>具体调用为upload.php -&gt; session.php -&gt; coon.php -&gt; td_config.php -&gt; common.inc.php</p>
@@ -270,17 +285,18 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">if (0 &lt; count($_POST)) &#123;</span><br><span class="line">    $arr_html_fields &#x3D; array();</span><br><span class="line">    foreach ($_POST as $s_key &#x3D;&gt; $s_value) &#123;</span><br><span class="line">        if (substr($s_key, 0, 7) &#x3D;&#x3D; &#39;_SERVER&#39;) &#123;</span><br><span class="line">            continue;</span><br><span class="line">        &#125;</span><br><span class="line">        if (substr($s_key, 0, 15) !&#x3D; &#39;TD_HTML_EDITOR_&#39;) &#123;</span><br><span class="line">            if (!is_array($s_value)) &#123;</span><br><span class="line">                $_POST[$s_key] &#x3D; addslashes(strip_tags($s_value));</span><br><span class="line">            &#125;</span><br><span class="line">            $&#123;$s_key&#125; &#x3D; $_POST[$s_key];</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            if ($s_key &#x3D;&#x3D; &#39;TD_HTML_EDITOR_FORM_HTML_DATA&#39; || $s_key &#x3D;&#x3D; &#39;TD_HTML_EDITOR_PRCS_IN&#39; || $s_key &#x3D;&#x3D; &#39;TD_HTML_EDITOR_PRCS_OUT&#39; || $s_key &#x3D;&#x3D; &#39;TD_HTML_EDITOR_QTPL_PRCS_SET&#39; || isset($_POST[&#39;ACTION_TYPE&#39;]) &amp;&amp; ($_POST[&#39;ACTION_TYPE&#39;] &#x3D;&#x3D; &#39;approve_center&#39; || $_POST[&#39;ACTION_TYPE&#39;] &#x3D;&#x3D; &#39;workflow&#39; || $_POST[&#39;ACTION_TYPE&#39;] &#x3D;&#x3D; &#39;sms&#39; || $_POST[&#39;ACTION_TYPE&#39;] &#x3D;&#x3D; &#39;wiki&#39;) &amp;&amp; ($s_key &#x3D;&#x3D; &#39;CONTENT&#39; || $s_key &#x3D;&#x3D; &#39;TD_HTML_EDITOR_CONTENT&#39; || $s_key &#x3D;&#x3D; &#39;TD_HTML_EDITOR_TPT_CONTENT&#39;)) &#123;</span><br><span class="line">                unset($_POST[$s_key]);</span><br><span class="line">                $s_key &#x3D; $s_key &#x3D;&#x3D; &#39;CONTENT&#39; ? $s_key : substr($s_key, 15);</span><br><span class="line">                $&#123;$s_key&#125; &#x3D; addslashes($s_value);</span><br><span class="line">                $arr_html_fields[$s_key] &#x3D; $&#123;$s_key&#125;;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                $encoding &#x3D; mb_detect_encoding($s_value, &#39;GBK,UTF-8&#39;);</span><br><span class="line">                unset($_POST[$s_key]);</span><br><span class="line">                $s_key &#x3D; substr($s_key, 15);</span><br><span class="line">                $&#123;$s_key&#125; &#x3D; addslashes(rich_text_clean($s_value, $encoding));</span><br><span class="line">                $arr_html_fields[$s_key] &#x3D; $&#123;$s_key&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    reset($_POST);</span><br><span class="line">    $_POST &#x3D; array_merge($_POST, $arr_html_fields);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>首先一开始对$_POST长度进行了判断,这里$_POST实际是一个数组,接着使用foreach函数对数组进行遍历,</li>
+<li>首先一开始对POST长度进行了判断,这里_POST长度进行了判断,这里P​OST长度进行了判断,这里_POST实际是一个数组,接着使用foreach函数对数组进行遍历,</li>
 <li>在这里$_POST数组中key为”UPLOAD_MODE”,value为”2”,那么根据配会到</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">if (substr($s_key, 0, 15) !&#x3D; &#39;TD_HTML_EDITOR_&#39;) &#123;</span><br><span class="line">            if (!is_array($s_value)) &#123;</span><br><span class="line">                $_POST[$s_key] &#x3D; addslashes(strip_tags($s_value));</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            &#x2F;&#x2F;直接来这</span><br><span class="line">            $&#123;$s_key&#125; &#x3D; $_POST[$s_key];</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>最终数组键名UPLOAD_MODE成了了变量名,而他的对应键值成为了变量值</li>
-<li>所以 upload.php 未直接接收UPLOAD_MODE值,而我们仍可以传递到这里</li>
-</ul>
-<ul>
-<li>upload函数的中 调用 add_attach函数，设置$ATTACHMENTS[‘ID’] </li>
+<li><p>最终数组键名UPLOAD_MODE成了了变量名,而他的对应键值成为了变量值</p>
+</li>
+<li><p>所以 upload.php 未直接接收UPLOAD_MODE值,而我们仍可以传递到这里</p>
+</li>
+<li><p>upload函数的中 调用 add_attach函数，设置$ATTACHMENTS[‘ID’]</p>
+</li>
 </ul>
 <p><img src="https://img-blog.csdnimg.cn/20200330095243732.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt=""></p>
 <ul>
@@ -290,7 +306,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">function add_attach($SOURCE_FILE, $ATTACH_NAME, $MODULE, $YM, $ATTACH_SIGN, $ATTACH_ID)</span><br><span class="line">&#123;</span><br><span class="line">    $ATTACH_PARA_ARRAY &#x3D; TD::get_cache(&quot;SYS_ATTACH_PARA&quot;);</span><br><span class="line">    $ATTACH_POS_ACTIVE &#x3D; $ATTACH_PARA_ARRAY[&quot;SYS_ATTACH_POS_ACTIVE&quot;];</span><br><span class="line">    $ATTACH_PATH_ACTIVE &#x3D; $ATTACH_PARA_ARRAY[&quot;SYS_ATTACH_PATH_ACTIVE&quot;];</span><br><span class="line"></span><br><span class="line">    if (!file_exists($SOURCE_FILE)) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if ($MODULE &#x3D;&#x3D; &quot;&quot;) &#123;</span><br><span class="line">        $MODULE &#x3D; attach_sub_dir();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if ($YM &#x3D;&#x3D; &quot;&quot;) &#123;</span><br><span class="line">        $YM &#x3D; date(&quot;ym&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $PATH &#x3D; $ATTACH_PATH_ACTIVE . $MODULE;</span><br><span class="line">    if (!file_exists($PATH) || !is_dir($PATH)) &#123;</span><br><span class="line">        @mkdir($PATH, 448);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $PATH &#x3D; $PATH . &quot;&#x2F;&quot; . $YM;</span><br><span class="line">    if (!file_exists($PATH) || !is_dir($PATH)) &#123;</span><br><span class="line">        @mkdir($PATH, 448);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $ATTACH_NAME &#x3D; (is_default_charset($ATTACH_NAME) ? $ATTACH_NAME : iconv(&quot;utf-8&quot;, MYOA_CHARSET, $ATTACH_NAME));</span><br><span class="line">    $EXT_NAME &#x3D; substr($ATTACH_NAME, strrpos($ATTACH_NAME, &quot;.&quot;));</span><br><span class="line">    $ATTACH_NAME &#x3D; str_replace($EXT_NAME, strtolower($EXT_NAME), $ATTACH_NAME);</span><br><span class="line">    $ATTACH_FILE &#x3D; (MYOA_ATTACH_NAME_FORMAT ? md5($ATTACH_NAME) . &quot;.td&quot; : $ATTACH_NAME);</span><br><span class="line">    $ATTACH_ID &#x3D; mt_rand();</span><br><span class="line">    $FILENAME &#x3D; $PATH . &quot;&#x2F;&quot; . $ATTACH_ID . &quot;.&quot; . $ATTACH_FILE;</span><br><span class="line"></span><br><span class="line">    if (file_exists($FILENAME)) &#123;</span><br><span class="line">        $ATTACH_ID &#x3D; mt_rand();</span><br><span class="line">        $FILENAME &#x3D; $PATH . &quot;&#x2F;&quot; . $ATTACH_ID . &quot;.&quot; . $ATTACH_FILE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $AID &#x3D; mysql_insert_id();</span><br><span class="line">    $ATTACH_ID_NEW &#x3D; $AID . &quot;@&quot; . $YM . &quot;_&quot; . $ATTACH_ID;</span><br><span class="line">    return $ATTACH_ID_NEW;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li><p>可以看到返回值$ATTACH_ID_NEW有三部分组成$AID，$YM，$ATTACH_ID</p>
+<li><p>可以看到返回值ATTACHIDNEW有三部分组成ATTACH_ID_NEW有三部分组成ATTACHI​DN​EW有三部分组成AID，YM，YM，YM，ATTACH_ID</p>
 </li>
 <li><p>其实UPLOAD_MODE值随便为1，2，3中的任意一个数字，都可以返回文件名字和部分路径，不看也行</p>
 </li>
@@ -307,12 +323,12 @@
 </li>
 <li><pre><code>include_once &apos;inc/session.php&apos;;
 include_once &apos;inc/conn.php&apos;;
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- 逻辑较为简单，</span><br><span class="line"></span><br><span class="line">- 如果这里不传递参数P为空，就以绕过前面一系列的检测直</span><br><span class="line"></span><br><span class="line">- 随后从json中获取url参数的值</span><br><span class="line"></span><br><span class="line">- 只有 general&#x2F;、ispirit&#x2F;、module&#x2F;  在url内，在直接包含  $url,</span><br><span class="line"></span><br><span class="line">- 文件包含结束</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">构造一个就好了</span><br></pre></td></tr></table></figure>
-/ispirit/interface/gateway.php?json={&quot;url&quot;:&quot;/general/../../attach/im/2003/1153189608.jpg&quot;}</code></pre><p>0x03 修复方案</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">- 逻辑较为简单，</span><br><span class="line"></span><br><span class="line">- 如果这里不传递参数P为空，就以绕过前面一系列的检测直</span><br><span class="line"></span><br><span class="line">- 随后从json中获取url参数的值</span><br><span class="line"></span><br><span class="line">- 只有 general&#x2F;、ispirit&#x2F;、module&#x2F; 在url内，在直接包含 \$url,</span><br><span class="line"></span><br><span class="line">- 文件包含结束</span><br><span class="line"></span><br><span class="line">构造一个就好了</span><br></pre></td></tr></table></figure>
+/ispirit/interface/gateway.php?json={&quot;url&quot;:&quot;/general/../../attach/im/2003/1153189608.jpg&quot;}</code></pre></li>
+</ul>
+<p>0x03 修复方案</p>
 <ul>
 <li>更新官方发布的补丁 <a href="http://www.tongda2000.com/news/673.php" target="_blank" rel="noopener">http://www.tongda2000.com/news/673.php</a></li>
-</ul>
-</li>
 </ul>
 
   </div>
@@ -343,7 +359,7 @@ include_once &apos;inc/conn.php&apos;;
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-前提"><span class="toc-number">1.</span> <span class="toc-text">0x01 前提</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-漏洞介绍"><span class="toc-number">2.</span> <span class="toc-text">0x01 漏洞介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-漏洞分析"><span class="toc-number">3.</span> <span class="toc-text">0x02 漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#首先下载安装"><span class="toc-number">3.1.</span> <span class="toc-text">首先下载安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过身份验证文件上传部分"><span class="toc-number">3.2.</span> <span class="toc-text">绕过身份验证文件上传部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量传递问题"><span class="toc-number">3.3.</span> <span class="toc-text">变量传递问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件包含部分"><span class="toc-number">3.4.</span> <span class="toc-text">文件包含部分</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#通达OA任意文件上传-文件包含RCE漏洞分析"><span class="toc-number">1.</span> <span class="toc-text">通达OA任意文件上传&#x2F;文件包含RCE漏洞分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-前提"><span class="toc-number"></span> <span class="toc-text">0x01 前提</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-漏洞介绍"><span class="toc-number"></span> <span class="toc-text">0x01 漏洞介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-漏洞分析"><span class="toc-number"></span> <span class="toc-text">0x02 漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#首先下载安装"><span class="toc-number"></span> <span class="toc-text">首先下载安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#绕过身份验证文件上传部分"><span class="toc-number"></span> <span class="toc-text">绕过身份验证文件上传部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量传递问题"><span class="toc-number"></span> <span class="toc-text">变量传递问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件包含部分"><span class="toc-number"></span> <span class="toc-text">文件包含部分</span></a>
     </div>
 
     <div id="share-footer" style="display: none">

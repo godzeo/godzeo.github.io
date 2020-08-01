@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on  默认开启   allow_url_include：om  默认关闭  PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。">
+    <meta name="description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on 默认开启 allow_url_include：om 默认关闭 PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。 先站在">
 <meta property="og:type" content="article">
 <meta property="og:title" content="php伪协议 配合 文件包含漏洞.md">
 <meta property="og:url" content="https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on  默认开启   allow_url_include：om  默认关闭  PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。">
+<meta property="og:description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on 默认开启 allow_url_include：om 默认关闭 PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。 先站在">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMjEyMjMucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzQ5MjIucG5n?x-oss-process=image/format,png">
@@ -22,9 +22,10 @@
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDA1MjMucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDE0MjIucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-06-11T16:39:32.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.359Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:02.880Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -64,6 +65,8 @@
     <!-- rss -->
     
     
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
+    
 <meta name="generator" content="Hexo 4.2.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -97,7 +100,7 @@
         <li><a class="icon" href="/2020/06/23/Linux%20%E5%86%85%E7%BD%91%E6%9C%AC%E6%9C%BA%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E9%80%9F%E6%9F%A5/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
-        <li><a class="icon" href="/2020/06/05/CVE-2020-0796_RCE%E6%BC%8F%E6%B4%9Eexp%E5%A4%8D%E7%8E%B0(%E9%9D%9E%E8%93%9D%E5%B1%8F)/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" href="/2020/06/05/CVE-2020-0796_RCE%E6%BC%8F%E6%B4%9Eexp%E5%A4%8D%E7%8E%B0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -158,7 +161,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
@@ -171,21 +174,21 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <h1 id="0x00-起因"><a href="#0x00-起因" class="headerlink" title="0x00 起因"></a>0x00 起因</h1><p>被问到了php的一伪协议</p>
 <p>后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番</p>
 <p>又感觉自己学了半天不知道自己在干嘛。。。哎。。。</p>
 <h1 id="0x01-环境"><a href="#0x01-环境" class="headerlink" title="0x01 环境"></a>0x01 环境</h1><p>PHP版本：5.4.45</p>
 <p>PHP.ini：</p>
-<p>allow_url_fopen ：on  默认开启  </p>
-<p>allow_url_include：om  默认关闭</p>
-<p> PHP版本&lt;=5.2 可以使用%00进行截断，但是少有低版本的了。。。</p>
+<p>allow_url_fopen ：on 默认开启</p>
+<p>allow_url_include：om 默认关闭</p>
+<p>PHP版本&lt;=5.2 可以使用%00进行截断，但是少有低版本的了。。。</p>
 <p>先站在前人的大肩膀看看总结 ，主要是两个选项的开关，实验我默认都开了</p>
-<p> freebuff上看到的</p>
+<p>freebuff上看到的</p>
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMjEyMjMucG5n?x-oss-process=image/format,png" alt="img"></p>
 <h1 id="0x02-具体的协议"><a href="#0x02-具体的协议" class="headerlink" title="0x02 具体的协议"></a>0x02 具体的协议</h1><p>我的实验代码cmd.php</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">include($_GET[&#39;file&#39;])</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
-
-
 
 <h2 id="php-访问输入输出流"><a href="#php-访问输入输出流" class="headerlink" title="php:// 访问输入输出流"></a>php:// 访问输入输出流</h2><p>其中主要有两个协议：</p>
 <h3 id="php-filter-简介"><a href="#php-filter-简介" class="headerlink" title="php://filter 简介"></a>php://filter 简介</h3><p>PHP 过滤器用于对来自非安全来源的数据（比如用户输入）进行验证和过滤。</p>
@@ -193,8 +196,6 @@
 <p>所以如果想要读取运行php文件的源码，可以先base64编码，再传入include函数，这样就不会被认为是php文件，不会执行，会输出文件的base64编码，再解码即可。</p>
 <p>常用payload</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;cmd.php</span><br></pre></td></tr></table></figure>
-
-
 
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzQ5MjIucG5n?x-oss-process=image/format,png" alt="image-20200611234922747"></p>
 <p>解码即可</p>
@@ -232,10 +233,8 @@
 <p>要用#分隔压缩包和压缩包里的内容，并且#要用url编码%23</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1&#x2F;cmd.php?file&#x3D;zip:&#x2F;&#x2F;&#x2F;Applications&#x2F;MAMP&#x2F;htdocs&#x2F;xieyi.zip%23sd.php</span><br></pre></td></tr></table></figure>
 
-
-
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDE0MjIucG5n?x-oss-process=image/format,png" alt="image-20200612001422357"></p>
-<h2 id="0x04-后记"><a href="#0x04-后记" class="headerlink" title="0x04 后记"></a>0x04 后记</h2><p>留下了菜的泪水，发现学的有点杂，但是有些东西学的不到位吧。<br>纯自学有时候有点迷啊，学的乱七八糟的。<br>而且也是醉了，最近不过脑子，把二进制的坏字符串到web里面了。。。<br>还有几个协议没写完，先把常用的写了，后续补上</p>
+<h2 id="0x04-后记"><a href="#0x04-后记" class="headerlink" title="0x04 后记"></a>0x04 后记</h2><p>留下了菜的泪水，发现学的有点杂，但是有些东西学的不到位吧。<br>纯自学有时候有点迷啊，学的乱七八糟的。<br>还有几个协议没写完，先把常用的写了，后续补上</p>
 
   </div>
 </article>

@@ -6,19 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="进程的概念第一，进程是一个实体。每一个进程都有它自己的地址空间，一般情况下，包括文本区域（text region）、数据区域（data region）和堆栈（stack region）。文本区域存储处理器执行的代码；数据区域存储变量和进程执行期间使用的动态分配的内存；堆栈区域存储着活动过程调用的指令和本地变量。第二，进程是一个“执行中的程序”。程序是一个没有生命的实体，只有处理器赋予程序生命时">
+    <meta name="description" content="进程的概念第一，进程是一个实体。每一个进程都有它自己的地址空间，一般情况下，包括文本区域（text region）、数据区域（data region）和堆栈（stack region）。文本区域存储处理器执行的代码；数据区域存储变量和进程执行期间使用的动态分配的内存；堆栈区域存储着活动过程调用的指令和本地变量。第二，进程是一个“执行中的程序”。程序是一个没有生命的实体，只有处理器赋予程序生">
 <meta property="og:type" content="article">
 <meta property="og:title" content="进程池，线程池使用">
 <meta property="og:url" content="https://godzeo.github.io/2019/12/31/%E8%BF%9B%E7%A8%8B%E6%B1%A0%EF%BC%8C%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="进程的概念第一，进程是一个实体。每一个进程都有它自己的地址空间，一般情况下，包括文本区域（text region）、数据区域（data region）和堆栈（stack region）。文本区域存储处理器执行的代码；数据区域存储变量和进程执行期间使用的动态分配的内存；堆栈区域存储着活动过程调用的指令和本地变量。第二，进程是一个“执行中的程序”。程序是一个没有生命的实体，只有处理器赋予程序生命时">
+<meta property="og:description" content="进程的概念第一，进程是一个实体。每一个进程都有它自己的地址空间，一般情况下，包括文本区域（text region）、数据区域（data region）和堆栈（stack region）。文本区域存储处理器执行的代码；数据区域存储变量和进程执行期间使用的动态分配的内存；堆栈区域存储着活动过程调用的指令和本地变量。第二，进程是一个“执行中的程序”。程序是一个没有生命的实体，只有处理器赋予程序生">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191231104624807.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191231104643694.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-12-31T06:12:41.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.442Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:06.638Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -57,6 +58,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -152,7 +155,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/%E9%85%8D%E7%8E%AF%E5%A2%83-%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">配环境 安全开发</a>
+        <a class="category-link" href="/categories/%E9%85%8D%E7%8E%AF%E5%A2%83%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">配环境安全开发</a>
     </div>
 
 
@@ -164,6 +167,8 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
+
+
 
 <h2 id="进程的概念"><a href="#进程的概念" class="headerlink" title="进程的概念"></a><strong>进程的概念</strong></h2><p>第一，进程是一个实体。每一个进程都有它自己的地址空间，一般情况下，包括文本区域（text region）、数据区域（data region）和堆栈（stack region）。文本区域存储处理器执行的代码；数据区域存储变量和进程执行期间使用的动态分配的内存；堆栈区域存储着活动过程调用的指令和本地变量。<br>第二，进程是一个“执行中的程序”。程序是一个没有生命的实体，只有处理器赋予程序生命时（操作系统执行之），它才能成为一个活动的实体，我们称其为进程。[3]<br>进程是操作系统中最基本、重要的概念。是多道程序系统出现后，为了刻画系统内部出现的动态情况，描述系统内部各道程序的活动规律引进的一个概念,所有多道程序设计操作系统都建立在进程的基础上。</p>
 <h2 id="引入进程原因"><a href="#引入进程原因" class="headerlink" title="引入进程原因"></a>引入进程原因</h2><ol>
@@ -180,7 +185,7 @@
 <p>3、线程与进程关系<br>在传统操作系统中，每个进程有一个地址空间，而且默认就有一个控制线程。<br>多线程（即多个控制线程）的概念是，在一个进程中存在多个控制线程，控制该进程的地址空间。<br>进程只是用来把资源集中到一起（进程只是一个资源单位，或者说资源集合），而线程才是cpu上的执行单位。</p>
 <p>进程和线程的关系：<br>(1)一个线程只能属于一个进程，而一个进程可以有多个线程，但至少有一个线程。<br>(2)资源分配给进程，同一进程的所有线程共享该进程的所有资源。<br>(3)CPU分给线程，即真正在CPU上运行的是线程。</p>
 <p><strong>一、为什么要引入线程池</strong><br>Python中已经有了threading模块，为什么还需要线程池呢 ？<br>当写爬虫时，需要控制同时爬取的线程数，如果创建了20个线程，而同时只允许3个线程在运行，但是20个线程都需要创建和销毁，线程的创建是需要消耗系统资源的，有没有更好的方案呢？<br>其实只需要三个线程就行了，每个线程各分配一个任务，剩下的任务排队等待，当某个线程完成了任务的时候，排队任务就可以安排给这个线程继续执行。</p>
-<h2 id="线程池使用方法"><a href="#线程池使用方法" class="headerlink" title="线程池使用方法"></a>线程池使用方法</h2><p>pip install threadpool   </p>
+<h2 id="线程池使用方法"><a href="#线程池使用方法" class="headerlink" title="线程池使用方法"></a>线程池使用方法</h2><p>pip install threadpool</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pool = ThreadPool(poolsize)  </span><br><span class="line">requests = makeRequests(some_callable, list_of_args, callback)  </span><br><span class="line">[pool.putRequest(req) <span class="keyword">for</span> req in requests]  </span><br><span class="line">pool.wait()</span><br></pre></td></tr></table></figure>
 
 <p>第一行定义了一个线程池，表示最多可以创建poolsize这么多线程；</p>
@@ -198,8 +203,6 @@
 <li>进程池</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(fn)</span>:</span></span><br><span class="line">  <span class="comment">#fn: 函数参数是数据列表的一个元素</span></span><br><span class="line">  time.sleep(<span class="number">2</span>)</span><br><span class="line">  print(<span class="string">"进程ID"</span>,os.getpid())</span><br><span class="line">  print(fn*fn)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">  testFL = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line">  <span class="keyword">print</span> (<span class="string">'单进程:'</span>) <span class="comment">#顺序执行(也就是串行执行，单进程)</span></span><br><span class="line">  s = time.time()</span><br><span class="line">  <span class="keyword">for</span> fn <span class="keyword">in</span> testFL:</span><br><span class="line">    run(fn)</span><br><span class="line">  t1 = time.time()</span><br><span class="line">  <span class="keyword">print</span> (<span class="string">"顺序执行时间："</span>, int(t1 - s))</span><br><span class="line"></span><br><span class="line">  <span class="keyword">print</span> (<span class="string">'多个进程，并行执行:'</span>) <span class="comment">#创建多个进程，并行执行</span></span><br><span class="line">  pool = Pool(<span class="number">3</span>)  <span class="comment">#创建拥有10个进程数量的进程池</span></span><br><span class="line">  <span class="comment">#testFL:要处理的数据列表，run：处理testFL列表中数据的函数</span></span><br><span class="line">  pool.map(run, testFL)</span><br><span class="line"></span><br><span class="line">  pool.close()<span class="comment">#关闭进程池，不再接受新的进程</span></span><br><span class="line">  pool.join()<span class="comment">#主进程阻塞等待子进程的退出</span></span><br><span class="line">  t2 = time.time()</span><br><span class="line">  <span class="keyword">print</span> (<span class="string">"并行执行时间："</span>, int(t2-t1))</span><br></pre></td></tr></table></figure>
-
-
   </div>
 </article>
 

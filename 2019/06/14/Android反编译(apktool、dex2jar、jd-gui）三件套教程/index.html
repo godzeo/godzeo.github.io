@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;11241989">
+    <meta name="description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;1124198">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程">
 <meta property="og:url" content="https://godzeo.github.io/2019/06/14/Android%E5%8F%8D%E7%BC%96%E8%AF%91(apktool%E3%80%81dex2jar%E3%80%81jd-gui%EF%BC%89%E4%B8%89%E4%BB%B6%E5%A5%97%E6%95%99%E7%A8%8B/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;11241989">
+<meta property="og:description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;1124198">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614213145709.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614213908118.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
@@ -22,9 +22,14 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614215124837.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614215634222.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-06-14T13:59:55.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.383Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:08.830Z">
 <meta property="article:author" content="Zeo">
-<meta property="article:tag" content="Android 反编译 app渗透">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img-blog.csdnimg.cn/20190614213145709.png">
     
@@ -59,6 +64,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -159,11 +166,6 @@
 
 
       
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/Android-%E5%8F%8D%E7%BC%96%E8%AF%91-app%E6%B8%97%E9%80%8F/" rel="tag">Android 反编译 app渗透</a>
-    </div>
-
 
     </div>
   </header>
@@ -172,14 +174,16 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <h1 id="Android反编译-apktool、dex2jar、jd-gui）三件套教程"><a href="#Android反编译-apktool、dex2jar、jd-gui）三件套教程" class="headerlink" title="Android反编译(apktool、dex2jar、jd-gui）三件套教程"></a>Android反编译(apktool、dex2jar、jd-gui）三件套教程</h1><p>这个是网上流行的使用工具，我现在重新写一下屡一下思路</p>
 <p><strong>apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui，</strong></p>
 <p>我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w<br>这个下载地址：<br><a href="https://download.csdn.net/download/god_zzz/11241989" target="_blank" rel="noopener">https://download.csdn.net/download/god_zzz/11241989</a></p>
-<h2 id="简单介绍一下，大概了解一下各自是干什么的："><a href="#简单介绍一下，大概了解一下各自是干什么的：" class="headerlink" title="简单介绍一下，大概了解一下各自是干什么的："></a>简单介绍一下，大概了解一下各自是干什么的：</h2><p><strong>##    apktool</strong></p>
+<h2 id="简单介绍一下，大概了解一下各自是干什么的："><a href="#简单介绍一下，大概了解一下各自是干什么的：" class="headerlink" title="简单介绍一下，大概了解一下各自是干什么的："></a>简单介绍一下，大概了解一下各自是干什么的：</h2><p><strong>## apktool</strong></p>
 <p>可以反编译软件的布局文件、xml文件、AndroidManifest.xml和图片等。</p>
-<p><strong>##    dex2jar</strong></p>
+<p><strong>## dex2jar</strong></p>
 <p>将apk反编译成java源码，也就是说把classes.dex转化成jar文件，反编译源码</p>
-<p><strong>##     jd-gui</strong><br>源码文件转化成jar文件，这个打开直接查看jar的源码</p>
+<p><strong>## jd-gui</strong><br>源码文件转化成jar文件，这个打开直接查看jar的源码</p>
 <p>**</p>
 <h2 id="开始反编译"><a href="#开始反编译" class="headerlink" title="开始反编译"></a>开始反编译</h2><ul>
 <li>第一步下载好工具和要测试的apk</li>
@@ -191,12 +195,13 @@
 </ul>
 <p>使用命令</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apktool d -f  ***.apk</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://img-blog.csdnimg.cn/20190614213908118.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/2019061421401366.png" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20190614214040881.png" alt="在这里插入图片描述"><br>里面就是所要的文件，第一部分结束</p>
 <h2 id="第二部分–dex2jar反编译源文件"><a href="#第二部分–dex2jar反编译源文件" class="headerlink" title="第二部分–dex2jar反编译源文件"></a>第二部分–dex2jar反编译源文件</h2><ul>
 <li></li>
 <li>找到APK文件，直接右键解压</li>
 <li>解压到新的文件夹，记得解压重新命名要不会覆盖（因为名字一样）</li>
-<li>找到里面的文件  classes.dex</li>
+<li>找到里面的文件 classes.dex</li>
 <li><strong>classes.dex</strong>是我们要的文件</li>
 <li></li>
 <li><img src="https://img-blog.csdnimg.cn/20190614214529909.png" alt="在这里插入图片描述"></li>
@@ -206,7 +211,9 @@
 </ul>
 <p><img src="https://img-blog.csdnimg.cn/2019061421481150.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>##还是要注意 运行命令的实话路径一定要切换到当前路径</p>
 <p>然后输入命令：</p>
-<pre><code>d2j-dex2jar.bat classes.dex</code></pre><p><img src="https://img-blog.csdnimg.cn/20190614215124837.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>这样反编译就成功了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">d2j-dex2jar.bat classes.dex</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20190614215124837.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>这样反编译就成功了</p>
 <p>**</p>
 <h2 id="最后一步用JD-GUI查看源码"><a href="#最后一步用JD-GUI查看源码" class="headerlink" title="最后一步用JD-GUI查看源码"></a>最后一步用JD-GUI查看源码</h2><p>**<br>**</p>
 <ul>

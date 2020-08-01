@@ -6,21 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="内网安全学习从入门到入狱-工具-Cobalt Strike(CS)基础前言 本文主要是看了 Cobalt Strike 各种资料后记的笔记。  参考过于杂乱，如有问题请联系我  手上虽然没有4.0 ，但是也要提前学习了   Cobalt Strike简介官网收费软件 https:&#x2F;&#x2F;www.cobaltstrike.com&#x2F;，Cobalt Strike许可费用为每位用户3500美元，其他的不说">
+    <meta name="description" content="内网安全学习从入门到入狱-工具-Cobalt Strike(CS)基础前言 本文主要是看了 Cobalt Strike 各种资料后记的笔记。  参考过于杂乱，如有问题请联系我  手上虽然没有4.0 ，但是也要提前学习了   Cobalt Strike简介官网收费软件 https:&#x2F;&#x2F;www.cobaltstrike.com&#x2F;，Cobalt Strike许可费用为每位用户3500美元，其他的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网安全学习从入门到入狱-神器-Cobalt Strike-一-CS的基础和介绍">
 <meta property="og:url" content="https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%A5%9E%E5%99%A8-Cobalt%20Strike-%E4%B8%80-CS%E7%9A%84%E5%9F%BA%E7%A1%80%E5%92%8C%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="内网安全学习从入门到入狱-工具-Cobalt Strike(CS)基础前言 本文主要是看了 Cobalt Strike 各种资料后记的笔记。  参考过于杂乱，如有问题请联系我  手上虽然没有4.0 ，但是也要提前学习了   Cobalt Strike简介官网收费软件 https:&#x2F;&#x2F;www.cobaltstrike.com&#x2F;，Cobalt Strike许可费用为每位用户3500美元，其他的不说">
+<meta property="og:description" content="内网安全学习从入门到入狱-工具-Cobalt Strike(CS)基础前言 本文主要是看了 Cobalt Strike 各种资料后记的笔记。  参考过于杂乱，如有问题请联系我  手上虽然没有4.0 ，但是也要提前学习了   Cobalt Strike简介官网收费软件 https:&#x2F;&#x2F;www.cobaltstrike.com&#x2F;，Cobalt Strike许可费用为每位用户3500美元，其他的">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200306102229806.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
-<meta property="og:image" content="https://godzeo.github.io/Users/zy/Library/Application%20Support/typora-user-images/image-20200304184201215.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200306102329521.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200306102346823.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2020-03-06T02:24:12.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.359Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:05.449Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -59,6 +59,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -167,6 +169,8 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <h1 id="内网安全学习从入门到入狱-工具-Cobalt-Strike-CS-基础"><a href="#内网安全学习从入门到入狱-工具-Cobalt-Strike-CS-基础" class="headerlink" title="内网安全学习从入门到入狱-工具-Cobalt Strike(CS)基础"></a>内网安全学习从入门到入狱-工具-Cobalt Strike(CS)基础</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
 <li><p>本文主要是看了 Cobalt Strike 各种资料后记的笔记。</p>
 </li>
@@ -177,13 +181,16 @@
 </ul>
 <h2 id="Cobalt-Strike简介"><a href="#Cobalt-Strike简介" class="headerlink" title="Cobalt Strike简介"></a>Cobalt Strike简介</h2><p>官网收费软件 <a href="https://www.cobaltstrike.com/，Cobalt" target="_blank" rel="noopener">https://www.cobaltstrike.com/，Cobalt</a> Strike许可费用为每位用户3500美元，其他的不说了</p>
 <ul>
-<li>Cobalt Strike是用于“对手模拟”和“红队行动”的软件</li>
-<li>C/S架构的商业渗透软件，适合多人进行团队协作，可模拟APT做模拟对抗，进行内网渗透</li>
-<li>个人感觉是内网利器，所以放到内网里面了</li>
-</ul>
-<ul>
-<li>Cobalt Strike 主要用于团队作战，可谓是团队渗透神器，能让多个攻击者同时连接到团体服务器上，共享攻击资源与目标信息和sessions。</li>
-<li>Cobalt Strike 作为一款协同APT工具，针对内网的渗透测试和作为apt的控制终端功能，使其变成众多APT组织的首选。</li>
+<li><p>Cobalt Strike是用于“对手模拟”和“红队行动”的软件</p>
+</li>
+<li><p>C/S架构的商业渗透软件，适合多人进行团队协作，可模拟APT做模拟对抗，进行内网渗透</p>
+</li>
+<li><p>个人感觉是内网利器，所以放到内网里面了</p>
+</li>
+<li><p>Cobalt Strike 主要用于团队作战，可谓是团队渗透神器，能让多个攻击者同时连接到团体服务器上，共享攻击资源与目标信息和sessions。</p>
+</li>
+<li><p>Cobalt Strike 作为一款协同APT工具，针对内网的渗透测试和作为apt的控制终端功能，使其变成众多APT组织的首选。</p>
+</li>
 </ul>
 <p><img src="https://img-blog.csdnimg.cn/20200306102229806.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h2 id="基本名词解释"><a href="#基本名词解释" class="headerlink" title="基本名词解释"></a>基本名词解释</h2><h3 id="C2"><a href="#C2" class="headerlink" title="C2"></a>C2</h3><p>C2 就是 Command &amp; Control Server 的简称，也就是命令与控制服务器。</p>
@@ -229,21 +236,18 @@
 </ul>
 <h2 id="简单的使用"><a href="#简单的使用" class="headerlink" title="简单的使用"></a>简单的使用</h2><h3 id="先启动team-sever"><a href="#先启动team-sever" class="headerlink" title="先启动team sever"></a>先启动team sever</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">启动Team Server</span><br><span class="line"> # team server 必须以 root 权限运行 以便于监听端口号为0–1023的listener</span><br><span class="line"> # 默认使用50050端口 监听来自团队成员CS Client的连接请求</span><br></pre></td></tr></table></figure>
 
-
-
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">例如 sudo .&#x2F;teamserver 192.168.0.100 123456</span><br><span class="line">## 注意要给可以执行权限</span><br><span class="line">## chmod 777 teamserver</span><br></pre></td></tr></table></figure>
 
-<img src="/Users/zy/Library/Application Support/typora-user-images/image-20200304184201215.png" alt="image-20200304184201215" style="zoom:50%;" />
-
+<p>![image-20200304184201215](/Users/zy/Library/Application Support/typora-user-images/image-20200304184201215.png)</p>
 <h5 id="启动参数"><a href="#启动参数" class="headerlink" title="启动参数"></a>启动参数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;teamserver &lt;host&gt; &lt;password&gt; [&#x2F;path&#x2F;to&#x2F;c2.profile] [YYYY-MM-DD]</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- 1 - 必填参数&#96;host&#96; 本服务器外网IP&#x2F;域名</span><br><span class="line">- 2 - 必填参数&#96;password&#96; Client GUI连接时需要输入的密码</span><br><span class="line">- 3 - 可选参数&#96;Malleable C2 communication profile&#96; 指定C2通信配置文件 该功能体现了CS的强大扩展性</span><br><span class="line">- 4 - 可选参数&#96;kill date&#96; 指定所有payload的终止日期</span><br></pre></td></tr></table></figure>
 
 <h3 id="启动Client客户端"><a href="#启动Client客户端" class="headerlink" title="启动Client客户端"></a>启动Client客户端</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;Cobalt Strike</span><br><span class="line"></span><br><span class="line">## 注意要给可以执行权限</span><br><span class="line">## chmod 777 teamserver</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://img-blog.csdnimg.cn/20200306102329521.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="&lt;img src=&quot;/Users/zy/Library/Application Support/typora-user-images/image-20200304183549316.png&quot; alt=&quot;image-20200304183549316&quot; style=&quot;zoom:50%;&quot; /&gt;"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200306102329521.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt=""></p>
 <h3 id="Client-GUI-图形界面"><a href="#Client-GUI-图形界面" class="headerlink" title="Client GUI 图形界面"></a>Client GUI 图形界面</h3><p>登陆成功</p>
-<p><img src="https://img-blog.csdnimg.cn/20200306102346823.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="&lt;img src=&quot;/Users/zy/Library/Application Support/typora-user-images/image-20200304184325345.png&quot; alt=&quot;image-20200304184325345&quot; style=&quot;zoom:50%;&quot; /&gt;"></p>
+<p><img src="https://img-blog.csdnimg.cn/20200306102346823.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt=""></p>
 
   </div>
 </article>

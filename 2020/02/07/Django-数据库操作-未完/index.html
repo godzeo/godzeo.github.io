@@ -6,17 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &#39;default&#39;: &amp;#123;        &#39;ENGI">
+    <meta name="description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &#39;default&#39;: &amp;#123;        &#39;EN">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Django-数据库操作-未完">
 <meta property="og:url" content="https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &#39;default&#39;: &amp;#123;        &#39;ENGI">
+<meta property="og:description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &#39;default&#39;: &amp;#123;        &#39;EN">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-02-07T07:19:15.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.431Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:05.895Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -54,6 +55,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -162,11 +165,15 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
+
+
 <p>Django-数据库操作</p>
 <p>在settings.py文件中：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql         <span class="comment"># 一定要添加这两行！通过pip install pymysql！</span></span><br><span class="line">pymysql.install_as_MySQLdb()</span><br><span class="line"><span class="comment"># 修改DATABASES的值</span></span><br><span class="line">DATABASES = &#123;</span><br><span class="line">    <span class="string">'default'</span>: &#123;</span><br><span class="line">        <span class="string">'ENGINE'</span>: <span class="string">'django.db.backends.mysql'</span>,</span><br><span class="line">        <span class="string">'NAME'</span>: <span class="string">'mysite'</span>,</span><br><span class="line">        <span class="string">'HOST'</span>: <span class="string">'192.168.1.1'</span>,</span><br><span class="line">        <span class="string">'USER'</span>: <span class="string">'root'</span>,</span><br><span class="line">        <span class="string">'PASSWORD'</span>: <span class="string">'pwd'</span>,</span><br><span class="line">        <span class="string">'PORT'</span>: <span class="string">'3306'</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>创建数据 数据类型</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserInfo</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    uid = models.AutoField(primary_key=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 自增长ID,必须带参数为primary_key=True,并且是唯一主键</span></span><br><span class="line">    user = models.CharField(max_length=<span class="number">10</span>)</span><br><span class="line">    <span class="comment"># 字符串类型，最大长度为10</span></span><br><span class="line">    age = models.IntegerField(default=<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 数字类型，默认为1</span></span><br><span class="line">    sex = models.BooleanField()</span><br><span class="line">    <span class="comment"># BOOL类型</span></span><br><span class="line">    email = models.EmailField()</span><br><span class="line">    <span class="comment"># 自带检查 Email 合法性的 CharField</span></span><br><span class="line">    Intor = models.TextField()</span><br><span class="line">    <span class="comment"># 长文本类型</span></span><br><span class="line">    Blog = models.URLField()</span><br><span class="line">    <span class="comment"># 自带检查 URL 合法性的 CharField</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># -------------------文件上传-----------------</span></span><br><span class="line">    upload = models.FileField(upload_to=<span class="string">'uploads/'</span>)</span><br><span class="line">    <span class="comment"># 文件上传到 MEDIA_ROOT/uploads</span></span><br><span class="line">    <span class="comment"># 这个字段不能设置primary_key和unique选项.在数据库中存储类型是varchar，默认最大长度为100.</span></span><br><span class="line">    upload_s = models.FileField(upload_to=<span class="string">'uploads/%Y/%m/%d/'</span>)</span><br><span class="line">    <span class="comment"># 文件上传到 MEDIA_ROOT/uploads/2019/07/04</span></span><br><span class="line"></span><br><span class="line">    upload_e = models.FilePathField(path=<span class="string">"/home/images"</span>, match=<span class="string">"foo.*"</span>, recursive=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 这个字段的值被限制在系统上某个目录中的所有文件名集合中。有三个参数</span></span><br><span class="line">    <span class="comment"># 　　　　path = '':  该参数必需。上行所说的‘某个目录’的绝对路径。Example: "/home/images".</span></span><br><span class="line">    <span class="comment"># 　　　　match = 'pattern':  可选参数。格式是正则表达式。用来拣选符合匹配正则表达式的文件</span></span><br><span class="line">    <span class="comment"># 　　　　recursive = True / False: 可选参数，默认为False。设定是否递归该目录下所有子目录的所有文件</span></span><br><span class="line"></span><br><span class="line">    add_date = models.DateTimeField(auto_now_add=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 设置初次创建的时间</span></span><br><span class="line">    update_date = models.DateTimeField(auto_now=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 设置最后修改的时间</span></span><br></pre></td></tr></table></figure>
+
 <p>创建数据库一共需要三步：</p>
 <p>修改models.py中模型<br>运行python3 manage.py makemigrations为改动创建迁移记录<br>运行python3 manage.py migrate，将操作同步到数据库。</p>
 <h2 id="数据增删改查"><a href="#数据增删改查" class="headerlink" title="数据增删改查"></a>数据增删改查</h2><p>数据的添加方法：一步到位的方法</p>
@@ -185,12 +192,13 @@
 <p>这种方法是获取到id不等于2的数据</p>
 <p>第五种方法是 data.objects.order_by(name)</p>
 <p>这种方法获取到的结果是按照name进行排序后的结果</p>
-<h4 id="获取单个对象"><a href="#获取单个对象" class="headerlink" title="获取单个对象"></a>获取单个对象</h4><p>第一种方法是 data.objects.first(name=’zeo’)<br>                        data.objects.last(name=’zeo’)</p>
+<h4 id="获取单个对象"><a href="#获取单个对象" class="headerlink" title="获取单个对象"></a>获取单个对象</h4><p>第一种方法是 data.objects.first(name=’zeo’)<br>data.objects.last(name=’zeo’)</p>
 <p>这种方法获取到的结果是符合条件的第一个对象，当然还有最后一个对象，使用的是.last(name=’小桃红’)</p>
 <p><strong>注释：这些方法都可迭代使用</strong></p>
 <p>按照日期获取当天数据</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.utils <span class="keyword">import</span> timezone</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> timedelta</span><br><span class="line">now = timezone.now()</span><br><span class="line">start = now - timedelta(hours=<span class="number">23</span>,minutes=<span class="number">59</span>,seconds=<span class="number">59</span>)</span><br><span class="line">CurrentDaySubdomain = URL.objects.filter(change_time__gt=start)</span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> CurrentDaySubdomain:</span><br><span class="line">    print(c.url)</span><br></pre></td></tr></table></figure>
-<p><strong><em>其他按照时间获取数据方法</em></strong></p>
+
+<p><em><strong>其他按照时间获取数据方法</strong></em></p>
 <p>1、gt：大于某个时间<br>now = datetime.datetime.now()</p>
 <p>start = now – datetime.timedelta(hours=23, minutes=59, seconds=59)<br>a=yourobject.objects .filter(youdatetimcolumn__gt=start)#前一天</p>
 <p>2、gte：大于等于某个时间：<br>a=yourobject.objects .filter(youdatetimcolumn__gte=start)</p>
@@ -213,8 +221,6 @@
 
 <p>像这种的集合，如果想要把里面的数据全都打印出来，可以这么处理</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ret = <span class="string">''</span></span><br><span class="line">data_0 = data.objects.all()</span><br><span class="line"><span class="keyword">for</span> data_1 <span class="keyword">in</span> data_0:</span><br><span class="line">    ret += data_1.id + <span class="string">'|'</span> + data_1.User + <span class="string">'&lt;br&gt;'</span></span><br></pre></td></tr></table></figure>
-
-
   </div>
 </article>
 

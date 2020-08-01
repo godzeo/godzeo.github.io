@@ -6,20 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="1. 造成开启XDebug无效原因 1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题  2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败 注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP">
+    <meta name="description" content="1. 造成开启XDebug无效原因1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题 2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP对">
 <meta property="og:type" content="article">
 <meta property="og:title" content="phpStudy开启XDebug无效打不开坑点">
 <meta property="og:url" content="https://godzeo.github.io/2019/12/20/phpStudy%E5%BC%80%E5%90%AFXDebug%E6%97%A0%E6%95%88%E6%89%93%E4%B8%8D%E5%BC%80%E5%9D%91%E7%82%B9/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="1. 造成开启XDebug无效原因 1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题  2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败 注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP">
+<meta property="og:description" content="1. 造成开启XDebug无效原因1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题 2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP对">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220140707338.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220141048558.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220141539211.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-12-20T06:15:50.000Z">
-<meta property="article:modified_time" content="2020-07-04T09:00:05.235Z">
+<meta property="article:modified_time" content="2020-08-01T08:32:06.194Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
 <meta property="article:tag" content="内网">
 <meta property="article:tag" content="渗透">
 <meta property="article:tag" content="二进制">
@@ -58,6 +59,8 @@
     
     <!-- rss -->
     
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
     
 <meta name="generator" content="Hexo 4.2.0"></head>
 
@@ -153,7 +156,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/%E9%85%8D%E7%8E%AF%E5%A2%83-%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">配环境 代码审计</a>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E9%85%8D%E7%8E%AF%E5%A2%83/">代码审计配环境</a>
     </div>
 
 
@@ -166,12 +169,15 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-<h2 id="1-造成开启XDebug无效原因"><a href="#1-造成开启XDebug无效原因" class="headerlink" title="1. 造成开启XDebug无效原因"></a>1. 造成开启XDebug无效原因</h2><p> <strong>1. 路径不正确</strong><br>在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题</p>
-<p> <strong>2. php_debug扩展版本不匹配</strong></p>
-<p><strong>php_debug扩展32位或者64位与安装PHP的不对应</strong><br>PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败<br> <strong>注意下载的php_debug扩展NTS/TS 与安装PHP对应</strong><br>一般的集成环境中，<code>**PHP的架构都是**32位的（x86）****，</code>而你的电脑是64位（x64），<code>以PHP的环境架构为准</code>，例如：我的使用的PHP是x32为，电脑是win10 64位，我直接到xdebug官网下载64位扩展，导致开启扩展失败<br><strong>3. 配置文件写的不全</strong><br>下面给出</p>
-<h2 id="2-具体开启XDebug流程"><a href="#2-具体开启XDebug流程" class="headerlink" title="2. 具体开启XDebug流程"></a>2. 具体开启XDebug流程</h2><p><strong><em>版本一定要一致</em></strong><br><strong>1、使用phpinfo函数查看PHP版本信息需要注意的如下：</strong></p>
+
+
+<h2 id="1-造成开启XDebug无效原因"><a href="#1-造成开启XDebug无效原因" class="headerlink" title="1. 造成开启XDebug无效原因"></a>1. 造成开启XDebug无效原因</h2><p><strong>1. 路径不正确</strong><br>在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题</p>
+<p><strong>2. php_debug扩展版本不匹配</strong></p>
+<p><strong>php_debug扩展32位或者64位与安装PHP的不对应</strong><br>PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败<br><strong>注意下载的php_debug扩展NTS/TS 与安装PHP对应</strong><br>一般的集成环境中，<code>**PHP的架构都是**32位的（x86）****，</code>而你的电脑是64位（x64），<code>以PHP的环境架构为准</code>，例如：我的使用的PHP是x32为，电脑是win10 64位，我直接到xdebug官网下载64位扩展，导致开启扩展失败<br><strong>3. 配置文件写的不全</strong><br>下面给出</p>
+<h2 id="2-具体开启XDebug流程"><a href="#2-具体开启XDebug流程" class="headerlink" title="2. 具体开启XDebug流程"></a>2. 具体开启XDebug流程</h2><p><em><strong>版本一定要一致</strong></em><br><strong>1、使用phpinfo函数查看PHP版本信息需要注意的如下：</strong></p>
 <p><img src="https://img-blog.csdnimg.cn/20191220140707338.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><strong>2、按照上图红框内的信息到<code>https://xdebug.org/download.php</code>下载对应的xdebug扩展</strong><br>需要注意的地方是xdebug官网中<br>没有带（TS）为非线性安全版本（NTS）<br>没有带（TS）为非线性安全版本（NTS）<br>没有带（TS）为非线性安全版本（NTS）<br><img src="https://img-blog.csdnimg.cn/20191220141048558.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><strong>3、在php.ini文件中添加如下信息：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[XDebug]</span><br><span class="line">zend_extension=<span class="string">"D:\phpStudy\PHPTutorial\php\php-7.2.1-nts\ext\此处为刚刚下载好的路径"</span></span><br><span class="line">;是否允许Xdebug跟踪函数调用，跟踪信息以文件形式存储，默认值为<span class="number">0</span></span><br><span class="line">xdebug.auto_trace=<span class="number">1</span></span><br><span class="line">;是否允许Xdebug跟踪函数参数，默认值为<span class="number">0</span></span><br><span class="line">xdebug.collect_params=<span class="number">1</span></span><br><span class="line">;是否允许Xdebug跟踪函数返回值，默认值为<span class="number">0</span></span><br><span class="line">xdebug.collect_return=<span class="number">1</span></span><br><span class="line">;函数调用跟踪信息输出文件目录，默认值为/tmp</span><br><span class="line">xdebug.trace_output_dir =<span class="string">"F:\PHP_xdebug"</span></span><br><span class="line">;性能分析文件的存放位置，默认值为/tmp</span><br><span class="line">xdebug.profiler_output_dir =<span class="string">"F:\PHP_xdebug"</span></span><br><span class="line">;打开xdebug的性能分析器，以文件形式存储，这项配置是不能以ini_set()函数配置的，默认值为<span class="number">0</span></span><br><span class="line">xdebug.profiler_enable = <span class="number">1</span></span><br><span class="line">;性能分析文件的命名规则，默认值为cachegrind.out.%p</span><br><span class="line">xdebug.profiler_output_name = <span class="string">"cachegrind.out.%t.%p"</span></span><br><span class="line">xdebug.remote_enable = <span class="number">1</span></span><br><span class="line">;用于zend studio远程调试的应用层通信协议</span><br><span class="line">xdebug.remote_handler = <span class="string">"dbgp"</span></span><br><span class="line">xdebug.idekey = PHPSTORM</span><br><span class="line">xdebug.remote_host = <span class="string">"127.0.0.1"</span></span><br><span class="line">xdebug.remote_port = <span class="number">9000</span></span><br></pre></td></tr></table></figure>
+
 <p><strong>4、重启Apache服务器</strong></p>
 <p>查看phpinfo开启成功<br><img src="https://img-blog.csdnimg.cn/20191220141539211.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 

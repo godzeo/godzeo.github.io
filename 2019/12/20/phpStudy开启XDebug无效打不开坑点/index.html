@@ -6,18 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="1. 造成开启XDebug无效原因1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题 2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP对">
+    <meta name="description" content="1. 造成开启XDebug无效原因1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题 2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP对应一">
 <meta property="og:type" content="article">
 <meta property="og:title" content="phpStudy开启XDebug无效打不开坑点">
 <meta property="og:url" content="https://godzeo.github.io/2019/12/20/phpStudy%E5%BC%80%E5%90%AFXDebug%E6%97%A0%E6%95%88%E6%89%93%E4%B8%8D%E5%BC%80%E5%9D%91%E7%82%B9/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="1. 造成开启XDebug无效原因1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题 2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP对">
+<meta property="og:description" content="1. 造成开启XDebug无效原因1. 路径不正确在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题 2. php_debug扩展版本不匹配 php_debug扩展32位或者64位与安装PHP的不对应PHP7.2版本，实际下载的php_debug版本是PHP7.1，就会造成开启debug失败注意下载的php_debug扩展NTS&#x2F;TS 与安装PHP对应一">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220140707338.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220141048558.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220141539211.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-12-20T06:15:50.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:31.408Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:32.966Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -168,8 +168,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <h2 id="1-造成开启XDebug无效原因"><a href="#1-造成开启XDebug无效原因" class="headerlink" title="1. 造成开启XDebug无效原因"></a>1. 造成开启XDebug无效原因</h2><p><strong>1. 路径不正确</strong><br>在php.ini文件中zend_extension路径不正确，例如：正反斜杠、路径不对问题</p>
 <p><strong>2. php_debug扩展版本不匹配</strong></p>

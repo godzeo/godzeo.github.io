@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="文章目录 0x00 前提  0x01 Kerberos域认证  域认证大致流程：  第一部分：生成TGT 和 session key  第二步：获取要访问的 server ticket  第三部 向客户端向服务器请求认证  0x01 白银票据(Silver Tickets)  伪造白银票据(Silver Tickets)   0x02 黄金票据（Golden Ticket）  伪造黄金票据">
+    <meta name="description" content="文章目录  0x00 前提 0x01 Kerberos域认证 域认证大致流程： 第一部分：生成TGT 和 session key 第二步：获取要访问的 server ticket 第三部 向客户端向服务器请求认证 0x01 白银票据(Silver Tickets)  伪造白银票据(Silver Tickets)   0x02 黄金票据（Golden Ticket）  伪造黄金票据   0x03">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网安全:Kerberos域认证流程---黄金票据和白银票据">
 <meta property="og:url" content="https://godzeo.github.io/2020/05/12/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!Kerberos%E5%9F%9F%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B---%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="文章目录 0x00 前提  0x01 Kerberos域认证  域认证大致流程：  第一部分：生成TGT 和 session key  第二步：获取要访问的 server ticket  第三部 向客户端向服务器请求认证  0x01 白银票据(Silver Tickets)  伪造白银票据(Silver Tickets)   0x02 黄金票据（Golden Ticket）  伪造黄金票据">
+<meta property="og:description" content="文章目录  0x00 前提 0x01 Kerberos域认证 域认证大致流程： 第一部分：生成TGT 和 session key 第二步：获取要访问的 server ticket 第三部 向客户端向服务器请求认证 0x01 白银票据(Silver Tickets)  伪造白银票据(Silver Tickets)   0x02 黄金票据（Golden Ticket）  伪造黄金票据   0x03">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDMxNTkucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDAxMTcucG5n?x-oss-process=image/format,png">
@@ -19,7 +19,7 @@
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDE2MzYucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMTA2MDUucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-05-12T06:11:44.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:28.636Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:29.788Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -171,34 +171,27 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-
-
 <h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
-<li><p><a href="#0x00__3">0x00 前提</a></p>
-</li>
-<li><p><a href="#0x01_Kerberos_7">0x01 Kerberos域认证</a></p>
-</li>
-<li><p><a href="#_41">域认证大致流程：</a></p>
-</li>
-<li><p><a href="#TGT___session_key_53">第一部分：生成TGT 和 session key</a></p>
-</li>
-<li><p><a href="#_server_ticket_79">第二步：获取要访问的 server ticket</a></p>
-</li>
-<li><p><a href="#__109">第三部 向客户端向服务器请求认证</a></p>
-</li>
-<li><p><a href="#0x01_Silver_Tickets_133">0x01 白银票据(Silver Tickets)</a></p>
-<ul>
+<li><ul>
+<li><a href="#0x00__3">0x00 前提</a></li>
+<li><a href="#0x01_Kerberos_7">0x01 Kerberos域认证</a></li>
+<li><a href="#_41">域认证大致流程：</a></li>
+<li><a href="#TGT___session_key_53">第一部分：生成TGT 和 session key</a></li>
+<li><a href="#_server_ticket_79">第二步：获取要访问的 server ticket</a></li>
+<li><a href="#__109">第三部 向客户端向服务器请求认证</a></li>
+<li><a href="#0x01_Silver_Tickets_133">0x01 白银票据(Silver Tickets)</a></li>
+<li><ul>
 <li><a href="#Silver_Tickets_161">伪造白银票据(Silver Tickets)</a></li>
 </ul>
 </li>
-<li><p><a href="#0x02_Golden_Ticket_220">0x02 黄金票据（Golden Ticket）</a></p>
-<ul>
+<li><a href="#0x02_Golden_Ticket_220">0x02 黄金票据（Golden Ticket）</a></li>
+<li><ul>
 <li><a href="#_236">伪造黄金票据</a></li>
 </ul>
 </li>
-<li><p><a href="#0x03__288">0x03 黄金票据和白银票据比较</a></p>
-</li>
-<li><p><a href="#0x04__300">0x04 参考</a></p>
+<li><a href="#0x03__288">0x03 黄金票据和白银票据比较</a></li>
+<li><a href="#0x04__300">0x04 参考</a></li>
+</ul>
 </li>
 </ul>
 <h2 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h2><p>算是学习之后总结记录，加深自己的理解，这里我是参考了倾旋师傅的讲解，感觉讲的比较好，加入自己的理解和一些其他东西写下来，分享出来，也方便自己回顾知识和补充<br>还有画图的问题，我自己画的太费劲了而且也看不明白，索性我就自己手画了几个，方便自己理解和熟悉流程，感觉不错，手动狗头，哈哈</p>
@@ -235,16 +228,16 @@
 </li>
 </ol>
 <h2 id="第一部分：生成TGT-和-session-key"><a href="#第一部分：生成TGT-和-session-key" class="headerlink" title="第一部分：生成TGT 和 session key"></a>第一部分：生成TGT 和 session key</h2><p>1.Client发送自己的身份信息到KDC（身份信息中起码包含用户名），KDC根据用户名在AD中寻找是否在白名单中，然后根据用户名提取到对应的NTLM Hash。</p>
-<p>2 .KDC此时生成一个随机字符串Session Key，使用客户端的NTLM Hash加密Session Key，作为AS数据，使用KDC中krbtgt用户的NTLM Hash加密Session Key和客户端的信息，生成TGT。</p>
+<p>2 .KDC此时生成一个随机字符串Session Key，使用客户端的NTLM Hash加密Session Key，作为AS数据，使用KDC中krbtgt用户的NTLM Hash加密Session Key和客户端的信息，生成TGT。</p>
 <p>第一部分：获取了 TGT</p>
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDAxMTcucG5n?x-oss-process=image/format,png" alt="image-20200512100117725"></p>
-<p>注：客户端收到 TGT 是无法解密的，KDC返回的TGT客户端是无法解密的，因为它没有KDC Hash，KDC Hash指的就是是krbtgt 的hash</p>
-<p>这就是伪造黄金票据的原理，这个是后面还会有介绍。</p>
+<p>注：客户端收到 TGT 是无法解密的，KDC返回的TGT客户端是无法解密的，因为它没有KDC Hash，KDC Hash指的就是是krbtgt 的hash</p>
+<p>这就是伪造黄金票据的原理，这个是后面还会有介绍。</p>
 <h2 id="第二步：获取要访问的-server-ticket"><a href="#第二步：获取要访问的-server-ticket" class="headerlink" title="第二步：获取要访问的 server ticket"></a>第二步：获取要访问的 server ticket</h2><p>1.客户端使用自己NTLM Hash解密出来的Session Key加密的客户端信息跟时间戳。</p>
 <p>如果假设这个数据被中间人窃取到，也无法在段时间内破解，因为KDC会校验时间戳。</p>
-<p>2.KDC接到TGT与其他内容后，会首先解密TGT，只有KDC可以解密TGT，从TGT中提取到Session Key，再使用Session Key解密其他内容，解密出来的内容同TGT中的信息进行校验来确认客户端是否受信。</p>
+<p>2.KDC接到TGT与其他内容后，会首先解密TGT，只有KDC可以解密TGT，从TGT中提取到Session Key，再使用Session Key解密其他内容，解密出来的内容同TGT中的信息进行校验来确认客户端是否受信。</p>
 <p>3.验证通过后，就会生成一个新的Session Key，我们称之为Server Session Key</p>
-<p>这个Server Session Key主要用于和服务器进行通信。同时还会生成一个Ticket，也就是最后的票据了。</p>
+<p>这个Server Session Key主要用于和服务器进行通信。同时还会生成一个Ticket，也就是最后的票据了。</p>
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTIxMDA1MTcucG5n?x-oss-process=image/format,png" alt="image-20200512100517747"></p>
 <p>注释：Server Hash：这个Hash是在AD中服务器计算机的NTLM Hash。</p>
 <h2 id="第三部-向客户端向服务器请求认证"><a href="#第三部-向客户端向服务器请求认证" class="headerlink" title="第三部 向客户端向服务器请求认证"></a>第三部 向客户端向服务器请求认证</h2><p>客户端向服务器请求，需要提供Ticket，Server Session Key加密的客户端信息与时间戳。</p>

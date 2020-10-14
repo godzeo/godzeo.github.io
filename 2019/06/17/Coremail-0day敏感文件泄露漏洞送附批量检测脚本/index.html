@@ -6,18 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="漏洞介绍Coremail邮件系统是业内唯一一款商用的超大规模运营级邮件系统，开始研发于1999年 [1] ，其前身为中国第一套中文电子邮件系统163\126，目前在中国的客户包括网易系列邮箱、中国移动手机邮箱(139)等国内领先的邮箱服务运营商，以及宝钢、首钢、南方电网、农业银行、交通银行、华润、神华、华能等世界500强中国企业，截止2019年，Coremail邮件系统产品在国内已拥有10">
+    <meta name="description" content="漏洞介绍Coremail邮件系统是业内唯一一款商用的超大规模运营级邮件系统，开始研发于1999年 [1] ，其前身为中国第一套中文电子邮件系统163\126，目前在中国的客户包括网易系列邮箱、中国移动手机邮箱(139)等国内领先的邮箱服务运营商，以及宝钢、首钢、南方电网、农业银行、交通银行、华润、神华、华能等世界500强中国企业，截止2019年，Coremail邮件系统产品在国内已拥有10亿终">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Coremail-0day敏感文件泄露漏洞送附批量检测脚本">
 <meta property="og:url" content="https://godzeo.github.io/2019/06/17/Coremail-0day%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%E6%B3%84%E9%9C%B2%E6%BC%8F%E6%B4%9E%E9%80%81%E9%99%84%E6%89%B9%E9%87%8F%E6%A3%80%E6%B5%8B%E8%84%9A%E6%9C%AC/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="漏洞介绍Coremail邮件系统是业内唯一一款商用的超大规模运营级邮件系统，开始研发于1999年 [1] ，其前身为中国第一套中文电子邮件系统163\126，目前在中国的客户包括网易系列邮箱、中国移动手机邮箱(139)等国内领先的邮箱服务运营商，以及宝钢、首钢、南方电网、农业银行、交通银行、华润、神华、华能等世界500强中国企业，截止2019年，Coremail邮件系统产品在国内已拥有10">
+<meta property="og:description" content="漏洞介绍Coremail邮件系统是业内唯一一款商用的超大规模运营级邮件系统，开始研发于1999年 [1] ，其前身为中国第一套中文电子邮件系统163\126，目前在中国的客户包括网易系列邮箱、中国移动手机邮箱(139)等国内领先的邮箱服务运营商，以及宝钢、首钢、南方电网、农业银行、交通银行、华润、神华、华能等世界500强中国企业，截止2019年，Coremail邮件系统产品在国内已拥有10亿终">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190617223418397.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/2019061722321129.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190617223222864.png">
 <meta property="article:published_time" content="2019-06-17T14:39:44.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:33.088Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:34.565Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -168,8 +168,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a><strong>漏洞介绍</strong></h2><p>Coremail邮件系统是业内唯一一款商用的超大规模运营级邮件系统，开始研发于1999年 [1] ，其前身为中国第一套中文电子邮件系统163\126，目前在中国的客户包括网易系列邮箱、中国移动手机邮箱(139)等国内领先的邮箱服务运营商，以及宝钢、首钢、南方电网、农业银行、交通银行、华润、神华、华能等世界500强中国企业，截止2019年，Coremail邮件系统产品在国内已拥有10亿终端用户 [2] ，已成为中国用户实际使用最广泛的电子邮件系统。</p>
 <p>2019年5月22日，国家信息安全漏洞共享平台（CNVD）收录了由北京天融信网络安全技术有限公司报送的Coremail邮件系统信息泄露漏洞（CNVD-2019-16798）。<br>由于Coremail邮件系统的mailsms模块的参数大小写敏感存在缺陷，使得攻击者利用该漏洞，在未授权的情况下，通过远程访问URL地址获知Coremail服务器的系统配置文件，造成数据库连接参数等系统敏感配置信息泄露。</p>

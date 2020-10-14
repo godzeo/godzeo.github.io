@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="Thinkphp 反序列化深入分析 环境搭建  铺垫知识  漏洞起点  rce部分起点 代码执行点分析 最终POC    环境搭建Thinkphp 5.1.37 -—- 应该是5.1.x可以 php 7.0.12 composer create-project topthink&#x2F;think&#x3D;5.1.37 v5.1.37 铺垫知识1. PHP反序列化原理PHP反序列化就是在读取一段字符串然后">
+    <meta name="description" content="Thinkphp 反序列化深入分析 环境搭建 铺垫知识 漏洞起点  rce部分起点 代码执行点分析 最终POC    环境搭建Thinkphp 5.1.37 -—- 应该是5.1.x可以 php 7.0.12 composer create-project topthink&#x2F;think&#x3D;5.1.37 v5.1.37 铺垫知识1. PHP反序列化原理PHP反序列化就是在读取一段字符串然后将字符串">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Thinkphp 反序列化深入分析pop利用链">
 <meta property="og:url" content="https://godzeo.github.io/2019/12/18/Thinkphp%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90pop%E5%88%A9%E7%94%A8%E9%93%BE/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="Thinkphp 反序列化深入分析 环境搭建  铺垫知识  漏洞起点  rce部分起点 代码执行点分析 最终POC    环境搭建Thinkphp 5.1.37 -—- 应该是5.1.x可以 php 7.0.12 composer create-project topthink&#x2F;think&#x3D;5.1.37 v5.1.37 铺垫知识1. PHP反序列化原理PHP反序列化就是在读取一段字符串然后">
+<meta property="og:description" content="Thinkphp 反序列化深入分析 环境搭建 铺垫知识 漏洞起点  rce部分起点 代码执行点分析 最终POC    环境搭建Thinkphp 5.1.37 -—- 应该是5.1.x可以 php 7.0.12 composer create-project topthink&#x2F;think&#x3D;5.1.37 v5.1.37 铺垫知识1. PHP反序列化原理PHP反序列化就是在读取一段字符串然后将字符串">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200106153640755.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200106154101612.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200107150410781.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200107152900358.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-12-18T08:11:45.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:31.805Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:33.261Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -180,15 +180,11 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-
-
 <h3 id="Thinkphp-反序列化深入分析"><a href="#Thinkphp-反序列化深入分析" class="headerlink" title="Thinkphp 反序列化深入分析"></a>Thinkphp 反序列化深入分析</h3><ul>
-<li><p><a href="#_2">环境搭建</a></p>
-</li>
-<li><p><a href="#_10">铺垫知识</a></p>
-</li>
-<li><p><a href="#_89">漏洞起点</a></p>
-<ul>
+<li><a href="#_2">环境搭建</a></li>
+<li><a href="#_10">铺垫知识</a></li>
+<li><a href="#_89">漏洞起点</a></li>
+<li><ul>
 <li><a href="#rce_136">rce部分起点</a></li>
 <li><a href="#_271">代码执行点分析</a></li>
 <li><a href="#POC_593">最终POC</a></li>
@@ -262,7 +258,7 @@
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getData</span><span class="params">($name = null)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (is_null($name)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;data;</span><br><span class="line">        &#125; <span class="keyword">elseif</span> (array_key_exists($name, <span class="keyword">$this</span>-&gt;data)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;data[$name];</span><br><span class="line">        &#125; <span class="keyword">elseif</span> (array_key_exists($name, <span class="keyword">$this</span>-&gt;relation)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;relation[$name];</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<p>通过查看getData函数我们可以知道relation的值为relation的值为relation的值为this-&gt;data[$name]，需要注意的一点是这里类的定义使用的是Trait而不是class。自<br>PHP 5.4.0 起，PHP 实现了一种代码复用的方法，称为 trait。通过在类中使用use<br>关键字，声明要组合的Trait名称。所以，这里类的继承要使用use关键字。然后我们需要找到一个子类同时继承了Attribute类和Conversion类。</p>
+<p>通过查看getData函数我们可以知道 r e l a t i o n 的 值 为 relation的值为 relation的值为this-&gt;data[$name]，需要注意的一点是这里类的定义使用的是Trait而不是class。自<br>PHP 5.4.0 起，PHP 实现了一种代码复用的方法，称为 trait。通过在类中使用use<br>关键字，声明要组合的Trait名称。所以，这里类的继承要使用use关键字。然后我们需要找到一个子类同时继承了Attribute类和Conversion类。</p>
 </blockquote>
 <p>我们可以在\thinkphp\library\think\Model.php中找到这样一个类</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Model</span> <span class="keyword">implements</span> \<span class="title">JsonSerializable</span>, \<span class="title">ArrayAccess</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">use</span> <span class="title">model</span>\<span class="title">concern</span>\<span class="title">Attribute</span>;</span><br><span class="line">    <span class="keyword">use</span> <span class="title">model</span>\<span class="title">concern</span>\<span class="title">RelationShip</span>;</span><br><span class="line">    <span class="keyword">use</span> <span class="title">model</span>\<span class="title">concern</span>\<span class="title">ModelEvent</span>;</span><br><span class="line">    <span class="keyword">use</span> <span class="title">model</span>\<span class="title">concern</span>\<span class="title">TimeStamp</span>;</span><br><span class="line">    <span class="keyword">use</span> <span class="title">model</span>\<span class="title">concern</span>\<span class="title">Conversion</span>;</span><br></pre></td></tr></table></figure>
@@ -312,7 +308,7 @@
 <p>可以看到这里this-&gt;param完全可控，是通过get传参数进去的，那么也就是说input函数中的<code>$data</code>参数可控，也就是<code>call_user_func</code>的<code>$value,</code>现在差一个条件，那就是name是字符串，继续回溯。<br>这里仍然是不可控的，所以我们继续找调用param函数的地方。找到了isAjax函数</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isAjax</span><span class="params">($ajax = false)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $value  = <span class="keyword">$this</span>-&gt;server(<span class="string">'HTTP_X_REQUESTED_WITH'</span>);</span><br><span class="line">        $result = <span class="string">'xmlhttprequest'</span> == strtolower($value) ? <span class="keyword">true</span> : <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">true</span> === $ajax) &#123;</span><br><span class="line">            <span class="keyword">return</span> $result;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        $result           = <span class="keyword">$this</span>-&gt;param(<span class="keyword">$this</span>-&gt;config[<span class="string">'var_ajax'</span>]) ? <span class="keyword">true</span> : $result;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;mergeParam = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">return</span> $result;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p>在isAjax函数中，我们可以控制<code>$this-&gt;config[&#39;var_ajax&#39;]</code>，<code>$this-&gt;config[&#39;var_ajax&#39;]</code>可控就意味着param函数中的name可控。param函数中的name可控。param函数中的name可控。param函数中的name可控就意味着input函数中的$name可控。</p>
+<p>在isAjax函数中，我们可以控制<code>$this-&gt;config[&#39;var_ajax&#39;]</code>，<code>$this-&gt;config[&#39;var_ajax&#39;]</code>可控就意味着param函数中的 n a m e 可 控 。 p a r a m 函 数 中 的 name可控。param函数中的 name可控。param函数中的name可控就意味着input函数中的$name可控。</p>
 <p><strong>可以导致RCE<br>回溯一下</strong></p>
 <p>param（）函数 可以获得<code>$_GET</code>数组并赋值给<code>$this-&gt;param</code></p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">$this</span>-&gt;param = array_merge(<span class="keyword">$this</span>-&gt;param, <span class="keyword">$this</span>-&gt;get(<span class="keyword">false</span>), $vars, <span class="keyword">$this</span>-&gt;route(<span class="keyword">false</span>));</span><br></pre></td></tr></table></figure>

@@ -6,16 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="【研究】 1.环境 2.原理 3.影响版本 4.利用过程  1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理2014年4月7日OpenSSL发布了安全公告，在OpenSSL1.0.1版本的心跳包模块存在严重漏洞（CVE-2014-0160）。攻击者可以通">
+    <meta name="description" content="【研究】  1.环境 2.原理 3.影响版本 4.利用过程    1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理2014年4月7日OpenSSL发布了安全公告，在OpenSSL1.0.1版本的心跳包模块存在严重漏洞（CVE-2014-0160）。攻击者可以">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【研究】心脏出血漏洞">
 <meta property="og:url" content="https://godzeo.github.io/2019/08/28/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91%E5%BF%83%E8%84%8F%E5%87%BA%E8%A1%80%E6%BC%8F%E6%B4%9E/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="【研究】 1.环境 2.原理 3.影响版本 4.利用过程  1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理2014年4月7日OpenSSL发布了安全公告，在OpenSSL1.0.1版本的心跳包模块存在严重漏洞（CVE-2014-0160）。攻击者可以通">
+<meta property="og:description" content="【研究】  1.环境 2.原理 3.影响版本 4.利用过程    1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理2014年4月7日OpenSSL发布了安全公告，在OpenSSL1.0.1版本的心跳包模块存在严重漏洞（CVE-2014-0160）。攻击者可以">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190828161833626.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-08-28T08:24:30.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:32.311Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:34.096Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -167,13 +167,14 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-
-
 <h3 id="【研究】"><a href="#【研究】" class="headerlink" title="【研究】"></a>【研究】</h3><ul>
+<li><ul>
 <li><a href="#1_3">1.环境</a></li>
 <li><a href="#2_8">2.原理</a></li>
 <li><a href="#3_13">3.影响版本</a></li>
 <li><a href="#4_19">4.利用过程</a></li>
+</ul>
+</li>
 </ul>
 <h2 id="1-环境"><a href="#1-环境" class="headerlink" title="1.环境"></a>1.环境</h2><p>环境<br><a href="https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md</a><br>这个搭环境很方便快捷，具体可以看说明，很简单</p>
 <h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><p>2014年4月7日OpenSSL发布了安全公告，在OpenSSL1.0.1版本的心跳包模块存在严重漏洞（CVE-2014-0160）。攻击者可以通过构造特殊的数据包，直接远程读取存在漏洞的OpenSSL服务器内存中多达64KB的数据，极有可能导致网站用户帐号密码等敏感数据被非法获取。漏洞发现者甚至声称可以直接获取到证书私钥和重要的商业文档。</p>

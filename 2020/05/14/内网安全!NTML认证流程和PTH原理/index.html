@@ -6,17 +6,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="NTML认证流程和PTH原理. 0x01 本地认证流程  0x02 网络认证  LM Hash和NTML Hash NTLM Hash NTLM V2协议   0x03 NTLM 认证  0x04 Pass The Hash （PTH）原理  主要作用： 前提： 原理： 使用方法： 绕过补丁，进行哈希传递    0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给ls">
+    <meta name="description" content="NTML认证流程和PTH原理.  0x01 本地认证流程 0x02 网络认证  LM Hash和NTML Hash NTLM Hash NTLM V2协议   0x03 NTLM 认证 0x04 Pass The Hash （PTH）原理  主要作用： 前提： 原理： 使用方法： 绕过补丁，进行哈希传递      0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给lsas">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网安全:NTML认证流程和PTH原理">
 <meta property="og:url" content="https://godzeo.github.io/2020/05/14/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8!NTML%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E5%92%8CPTH%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="NTML认证流程和PTH原理. 0x01 本地认证流程  0x02 网络认证  LM Hash和NTML Hash NTLM Hash NTLM V2协议   0x03 NTLM 认证  0x04 Pass The Hash （PTH）原理  主要作用： 前提： 原理： 使用方法： 绕过补丁，进行哈希传递    0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给ls">
+<meta property="og:description" content="NTML认证流程和PTH原理.  0x01 本地认证流程 0x02 网络认证  LM Hash和NTML Hash NTLM Hash NTLM V2协议   0x03 NTLM 认证 0x04 Pass The Hash （PTH）原理  主要作用： 前提： 原理： 使用方法： 绕过补丁，进行哈希传递      0x01 本地认证流程操作系统会显示登录界面，接收输入密码后，将密码交给lsas">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3MzQucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3NTcucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-05-14T05:41:28.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:28.766Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:29.788Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -168,22 +168,19 @@
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
 
-
-
 <h3 id="NTML认证流程和PTH原理"><a href="#NTML认证流程和PTH原理" class="headerlink" title="NTML认证流程和PTH原理."></a>NTML认证流程和PTH原理.</h3><ul>
-<li><p><a href="#0x01__3">0x01 本地认证流程</a></p>
-</li>
-<li><p><a href="#0x02__26">0x02 网络认证</a></p>
-<ul>
+<li><ul>
+<li><a href="#0x01__3">0x01 本地认证流程</a></li>
+<li><a href="#0x02__26">0x02 网络认证</a></li>
+<li><ul>
 <li><a href="#LM_HashNTML_Hash_32">LM Hash和NTML Hash</a></li>
 <li><a href="#NTLM_Hash_38">NTLM Hash</a></li>
 <li><a href="#NTLM_V2_73">NTLM V2协议</a></li>
 </ul>
 </li>
-<li><p><a href="#0x03_NTLM__87">0x03 NTLM 认证</a></p>
-</li>
-<li><p><a href="#0x04_Pass_The_Hash_PTH_105">0x04 Pass The Hash （PTH）原理</a></p>
-<ul>
+<li><a href="#0x03_NTLM__87">0x03 NTLM 认证</a></li>
+<li><a href="#0x04_Pass_The_Hash_PTH_105">0x04 Pass The Hash （PTH）原理</a></li>
+<li><ul>
 <li><a href="#_107">主要作用：</a></li>
 <li><a href="#_113">前提：</a></li>
 <li><a href="#_122">原理：</a></li>
@@ -192,7 +189,9 @@
 </ul>
 </li>
 </ul>
-<h2 id="0x01-本地认证流程"><a href="#0x01-本地认证流程" class="headerlink" title="0x01 本地认证流程"></a>0x01 本地认证流程</h2><p>操作系统会显示登录界面，接收输入密码后，将密码交给lsass进程，这个进程中会存一份明文密码，将明文密码加密成NTLM Hash，和SAM数据库比较认证。</p>
+</li>
+</ul>
+<h2 id="0x01-本地认证流程"><a href="#0x01-本地认证流程" class="headerlink" title="0x01 本地认证流程"></a>0x01 本地认证流程</h2><p>操作系统会显示登录界面，接收输入密码后，将密码交给lsass进程，这个进程中会存一份明文密码，将明文密码加密成NTLM Hash，和SAM数据库比较认证。</p>
 <p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTQxMzM3MzQucG5n?x-oss-process=image/format,png" alt="image-20200514133734007"></p>
 <p>注：</p>
 <ul>

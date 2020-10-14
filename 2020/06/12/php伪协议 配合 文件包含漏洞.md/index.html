@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on 默认开启 allow_url_include：om 默认关闭 PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。 先站在">
+    <meta name="description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on 默认开启 allow_url_include：om 默认关闭 PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。 先站在前人">
 <meta property="og:type" content="article">
 <meta property="og:title" content="php伪协议 配合 文件包含漏洞.md">
 <meta property="og:url" content="https://godzeo.github.io/2020/06/12/php%E4%BC%AA%E5%8D%8F%E8%AE%AE%20%E9%85%8D%E5%90%88%20%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E.md/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on 默认开启 allow_url_include：om 默认关闭 PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。 先站在">
+<meta property="og:description" content="0x00 起因被问到了php的一伪协议 后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番 又感觉自己学了半天不知道自己在干嘛。。。哎。。。 0x01 环境PHP版本：5.4.45 PHP.ini： allow_url_fopen ：on 默认开启 allow_url_include：om 默认关闭 PHP版本&lt;&#x3D;5.2 可以使用%00进行截断，但是少有低版本的了。。。 先站在前人">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMjEyMjMucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTEyMzQ5MjIucG5n?x-oss-process=image/format,png">
@@ -22,7 +22,7 @@
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDA1MjMucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MTIwMDE0MjIucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-06-11T16:39:32.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:27.551Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:29.826Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -173,8 +173,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <h1 id="0x00-起因"><a href="#0x00-起因" class="headerlink" title="0x00 起因"></a>0x00 起因</h1><p>被问到了php的一伪协议</p>
 <p>后发现自己对伪协议的认识还是太浅， 现在好好总结学习一番</p>

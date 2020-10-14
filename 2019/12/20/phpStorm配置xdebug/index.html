@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="运行环境：PHPSTORM版本 : 2019.3 汉化PHP版本 : php-7.0.12-ntsxdebug版本：php_xdebug-2.6.0beta1-7.0-vc14-ntsps : php版本和xdebug版本一定要相对应xdebug下载地址：http:&#x2F;&#x2F;xdebug.org&#x2F;download.php 1.环境下的php.ini中添加关于xdebug的配置信息1234567[">
+    <meta name="description" content="运行环境：PHPSTORM版本 : 2019.3 汉化PHP版本 : php-7.0.12-ntsxdebug版本：php_xdebug-2.6.0beta1-7.0-vc14-ntsps : php版本和xdebug版本一定要相对应xdebug下载地址：http:&#x2F;&#x2F;xdebug.org&#x2F;download.php 1.环境下的php.ini中添加关于xdebug的配置信息1234567[XD">
 <meta property="og:type" content="article">
 <meta property="og:title" content="phpStorm配置xdebug">
 <meta property="og:url" content="https://godzeo.github.io/2019/12/20/phpStorm%E9%85%8D%E7%BD%AExdebug/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="运行环境：PHPSTORM版本 : 2019.3 汉化PHP版本 : php-7.0.12-ntsxdebug版本：php_xdebug-2.6.0beta1-7.0-vc14-ntsps : php版本和xdebug版本一定要相对应xdebug下载地址：http:&#x2F;&#x2F;xdebug.org&#x2F;download.php 1.环境下的php.ini中添加关于xdebug的配置信息1234567[">
+<meta property="og:description" content="运行环境：PHPSTORM版本 : 2019.3 汉化PHP版本 : php-7.0.12-ntsxdebug版本：php_xdebug-2.6.0beta1-7.0-vc14-ntsps : php版本和xdebug版本一定要相对应xdebug下载地址：http:&#x2F;&#x2F;xdebug.org&#x2F;download.php 1.环境下的php.ini中添加关于xdebug的配置信息1234567[XD">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220143254447.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220143206796.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
@@ -21,7 +21,7 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220143331730.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20191220143455269.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-12-20T06:35:36.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:31.806Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:32.517Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -172,8 +172,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <p>运行环境：<br>PHPSTORM版本 : 2019.3 汉化<br>PHP版本 : php-7.0.12-nts<br>xdebug版本：php_xdebug-2.6.0beta1-7.0-vc14-nts<br>ps : php版本和xdebug版本一定要相对应<br>xdebug下载地址：<a href="http://xdebug.org/download.php" target="_blank" rel="noopener">http://xdebug.org/download.php</a></p>
 <h2 id="1-环境下的php-ini中添加关于xdebug的配置信息"><a href="#1-环境下的php-ini中添加关于xdebug的配置信息" class="headerlink" title="1.环境下的php.ini中添加关于xdebug的配置信息"></a>1.环境下的php.ini中添加关于xdebug的配置信息</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[XDebug]</span><br><span class="line">zend_extension=<span class="string">"D:\phpStudy\php\php-5.6.27-nts\ext\php_xdebug.dll"</span></span><br><span class="line">xdebug.remote_enable=On</span><br><span class="line">xdebug.remote_handler=dbgp</span><br><span class="line">xdebug.remote_host=localhost</span><br><span class="line">xdebug.remote_port=<span class="number">9000</span></span><br><span class="line">xdebug.idekey=PHPSTORM</span><br></pre></td></tr></table></figure>

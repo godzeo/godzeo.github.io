@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="前言这是老以前做的一个，主要熟悉一下cs4的新特性，还是发出来看看吧，流程简单一些，但是内网流程还是比较完整的。大家可以看看  本次靶机为红日安全的ATT&amp;CK第五个靶场。 http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;7&#x2F; 思路参考 记一次在Vulnstack ATT&amp;CK 5 靶场中使用CobaltStrike的渗透之旅">
+    <meta name="description" content="前言这是老以前做的一个，主要熟悉一下cs4的新特性，还是发出来看看吧，流程简单一些，但是内网流程还是比较完整的。大家可以看看  本次靶机为红日安全的ATT&amp;CK第五个靶场。 http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;7&#x2F; 思路参考 记一次在Vulnstack ATT&amp;CK 5 靶场中使用CobaltStrike的渗透之旅 文章">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网中CobaltStrike4.0（CS4）的渗透之旅">
 <meta property="og:url" content="https://godzeo.github.io/2020/07/02/%E5%86%85%E7%BD%91%E4%B8%ADCobaltStrike4.0%EF%BC%88CS4%EF%BC%89%E7%9A%84%E6%B8%97%E9%80%8F%E4%B9%8B%E6%97%85/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="前言这是老以前做的一个，主要熟悉一下cs4的新特性，还是发出来看看吧，流程简单一些，但是内网流程还是比较完整的。大家可以看看  本次靶机为红日安全的ATT&amp;CK第五个靶场。 http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;7&#x2F; 思路参考 记一次在Vulnstack ATT&amp;CK 5 靶场中使用CobaltStrike的渗透之旅">
+<meta property="og:description" content="前言这是老以前做的一个，主要熟悉一下cs4的新特性，还是发出来看看吧，流程简单一些，但是内网流程还是比较完整的。大家可以看看  本次靶机为红日安全的ATT&amp;CK第五个靶场。 http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;7&#x2F; 思路参考 记一次在Vulnstack ATT&amp;CK 5 靶场中使用CobaltStrike的渗透之旅 文章">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MDIxMDAzNTcucG5n?x-oss-process=image/format,png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MDIxMDAzNTgucG5n?x-oss-process=image/format,png">
@@ -73,7 +73,7 @@
 <meta property="og:image" content="https://gitee.com/godzeo/blogimg/raw/master/img/20200602100454.png">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MDIxMDA0NTUucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-07-02T03:57:41.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:27.551Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:29.029Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -224,8 +224,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这是老以前做的一个，主要熟悉一下cs4的新特性，还是发出来看看吧，流程简单一些，但是内网流程还是比较完整的。大家可以看看</p>
 <ul>

@@ -6,16 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="0x00 前提自学Java 代码审计，主要自己一个人学习，有点闭门造车，搜索引擎学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。 0x01 文件路径穿越简述： 许多的文件漏洞都是来源于文件路径的问题，好多时候也是路径可控，再加上一下程序员奇怪的逻辑。 如果漏洞">
+    <meta name="description" content="0x00 前提自学Java 代码审计，主要自己一个人学习，有点闭门造车，搜索引擎学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。 0x01 文件路径穿越简述： 许多的文件漏洞都是来源于文件路径的问题，好多时候也是路径可控，再加上一下程序员奇怪的逻辑。 如果漏洞路径">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java代码审计：文件篇&#x2F;文件上传&#x2F;文件读取&#x2F;目录遍历">
 <meta property="og:url" content="https://godzeo.github.io/2020/08/19/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E6%96%87%E4%BB%B6%E7%AF%87!%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0!%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96!%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/index.html">
 <meta property="og:site_name" content="Zeo 安全实验室">
-<meta property="og:description" content="0x00 前提自学Java 代码审计，主要自己一个人学习，有点闭门造车，搜索引擎学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。 0x01 文件路径穿越简述： 许多的文件漏洞都是来源于文件路径的问题，好多时候也是路径可控，再加上一下程序员奇怪的逻辑。 如果漏洞">
+<meta property="og:description" content="0x00 前提自学Java 代码审计，主要自己一个人学习，有点闭门造车，搜索引擎学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。 0x01 文件路径穿越简述： 许多的文件漏洞都是来源于文件路径的问题，好多时候也是路径可控，再加上一下程序员奇怪的逻辑。 如果漏洞路径">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA4MDkxNjMzNDAucG5n?x-oss-process=image/format,png">
 <meta property="article:published_time" content="2020-08-19T08:46:04.000Z">
-<meta property="article:modified_time" content="2020-08-31T15:02:26.894Z">
+<meta property="article:modified_time" content="2020-10-14T01:57:27.982Z">
 <meta property="article:author" content="Zeo">
 <meta property="article:tag" content="WEB安全">
 <meta property="article:tag" content="代码审计">
@@ -166,8 +166,6 @@
 
   <div class="content" itemprop="articleBody">
     <a id="more"></a>
-
-
 
 <h1 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h1><p>自学Java 代码审计，主要自己一个人学习，有点闭门造车，搜索引擎学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。</p>
 <h1 id="0x01-文件路径穿越"><a href="#0x01-文件路径穿越" class="headerlink" title="0x01 文件路径穿越"></a>0x01 文件路径穿越</h1><h2 id="简述："><a href="#简述：" class="headerlink" title="简述："></a><strong>简述：</strong></h2><ul>

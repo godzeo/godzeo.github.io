@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://godzeo.github.io/"/>
-  <updated>2020-10-14T01:57:27.982Z</updated>
+  <updated>2021-01-22T02:30:10.904Z</updated>
   <id>https://godzeo.github.io/</id>
   
   <author>
@@ -17,11 +17,174 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>致远OA ajax.do 未授权漏洞任意文件上传getshell复现</title>
+    <link href="https://godzeo.github.io/2021/01/12/%E8%87%B4%E8%BF%9COA%20ajax.do%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0getshell%E5%A4%8D%E7%8E%B0/"/>
+    <id>https://godzeo.github.io/2021/01/12/%E8%87%B4%E8%BF%9COA%20ajax.do%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0getshell%E5%A4%8D%E7%8E%B0/</id>
+    <published>2021-01-12T07:37:17.000Z</published>
+    <updated>2021-01-22T02:30:10.904Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+
+&lt;h1 id=&quot;致远OA-ajax-do-未授权漏洞任意文件上传getshell复现&quot;&gt;&lt;a href=&quot;#致远OA-ajax-do-未授权漏洞任意文件上传getshell复现&quot; class=&quot;headerlink&quot; title=&quot;致远OA
+        
+      
+    
+    </summary>
+    
+    
+      <category term="WEB漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>CVE-2020-17518  任意文件写漏洞复现</title>
+    <link href="https://godzeo.github.io/2021/01/08/CVE-2020-17518%20%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    <id>https://godzeo.github.io/2021/01/08/CVE-2020-17518%20%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</id>
+    <published>2021-01-08T09:19:37.000Z</published>
+    <updated>2021-01-22T02:30:11.221Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+
+&lt;h1 id=&quot;0x01-漏洞简介&quot;&gt;&lt;a href=&quot;#0x01-漏洞简介&quot; class=&quot;headerlink&quot; title=&quot;0x01 漏洞简介&quot;&gt;&lt;/a&gt;&lt;strong&gt;0x01 漏洞简介&lt;/strong&gt;&lt;/h1&gt;&lt;h2
+        
+      
+    
+    </summary>
+    
+    
+      <category term="WEB漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>漏洞复现 Apache Flink CVE-2020-17519 任意文件读取漏洞</title>
+    <link href="https://godzeo.github.io/2021/01/06/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%20Apache%20Flink%20CVE-2020-17519%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/"/>
+    <id>https://godzeo.github.io/2021/01/06/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%20Apache%20Flink%20CVE-2020-17519%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/</id>
+    <published>2021-01-06T09:35:17.000Z</published>
+    <updated>2021-01-22T02:30:11.145Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+
+&lt;h1 id=&quot;0x01-漏洞简介&quot;&gt;&lt;a href=&quot;#0x01-漏洞简介&quot; class=&quot;headerlink&quot; title=&quot;0x01 漏洞简介&quot;&gt;&lt;/a&gt;&lt;strong&gt;0x01 漏洞简介&lt;/strong&gt;&lt;/h1&gt;&lt;h2
+        
+      
+    
+    </summary>
+    
+    
+      <category term="WEB漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>webshell多种方法免杀</title>
+    <link href="https://godzeo.github.io/2020/12/31/webshell%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%85%8D%E6%9D%80/"/>
+    <id>https://godzeo.github.io/2020/12/31/webshell%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%85%8D%E6%9D%80/</id>
+    <published>2020-12-31T05:39:23.000Z</published>
+    <updated>2021-01-22T02:30:11.475Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+
+&lt;h1 id=&quot;0x00-前提&quot;&gt;&lt;a href=&quot;#0x00-前提&quot; class=&quot;headerlink&quot; title=&quot;0x00 前提&quot;&gt;&lt;/a&gt;0x00 前提&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;&lt;input checked=&quot;&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="WEB漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>WordPress xmlrpc.php SSRF漏洞复现</title>
+    <link href="https://godzeo.github.io/2020/11/23/WordPress%20xmlrpc.php%20SSRF%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
+    <id>https://godzeo.github.io/2020/11/23/WordPress%20xmlrpc.php%20SSRF%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</id>
+    <published>2020-11-23T03:51:26.000Z</published>
+    <updated>2021-01-22T02:30:11.221Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+
+&lt;h1 id=&quot;0x01-WordPress-xmlrpc-php-存在SSRF漏洞&quot;&gt;&lt;a href=&quot;#0x01-WordPress-xmlrpc-php-存在SSRF漏洞&quot; class=&quot;headerlink&quot; title=&quot;0x01
+        
+      
+    
+    </summary>
+    
+    
+      <category term="WEB漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Weblogic（CVE-2020-14882，CVE-2020-14883） 管理控制台未授权远程命令执行漏洞</title>
+    <link href="https://godzeo.github.io/2020/11/02/Weblogic%EF%BC%88CVE-2020-14882%EF%BC%8CCVE-2020-14883%EF%BC%89%20%E7%AE%A1%E7%90%86%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%9C%AA%E6%8E%88%E6%9D%83%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/"/>
+    <id>https://godzeo.github.io/2020/11/02/Weblogic%EF%BC%88CVE-2020-14882%EF%BC%8CCVE-2020-14883%EF%BC%89%20%E7%AE%A1%E7%90%86%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%9C%AA%E6%8E%88%E6%9D%83%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/</id>
+    <published>2020-11-02T03:37:14.000Z</published>
+    <updated>2021-01-22T02:30:11.221Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+
+&lt;h1 id=&quot;Weblogic（CVE-2020-14882，CVE-2020-14883）-管理控制台未授权远程命令执行漏洞&quot;&gt;&lt;a
+        
+      
+    
+    </summary>
+    
+    
+      <category term="WEB漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>CS通过(CDN+证书)powershell上线详细版</title>
     <link href="https://godzeo.github.io/2020/10/13/CS%E9%80%9A%E8%BF%87(CDN+%E8%AF%81%E4%B9%A6)powershell%E4%B8%8A%E7%BA%BF%E8%AF%A6%E7%BB%86%E7%89%88/"/>
     <id>https://godzeo.github.io/2020/10/13/CS%E9%80%9A%E8%BF%87(CDN+%E8%AF%81%E4%B9%A6)powershell%E4%B8%8A%E7%BA%BF%E8%AF%A6%E7%BB%86%E7%89%88/</id>
     <published>2020-10-13T10:31:46.000Z</published>
-    <updated>2020-10-14T01:57:27.982Z</updated>
+    <updated>2021-01-22T02:30:11.220Z</updated>
     
     <summary type="html">
     
@@ -48,7 +211,7 @@
     <link href="https://godzeo.github.io/2020/09/09/PHP%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96/"/>
     <id>https://godzeo.github.io/2020/09/09/PHP%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96/</id>
     <published>2020-09-09T07:56:43.000Z</published>
-    <updated>2020-10-14T01:57:27.982Z</updated>
+    <updated>2021-01-22T02:30:11.477Z</updated>
     
     <summary type="html">
     
@@ -75,7 +238,7 @@
     <link href="https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/"/>
     <id>https://godzeo.github.io/2020/09/03/Shiro%20550%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%20%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90+poc%E7%BC%96%E5%86%99/</id>
     <published>2020-09-03T10:51:50.000Z</published>
-    <updated>2020-10-14T01:57:28.130Z</updated>
+    <updated>2021-01-22T02:30:11.477Z</updated>
     
     <summary type="html">
     
@@ -102,7 +265,7 @@
     <link href="https://godzeo.github.io/2020/08/27/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BECommonsCollections1%E8%AF%A6%E8%A7%A3/"/>
     <id>https://godzeo.github.io/2020/08/27/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BECommonsCollections1%E8%AF%A6%E8%A7%A3/</id>
     <published>2020-08-27T14:13:05.000Z</published>
-    <updated>2020-10-14T01:57:27.538Z</updated>
+    <updated>2021-01-22T02:30:13.584Z</updated>
     
     <summary type="html">
     
@@ -129,7 +292,7 @@
     <link href="https://godzeo.github.io/2020/08/24/%E5%AE%9D%E5%A1%94%20%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E/"/>
     <id>https://godzeo.github.io/2020/08/24/%E5%AE%9D%E5%A1%94%20%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E/</id>
     <published>2020-08-23T17:14:24.000Z</published>
-    <updated>2020-10-14T01:57:27.981Z</updated>
+    <updated>2021-01-22T02:30:13.251Z</updated>
     
     <summary type="html">
     
@@ -157,7 +320,7 @@
     <link href="https://godzeo.github.io/2020/08/20/%E6%9F%90%E4%BF%A1%E6%9C%8D-SANGFOR%E7%BB%88%E7%AB%AF%E6%A3%80%E6%B5%8B%E5%93%8D%E5%BA%94%E5%B9%B3%E5%8F%B0%20-%20%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%200day/"/>
     <id>https://godzeo.github.io/2020/08/20/%E6%9F%90%E4%BF%A1%E6%9C%8D-SANGFOR%E7%BB%88%E7%AB%AF%E6%A3%80%E6%B5%8B%E5%93%8D%E5%BA%94%E5%B9%B3%E5%8F%B0%20-%20%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%200day/</id>
     <published>2020-08-20T01:48:27.000Z</published>
-    <updated>2020-10-14T01:57:27.981Z</updated>
+    <updated>2021-01-22T02:30:13.251Z</updated>
     
     <summary type="html">
     
@@ -185,7 +348,7 @@
     <link href="https://godzeo.github.io/2020/08/19/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9AJava%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%85%A5%E9%97%A8%E4%B9%8BURLDNS%E9%93%BE/"/>
     <id>https://godzeo.github.io/2020/08/19/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9AJava%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%85%A5%E9%97%A8%E4%B9%8BURLDNS%E9%93%BE/</id>
     <published>2020-08-19T10:50:04.000Z</published>
-    <updated>2020-10-14T01:57:28.130Z</updated>
+    <updated>2021-01-22T02:30:13.335Z</updated>
     
     <summary type="html">
     
@@ -212,7 +375,7 @@
     <link href="https://godzeo.github.io/2020/08/19/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9AXXE%E6%BC%8F%E6%B4%9E/"/>
     <id>https://godzeo.github.io/2020/08/19/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9AXXE%E6%BC%8F%E6%B4%9E/</id>
     <published>2020-08-19T10:20:08.000Z</published>
-    <updated>2020-10-14T01:57:27.982Z</updated>
+    <updated>2021-01-22T02:30:13.583Z</updated>
     
     <summary type="html">
     
@@ -239,7 +402,7 @@
     <link href="https://godzeo.github.io/2020/08/19/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E6%96%87%E4%BB%B6%E7%AF%87!%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0!%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96!%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/"/>
     <id>https://godzeo.github.io/2020/08/19/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%E6%96%87%E4%BB%B6%E7%AF%87!%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0!%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96!%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86/</id>
     <published>2020-08-19T08:46:04.000Z</published>
-    <updated>2020-10-14T01:57:27.982Z</updated>
+    <updated>2021-01-22T02:30:13.336Z</updated>
     
     <summary type="html">
     
@@ -266,7 +429,7 @@
     <link href="https://godzeo.github.io/2020/08/19/%E9%80%9A%E8%BE%BEOA%20%E6%9C%80%E6%96%B00day%20RCE%20%E6%BC%8F%E6%B4%9E%20%E9%99%84%E5%B8%A6EXP/"/>
     <id>https://godzeo.github.io/2020/08/19/%E9%80%9A%E8%BE%BEOA%20%E6%9C%80%E6%96%B00day%20RCE%20%E6%BC%8F%E6%B4%9E%20%E9%99%84%E5%B8%A6EXP/</id>
     <published>2020-08-19T04:35:08.000Z</published>
-    <updated>2020-10-14T01:57:28.551Z</updated>
+    <updated>2021-01-22T02:30:13.156Z</updated>
     
     <summary type="html">
     
@@ -293,7 +456,7 @@
     <link href="https://godzeo.github.io/2020/08/17/%E6%B7%B1%E4%BF%A1%E6%9C%8D%20EDR%E7%BB%88%E7%AB%AF%E6%A3%80%E6%B5%8B%E5%93%8D%E5%BA%94%E5%B9%B3%E5%8F%B0%200day%20RCE%20%E6%BC%8F%E6%B4%9E/"/>
     <id>https://godzeo.github.io/2020/08/17/%E6%B7%B1%E4%BF%A1%E6%9C%8D%20EDR%E7%BB%88%E7%AB%AF%E6%A3%80%E6%B5%8B%E5%93%8D%E5%BA%94%E5%B9%B3%E5%8F%B0%200day%20RCE%20%E6%BC%8F%E6%B4%9E/</id>
     <published>2020-08-17T15:43:27.000Z</published>
-    <updated>2020-10-14T01:57:29.027Z</updated>
+    <updated>2021-01-22T02:30:13.420Z</updated>
     
     <summary type="html">
     
@@ -320,7 +483,7 @@
     <link href="https://godzeo.github.io/2020/08/03/CVE-2020-15778%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"/>
     <id>https://godzeo.github.io/2020/08/03/CVE-2020-15778%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</id>
     <published>2020-08-03T03:48:30.000Z</published>
-    <updated>2020-10-14T01:57:29.029Z</updated>
+    <updated>2021-01-22T02:30:13.420Z</updated>
     
     <summary type="html">
     
@@ -347,7 +510,7 @@
     <link href="https://godzeo.github.io/2020/07/31/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6!%E4%BB%8E%E7%88%AC%E8%99%AB%E5%88%B0SSRF%E6%BC%8F%E6%B4%9E/"/>
     <id>https://godzeo.github.io/2020/07/31/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6!%E4%BB%8E%E7%88%AC%E8%99%AB%E5%88%B0SSRF%E6%BC%8F%E6%B4%9E/</id>
     <published>2020-07-31T09:07:48.000Z</published>
-    <updated>2020-10-14T01:57:29.122Z</updated>
+    <updated>2021-01-22T02:30:13.420Z</updated>
     
     <summary type="html">
     
@@ -374,7 +537,7 @@
     <link href="https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6!%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/"/>
     <id>https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6!%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/</id>
     <published>2020-07-24T08:19:47.000Z</published>
-    <updated>2020-10-14T01:57:28.753Z</updated>
+    <updated>2021-01-22T02:30:15.505Z</updated>
     
     <summary type="html">
     
@@ -392,171 +555,6 @@
     
     
       <category term="代码审计" scheme="https://godzeo.github.io/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>java代码审计自学：sql注入篇</title>
-    <link href="https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6%EF%BC%9Asql%E6%B3%A8%E5%85%A5%E7%AF%87/"/>
-    <id>https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6%EF%BC%9Asql%E6%B3%A8%E5%85%A5%E7%AF%87/</id>
-    <published>2020-07-24T08:07:30.000Z</published>
-    <updated>2020-10-14T01:57:29.222Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-
-&lt;h1 id=&quot;0x00-前提&quot;&gt;&lt;a href=&quot;#0x00-前提&quot; class=&quot;headerlink&quot; title=&quot;0x00 前提&quot;&gt;&lt;/a&gt;0x00 前提&lt;/h1&gt;&lt;p&gt;主要是因为自己的学习Java
-        
-      
-    
-    </summary>
-    
-    
-      <category term="代码审计java代码审计" scheme="https://godzeo.github.io/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>二进制漏洞：从简单栈溢出到写自己编写shellcode</title>
-    <link href="https://godzeo.github.io/2020/07/05/%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BC%8F%E6%B4%9E%EF%BC%9A%E4%BB%8E%E7%AE%80%E5%8D%95%E6%A0%88%E6%BA%A2%E5%87%BA%E5%88%B0%E5%86%99%E8%87%AA%E5%B7%B1%E7%BC%96%E5%86%99shellcode/"/>
-    <id>https://godzeo.github.io/2020/07/05/%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BC%8F%E6%B4%9E%EF%BC%9A%E4%BB%8E%E7%AE%80%E5%8D%95%E6%A0%88%E6%BA%A2%E5%87%BA%E5%88%B0%E5%86%99%E8%87%AA%E5%B7%B1%E7%BC%96%E5%86%99shellcode/</id>
-    <published>2020-07-05T13:06:08.000Z</published>
-    <updated>2020-10-14T01:57:29.163Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-
-&lt;h2 id=&quot;0x00-简介&quot;&gt;&lt;a href=&quot;#0x00-简介&quot; class=&quot;headerlink&quot; title=&quot;0x00 简介&quot;&gt;&lt;/a&gt;0x00
-        
-      
-    
-    </summary>
-    
-    
-      <category term="二进制安全研究" scheme="https://godzeo.github.io/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>红队武器库:fastjson小于1.2.68全漏洞RCE利用exp</title>
-    <link href="https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp/"/>
-    <id>https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp/</id>
-    <published>2020-07-04T03:56:02.000Z</published>
-    <updated>2020-07-04T09:00:05.520Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-
-
-
-
-&lt;h1 id=&quot;0x01漏洞介绍&quot;&gt;&lt;a href=&quot;#0x01漏洞介绍&quot; class=&quot;headerlink&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="WEB 漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>红队武器库:fastjson小于1.2.68全漏洞RCE利用exp复现</title>
-    <link href="https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/"/>
-    <id>https://godzeo.github.io/2020/07/04/%E7%BA%A2%E9%98%9F%E6%AD%A6%E5%99%A8%E5%BA%93!fastjson%E5%B0%8F%E4%BA%8E1.2.68%E5%85%A8%E6%BC%8F%E6%B4%9ERCE%E5%88%A9%E7%94%A8exp%E5%A4%8D%E7%8E%B0/</id>
-    <published>2020-07-04T03:56:02.000Z</published>
-    <updated>2020-10-14T01:57:28.887Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-
-&lt;h1 id=&quot;0x01漏洞介绍&quot;&gt;&lt;a href=&quot;#0x01漏洞介绍&quot; class=&quot;headerlink&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="WEB漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>内网中CobaltStrike4.0（CS4）的渗透之旅</title>
-    <link href="https://godzeo.github.io/2020/07/02/%E5%86%85%E7%BD%91%E4%B8%ADCobaltStrike4.0%EF%BC%88CS4%EF%BC%89%E7%9A%84%E6%B8%97%E9%80%8F%E4%B9%8B%E6%97%85/"/>
-    <id>https://godzeo.github.io/2020/07/02/%E5%86%85%E7%BD%91%E4%B8%ADCobaltStrike4.0%EF%BC%88CS4%EF%BC%89%E7%9A%84%E6%B8%97%E9%80%8F%E4%B9%8B%E6%97%85/</id>
-    <published>2020-07-02T03:57:41.000Z</published>
-    <updated>2020-10-14T01:57:29.029Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-
-&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="内网安全研究" scheme="https://godzeo.github.io/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>二进制安全-汇编基础</title>
-    <link href="https://godzeo.github.io/2020/06/27/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8-%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/"/>
-    <id>https://godzeo.github.io/2020/06/27/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8-%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/</id>
-    <published>2020-06-27T04:09:38.000Z</published>
-    <updated>2020-10-14T01:57:29.223Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-
-&lt;h1 id=&quot;进制的定义&quot;&gt;&lt;a href=&quot;#进制的定义&quot; class=&quot;headerlink&quot; title=&quot;进制的定义&quot;&gt;&lt;/a&gt;进制的定义&lt;/h1&gt;&lt;p&gt;二进制：由两个符号组成，分别是0
-        
-      
-    
-    </summary>
-    
-    
-      <category term="二进制安全研究" scheme="https://godzeo.github.io/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/"/>
     
     
   </entry>

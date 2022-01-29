@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="0x00 攻防演练钓鱼起因，在大型攻防演练中，传统的web层面Nday打点突破难点变大，于是越来越多的攻击队会加入钓鱼行动中，本文章就常规邮件的钓鱼进行介绍，后续还有IM这种也是很有效的方式。 0x01 搭建Gophish钓鱼平台Gophish 是一个功能强大的开源网络钓框架，安装运行都非常简单。 Github 地址：https:&#x2F;&#x2F;github.com&#x2F;gophish&#x2F;gophish 1、下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="钓鱼指北 Gophish钓鱼平台和邮件服务器搭建">
+<meta property="og:url" content="https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="0x00 攻防演练钓鱼起因，在大型攻防演练中，传统的web层面Nday打点突破难点变大，于是越来越多的攻击队会加入钓鱼行动中，本文章就常规邮件的钓鱼进行介绍，后续还有IM这种也是很有效的方式。 0x01 搭建Gophish钓鱼平台Gophish 是一个功能强大的开源网络钓框架，安装运行都非常简单。 Github 地址：https:&#x2F;&#x2F;github.com&#x2F;gophish&#x2F;gophish 1、下">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/8fab9b645d31a766e19380e93d7ba172.png">
+<meta property="og:image" content="https://gitee.com/godzeo/blogimg/raw/master/img/20220117161600.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/d8e75edd90559295165af0b4dfb4f3e4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/5eb24b477ee941747fa0256ccbd2ed5c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/0588860699bb5996ae08cc57164d3e81.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/c135a40a5ee475350fa3b4888e18521d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/ff88892b0c54db5123ed2248a03b4084.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/0e43ca140c4dd16dbc0afe926cf3220d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/bccd1da41b6ea5d6e7e61ed88a94b052.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/6dd2e0eb30b519f97cb8c6c4db18c8b2.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/ffe9acbfe78571c9eeefb478dea1da76.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/4d7ac2ca45c6035ed86fe3130aaaa87e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/cc6e08529049274773e743edea110789.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/aa038c1aec0ee43169a352b2758c8bc3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/0f7054301f79298645f9659ef5fd7caf.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/9e2797d4939eaaf1b91cdfa2ff027048.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/dbb44453910a330c0ad4e665253cd172.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/3a69bc02c591e26c1c0bb474449b0132.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/6e8b8c6af1a5626bf2a05c97b4c6f60c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e735df23c718d41b25fe79163b43d2ec.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/84ef1fb1a81f06626a878f41c0d7ad05.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/a50b70955b54cacf4a1794850d2688cf.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/8a34e904738416ea8c290657818ad149.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/85df2c9dfdeee9b09d04b774e40ce3e4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/8040e0335371b0ce830434dcf05afbff.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/70fa1b66102aab96213d96520281fbce.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/0c0676d59f3def6227b1500b131c39a7.png">
+<meta property="article:published_time" content="2022-01-20T13:44:10.000Z">
+<meta property="article:modified_time" content="2022-01-29T07:59:01.759Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="服务器 运维 安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/img_convert/8fab9b645d31a766e19380e93d7ba172.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>钓鱼指北 Gophish钓鱼平台和邮件服务器搭建</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2022/01/26/CVE-2021-4034%20Linux%20Polkit%20pkexec%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2021/12/24/docker%20denied!%20requested%20access%20to%20the%20resource%20is%20denied/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&text=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&is_video=false&description=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建&body=Check out this article: https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&name=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&t=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-攻防演练钓鱼"><span class="toc-number">1.</span> <span class="toc-text">0x00 攻防演练钓鱼</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-搭建Gophish钓鱼平台"><span class="toc-number">2.</span> <span class="toc-text">0x01 搭建Gophish钓鱼平台</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、下载"><span class="toc-number">2.0.1.</span> <span class="toc-text">1、下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、修改-config-json"><span class="toc-number">2.0.2.</span> <span class="toc-text">2、修改 config.json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、运行"><span class="toc-number">2.0.3.</span> <span class="toc-text">3、运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、搭建完成"><span class="toc-number">2.0.4.</span> <span class="toc-text">4、搭建完成</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-购买域名"><span class="toc-number">3.</span> <span class="toc-text">0x02 购买域名</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-邮件服务器的搭建"><span class="toc-number">4.</span> <span class="toc-text">0x03 邮件服务器的搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、安装Postfix"><span class="toc-number">4.0.1.</span> <span class="toc-text">1、安装Postfix</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、安装mailx软件包"><span class="toc-number">4.0.2.</span> <span class="toc-text">2、安装mailx软件包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、增加测试用户"><span class="toc-number">4.0.3.</span> <span class="toc-text">3、增加测试用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、测试邮件发送"><span class="toc-number">4.0.4.</span> <span class="toc-text">4、测试邮件发送</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、收到测试邮件"><span class="toc-number">4.0.5.</span> <span class="toc-text">5、收到测试邮件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、回复一下邮件，可以接受邮件"><span class="toc-number">4.0.6.</span> <span class="toc-text">6、回复一下邮件，可以接受邮件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、邮件服务器done"><span class="toc-number">4.0.7.</span> <span class="toc-text">7、邮件服务器done</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-实战钓鱼"><span class="toc-number">5.</span> <span class="toc-text">0x04 实战钓鱼</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、Sending-Profiles-邮箱配置"><span class="toc-number">5.1.</span> <span class="toc-text">1、Sending Profiles-邮箱配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#发送测试一下"><span class="toc-number">5.1.1.</span> <span class="toc-text">发送测试一下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#收到邮件"><span class="toc-number">5.1.2.</span> <span class="toc-text">收到邮件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、Email-Templates-钓鱼邮件模板"><span class="toc-number">5.2.</span> <span class="toc-text">2、Email Templates-钓鱼邮件模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、Landing-Pages-伪造钓鱼页面"><span class="toc-number">5.3.</span> <span class="toc-text">3、Landing Pages-伪造钓鱼页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、Users-amp-Groups-邮件用户和组"><span class="toc-number">5.4.</span> <span class="toc-text">4、Users&amp; Groups-邮件用户和组</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、Campaigns-钓鱼测试"><span class="toc-number">5.5.</span> <span class="toc-text">5、Campaigns-钓鱼测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6、查看战果"><span class="toc-number">5.6.</span> <span class="toc-text">6、查看战果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7、打开详细内容"><span class="toc-number">5.7.</span> <span class="toc-text">7、打开详细内容</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-总结"><span class="toc-number">6.</span> <span class="toc-text">0x05 总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        钓鱼指北 Gophish钓鱼平台和邮件服务器搭建
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-01-20T13:44:10.000Z" itemprop="datePublished">2022-01-20</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/">内网安全研究</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8-%E8%BF%90%E7%BB%B4-%E5%AE%89%E5%85%A8/" rel="tag">服务器 运维 安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<h1 id="0x00-攻防演练钓鱼"><a href="#0x00-攻防演练钓鱼" class="headerlink" title="0x00 攻防演练钓鱼"></a>0x00 攻防演练钓鱼</h1><p>起因，在大型攻防演练中，传统的web层面Nday打点突破难点变大，于是越来越多的攻击队会加入钓鱼行动中，本文章就常规邮件的钓鱼进行介绍，后续还有IM这种也是很有效的方式。</p>
+<h1 id="0x01-搭建Gophish钓鱼平台"><a href="#0x01-搭建Gophish钓鱼平台" class="headerlink" title="0x01 搭建Gophish钓鱼平台"></a>0x01 搭建Gophish钓鱼平台</h1><p>Gophish 是一个功能强大的开源网络钓框架，安装运行都非常简单。</p>
+<p>Github 地址：<a href="https://github.com/gophish/gophish" target="_blank" rel="noopener">https://github.com/gophish/gophish</a></p>
+<h3 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h3><p><a href="https://github.com/gophish/gophish/releases" target="_blank" rel="noopener">https://github.com/gophish/gophish/releases</a></p>
+<p>下载对应的版本</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/8fab9b645d31a766e19380e93d7ba172.png" alt="image-20220117161349446"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;github.com&#x2F;gophish&#x2F;gophish&#x2F;releases&#x2F;download&#x2F;v0.11.0&#x2F;gophish-v0.11.0-linux-64bit.zip</span><br><span class="line"></span><br><span class="line">unzip gophish-v0.11.0-linux-64bit.zip</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/godzeo/blogimg/raw/master/img/20220117161600.png" alt="image-20220117161600498"></p>
+<h3 id="2、修改-config-json"><a href="#2、修改-config-json" class="headerlink" title="2、修改 config.json"></a>2、修改 config.json</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim config.json</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/d8e75edd90559295165af0b4dfb4f3e4.png" alt="image-20220117161759312"></p>
+<ul>
+<li><p>admin_server 把 127.0.0.1 改为 0.0.0.0,外网直接访问就要0.0.0.0</p>
+</li>
+<li><p>listen_url也要是0.0.0.0:81，我的80端口被占用了，所以改81</p>
+</li>
+</ul>
+<h3 id="3、运行"><a href="#3、运行" class="headerlink" title="3、运行"></a>3、运行</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod u+x gophish</span><br><span class="line">.&#x2F;gophish</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/5eb24b477ee941747fa0256ccbd2ed5c.png" alt="image-20220117162021496"></p>
+<p>默认的admin密码再在最后，自己找一下</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0588860699bb5996ae08cc57164d3e81.png" alt="image-20220117162112606"></p>
+<h3 id="4、搭建完成"><a href="#4、搭建完成" class="headerlink" title="4、搭建完成"></a>4、搭建完成</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;VPS-IP:3333&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/c135a40a5ee475350fa3b4888e18521d.png" alt="image-20220117162338519"></p>
+<p>也可以直接使用公共邮箱，去开通一下就好了。但是发多了会被封的，所以我们还是自己搭。</p>
+<h1 id="0x02-购买域名"><a href="#0x02-购买域名" class="headerlink" title="0x02 购买域名"></a>0x02 购买域名</h1><p>建议使用国外的域名和云vps</p>
+<p>要自己去弄一个近似域名发件人去发一些钓鱼邮件，这个自己购买吧</p>
+<p>在此近似域名的DNS管理页面增加两条记录:</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/ff88892b0c54db5123ed2248a03b4084.png" alt="image-20220117160858770"></p>
+<h1 id="0x03-邮件服务器的搭建"><a href="#0x03-邮件服务器的搭建" class="headerlink" title="0x03 邮件服务器的搭建"></a>0x03 邮件服务器的搭建</h1><ul>
+<li>公共邮箱其实也是可以，但是发多了会被封的，所以我们还是自己搭。</li>
+<li>由于我的VPS一直是Ubuntu，所以选择使用 Postfix+mailutils</li>
+</ul>
+<p>（如果是centos，有更好用的平台EwoMail搭建，参考官方文档进行一步步搭建<a href="http://doc.ewomail.com/docs/ewomail/install）" target="_blank" rel="noopener">http://doc.ewomail.com/docs/ewomail/install）</a></p>
+<h3 id="1、安装Postfix"><a href="#1、安装Postfix" class="headerlink" title="1、安装Postfix"></a>1、安装Postfix</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install postfix</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0e43ca140c4dd16dbc0afe926cf3220d.png" alt="image-20220117160043668"></p>
+<p>写入自己域名，不需要前缀</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/bccd1da41b6ea5d6e7e61ed88a94b052.png" alt="image-20220117102647996"></p>
+<h3 id="2、安装mailx软件包"><a href="#2、安装mailx软件包" class="headerlink" title="2、安装mailx软件包"></a>2、安装mailx软件包</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install mailutils</span><br></pre></td></tr></table></figure>
+
+<h3 id="3、增加测试用户"><a href="#3、增加测试用户" class="headerlink" title="3、增加测试用户"></a>3、增加测试用户</h3><p>这个用户就是将来收发邮件那个同名用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">useradd -m -s &#x2F;bin&#x2F;bash master</span><br><span class="line">passwd master</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6dd2e0eb30b519f97cb8c6c4db18c8b2.png" alt="image-20220117103020892"></p>
+<h3 id="4、测试邮件发送"><a href="#4、测试邮件发送" class="headerlink" title="4、测试邮件发送"></a>4、测试邮件发送</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">root@10-7-21-215:~# telnet localhost 25</span><br><span class="line">Trying ::1...</span><br><span class="line">Connected to localhost.</span><br><span class="line">Escape character is &#39;^]&#39;.</span><br><span class="line">220 10-7-21-215 ESMTP Postfix (Ubuntu)</span><br><span class="line">ehlo localhost</span><br><span class="line">250-10-7-21-215</span><br><span class="line">250-PIPELINING</span><br><span class="line">250-SIZE 10240000</span><br><span class="line">250-VRFY</span><br><span class="line">250-ETRN</span><br><span class="line">250-STARTTLS</span><br><span class="line">250-ENHANCEDSTATUSCODES</span><br><span class="line">250-8BITMIME</span><br><span class="line">250-DSN</span><br><span class="line">250 SMTPUTF8</span><br><span class="line">mail from:master@icbxxxxices.ml</span><br><span class="line">250 2.1.0 Ok</span><br><span class="line">rcpt to:123456@qq.com</span><br><span class="line">250 2.1.5 Ok</span><br><span class="line">data</span><br><span class="line">354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;</span><br><span class="line">Subject:this is test qq mail</span><br><span class="line">qqqq</span><br><span class="line">ssss</span><br><span class="line">.</span><br><span class="line">250 2.0.0 Ok: queued as 09B30C444A</span><br><span class="line">quit</span><br><span class="line">221 2.0.0 Bye</span><br><span class="line">Connection closed by foreign host.</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/ffe9acbfe78571c9eeefb478dea1da76.png" alt="image-20220117160745104"></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/4d7ac2ca45c6035ed86fe3130aaaa87e.png" alt="image-20220117160726281"></p>
+<h3 id="5、收到测试邮件"><a href="#5、收到测试邮件" class="headerlink" title="5、收到测试邮件"></a>5、收到测试邮件</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/cc6e08529049274773e743edea110789.png" alt="image-20220117160654796"></p>
+<h3 id="6、回复一下邮件，可以接受邮件"><a href="#6、回复一下邮件，可以接受邮件" class="headerlink" title="6、回复一下邮件，可以接受邮件"></a>6、回复一下邮件，可以接受邮件</h3><p>切换用户看一下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">su - master</span><br><span class="line">mail</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/aa038c1aec0ee43169a352b2758c8bc3.png" alt="image-20220117114317418"></p>
+<h3 id="7、邮件服务器done"><a href="#7、邮件服务器done" class="headerlink" title="7、邮件服务器done"></a>7、邮件服务器done</h3><h1 id="0x04-实战钓鱼"><a href="#0x04-实战钓鱼" class="headerlink" title="0x04 实战钓鱼"></a>0x04 实战钓鱼</h1><p>环境搭建好了，那么下面就开始正式钓鱼了</p>
+<h2 id="1、Sending-Profiles-邮箱配置"><a href="#1、Sending-Profiles-邮箱配置" class="headerlink" title="1、Sending Profiles-邮箱配置"></a>1、Sending Profiles-邮箱配置</h2><p>使用本机刚刚陪着好邮件服务器</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0f7054301f79298645f9659ef5fd7caf.png" alt="image-20220117172647005"></p>
+<p><strong>此处需要注意的是Host处：</strong></p>
+<ul>
+<li>因为大部分的国内云厂商因为 监管要求，为防止邮件泛滥，都将25端口禁用了，因此可采用带有SSL的SMTP服务的端 口：465端口。</li>
+<li>我能用是因为，我用的vps是国外的，大家自行更改。</li>
+<li>因为我们的 Gophish 服务器跟邮件服务器搭在同一台 VPS 上面，所以在这里填写 127.0.0.1</li>
+</ul>
+<h3 id="发送测试一下"><a href="#发送测试一下" class="headerlink" title="发送测试一下"></a>发送测试一下</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/9e2797d4939eaaf1b91cdfa2ff027048.png" alt="image-20220117172859038"></p>
+<h3 id="收到邮件"><a href="#收到邮件" class="headerlink" title="收到邮件"></a>收到邮件</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/dbb44453910a330c0ad4e665253cd172.png" alt="image-20220117173154818"></p>
+<h2 id="2、Email-Templates-钓鱼邮件模板"><a href="#2、Email-Templates-钓鱼邮件模板" class="headerlink" title="2、Email Templates-钓鱼邮件模板"></a>2、Email Templates-钓鱼邮件模板</h2><p>第一种自己写</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/3a69bc02c591e26c1c0bb474449b0132.png" alt="image-20220117173838799"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">	&lt;title&gt;&lt;&#x2F;title&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;p&gt;您好：&lt;&#x2F;p&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;近期检测到您在学者网教学科研协作单位平台的密码已过期， 请点击&lt;a href&#x3D;&quot;&#123;&#123;.URL&#125;&#125;&quot;&gt;此链接&lt;&#x2F;a&gt;尽快修改密码，谢谢配合！&lt;&#x2F;p&gt;</span><br><span class="line">&#123;&#123;.Tracker&#125;&#125;&lt;&#x2F;body&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;请不要直接回复本邮件。&lt;&#x2F;p&gt;</span><br><span class="line">&lt;p&gt;学信网&lt;&#x2F;p&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>第二种可以导入现有的邮件</p>
+<p>首先将原有的邮件导出为eml格式。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6e8b8c6af1a5626bf2a05c97b4c6f60c.png" alt="image-20220117174448234"></p>
+<p>导入即可</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/e735df23c718d41b25fe79163b43d2ec.png" alt="image-20220117174400492"></p>
+<p>把超链接的部分，加上URL标签，最后设置钓鱼页面</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/84ef1fb1a81f06626a878f41c0d7ad05.png" alt="image-20220117174749203"></p>
+<h2 id="3、Landing-Pages-伪造钓鱼页面"><a href="#3、Landing-Pages-伪造钓鱼页面" class="headerlink" title="3、Landing Pages-伪造钓鱼页面"></a>3、Landing Pages-伪造钓鱼页面</h2><p>配置好钓鱼邮件后，就可以通过LandingPages模块来新建钓鱼网站页面。</p>
+<p>1、此处支持手写 html文件</p>
+<p>2、直接克隆网站</p>
+<p>我使用第二种：</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a50b70955b54cacf4a1794850d2688cf.png" alt="image-20220117175521760"></p>
+<p>其中选项：</p>
+<ul>
+<li>CaptureSubmitted Data和CapturePasswords，记录受害者输入的账号和密码。</li>
+<li>Redirect to填写该页面真实的地址，方便受害者点击完提交按钮后，自动跳转至真正的网站。</li>
+</ul>
+<h2 id="4、Users-amp-Groups-邮件用户和组"><a href="#4、Users-amp-Groups-邮件用户和组" class="headerlink" title="4、Users&amp; Groups-邮件用户和组"></a>4、Users&amp; Groups-邮件用户和组</h2><p>此时就可以进行下一步的配置，设置要进行钓鱼攻击的邮箱地址</p>
+<p>使用模版批量导入，导入邮箱可以使用CSV进行批量添加</p>
+<p>(格式可点击<code>Download CSV TEmplate</code>获取模板)</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/8a34e904738416ea8c290657818ad149.png" alt="image-20220117175956861"></p>
+<h2 id="5、Campaigns-钓鱼测试"><a href="#5、Campaigns-钓鱼测试" class="headerlink" title="5、Campaigns-钓鱼测试"></a>5、Campaigns-钓鱼测试</h2><p>配置Campaigns，填写Name、选择钓鱼邮件模板、选择钓鱼网站模板、填写钓鱼网站 URL、填写发件邮箱、选择受害者邮件组。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/85df2c9dfdeee9b09d04b774e40ce3e4.png" alt="image-20220117180250617"></p>
+<p>注意这个URL是VPS上gophish一开始配置的那个</p>
+<p>就是 <a href="http://vps-ip:81" target="_blank" rel="noopener">http://vps-ip:81</a></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/8040e0335371b0ce830434dcf05afbff.png" alt="image-20220117180454331"></p>
+<h2 id="6、查看战果"><a href="#6、查看战果" class="headerlink" title="6、查看战果"></a>6、查看战果</h2><p>这里有全部任务的统计</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/70fa1b66102aab96213d96520281fbce.png" alt="image-20220117190809333"></p>
+<h2 id="7、打开详细内容"><a href="#7、打开详细内容" class="headerlink" title="7、打开详细内容"></a>7、打开详细内容</h2><p>可以看到发送成功的邮件、打开邮件的情况、点击链接的情况、提交数据的情况</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0c0676d59f3def6227b1500b131c39a7.png" alt="image-20220117180333865"></p>
+<h1 id="0x05-总结"><a href="#0x05-总结" class="headerlink" title="0x05 总结"></a>0x05 总结</h1><p>这个只是邮件钓鱼的基础设施搭建，和基本使用方式，后续还有很多要点，木马免杀、钓鱼话术、邮箱收集等等。。。还有就是通过IM的方式也是十分有效的，后续再说。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-攻防演练钓鱼"><span class="toc-number">1.</span> <span class="toc-text">0x00 攻防演练钓鱼</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-搭建Gophish钓鱼平台"><span class="toc-number">2.</span> <span class="toc-text">0x01 搭建Gophish钓鱼平台</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、下载"><span class="toc-number">2.0.1.</span> <span class="toc-text">1、下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、修改-config-json"><span class="toc-number">2.0.2.</span> <span class="toc-text">2、修改 config.json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、运行"><span class="toc-number">2.0.3.</span> <span class="toc-text">3、运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、搭建完成"><span class="toc-number">2.0.4.</span> <span class="toc-text">4、搭建完成</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-购买域名"><span class="toc-number">3.</span> <span class="toc-text">0x02 购买域名</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-邮件服务器的搭建"><span class="toc-number">4.</span> <span class="toc-text">0x03 邮件服务器的搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、安装Postfix"><span class="toc-number">4.0.1.</span> <span class="toc-text">1、安装Postfix</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、安装mailx软件包"><span class="toc-number">4.0.2.</span> <span class="toc-text">2、安装mailx软件包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、增加测试用户"><span class="toc-number">4.0.3.</span> <span class="toc-text">3、增加测试用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、测试邮件发送"><span class="toc-number">4.0.4.</span> <span class="toc-text">4、测试邮件发送</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、收到测试邮件"><span class="toc-number">4.0.5.</span> <span class="toc-text">5、收到测试邮件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、回复一下邮件，可以接受邮件"><span class="toc-number">4.0.6.</span> <span class="toc-text">6、回复一下邮件，可以接受邮件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、邮件服务器done"><span class="toc-number">4.0.7.</span> <span class="toc-text">7、邮件服务器done</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-实战钓鱼"><span class="toc-number">5.</span> <span class="toc-text">0x04 实战钓鱼</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、Sending-Profiles-邮箱配置"><span class="toc-number">5.1.</span> <span class="toc-text">1、Sending Profiles-邮箱配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#发送测试一下"><span class="toc-number">5.1.1.</span> <span class="toc-text">发送测试一下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#收到邮件"><span class="toc-number">5.1.2.</span> <span class="toc-text">收到邮件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、Email-Templates-钓鱼邮件模板"><span class="toc-number">5.2.</span> <span class="toc-text">2、Email Templates-钓鱼邮件模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、Landing-Pages-伪造钓鱼页面"><span class="toc-number">5.3.</span> <span class="toc-text">3、Landing Pages-伪造钓鱼页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、Users-amp-Groups-邮件用户和组"><span class="toc-number">5.4.</span> <span class="toc-text">4、Users&amp; Groups-邮件用户和组</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、Campaigns-钓鱼测试"><span class="toc-number">5.5.</span> <span class="toc-text">5、Campaigns-钓鱼测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6、查看战果"><span class="toc-number">5.6.</span> <span class="toc-text">6、查看战果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7、打开详细内容"><span class="toc-number">5.7.</span> <span class="toc-text">7、打开详细内容</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-总结"><span class="toc-number">6.</span> <span class="toc-text">0x05 总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&text=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&is_video=false&description=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建&body=Check out this article: https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&title=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&name=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/&t=钓鱼指北 Gophish钓鱼平台和邮件服务器搭建" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

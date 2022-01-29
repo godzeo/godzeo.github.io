@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="0x01 环境配置&amp;利用条件  环境分析  session.use_strict_mode默认值为0，此时用户是可以自己定义Session ID的 1我们在Cookie里设置PHPSESSID&#x3D;flag，PHP将会在服务器上创建一个文件：&#x2F;tmp&#x2F;sess_flag  session.upload_progress.prefix由我们构造的session.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用PHP_SESSION_UPLOAD_PROGRESS上传webshell">
+<meta property="og:url" content="https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="0x01 环境配置&amp;利用条件  环境分析  session.use_strict_mode默认值为0，此时用户是可以自己定义Session ID的 1我们在Cookie里设置PHPSESSID&#x3D;flag，PHP将会在服务器上创建一个文件：&#x2F;tmp&#x2F;sess_flag  session.upload_progress.prefix由我们构造的session.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/a3a989a100484cd9c2fd8c5eda92c35c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/9217f6ff808afc66e8a94362faba1eff.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/fb3ae7da32899747002fa5f73fa8633c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/aff952442b184943d224ac4a05a61569.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/112d8f5c53b0311f13a0feec9d769801.png">
+<meta property="article:published_time" content="2021-09-24T02:43:37.000Z">
+<meta property="article:modified_time" content="2022-01-29T07:59:01.756Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="php">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/img_convert/a3a989a100484cd9c2fd8c5eda92c35c.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>利用PHP_SESSION_UPLOAD_PROGRESS上传webshell</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2021/09/29/go%E8%AF%AD%E8%A8%80%E5%BF%AB%E9%80%9F%E6%8E%8C%E6%8F%A1%E8%AF%AD%E6%B3%95%E7%89%B9%E8%89%B2--%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2021/09/14/android%E9%80%86%E5%90%91%E4%B9%8Bfrida%E5%AE%89%E8%A3%85%E4%B8%8E%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8Crackmes!Android!Level_01/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&text=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&is_video=false&description=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell&body=Check out this article: https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&name=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&t=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-环境配置-amp-利用条件"><span class="toc-number">1.</span> <span class="toc-text">0x01 环境配置&amp;利用条件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-题目"><span class="toc-number">2.</span> <span class="toc-text">0x02 题目</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-利用"><span class="toc-number">3.</span> <span class="toc-text">0x03 利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#上传HTML："><span class="toc-number">3.0.1.</span> <span class="toc-text">上传HTML：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#然后抓包，在里面插入我们的一句话木马"><span class="toc-number">3.0.2.</span> <span class="toc-text">然后抓包，在里面插入我们的一句话木马</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        利用PHP_SESSION_UPLOAD_PROGRESS上传webshell
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-09-24T02:43:37.000Z" itemprop="datePublished">2021-09-24</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/php/" rel="tag">php</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<h1 id="0x01-环境配置-amp-利用条件"><a href="#0x01-环境配置-amp-利用条件" class="headerlink" title="0x01 环境配置&amp;利用条件"></a>0x01 环境配置&amp;利用条件</h1><p><img src="https://img-blog.csdnimg.cn/img_convert/a3a989a100484cd9c2fd8c5eda92c35c.png" alt="image-20210922091243957"></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/9217f6ff808afc66e8a94362faba1eff.png" alt="image-20210924100930479"></p>
+<p>环境分析</p>
+<ul>
+<li><p>session.use_strict_mode默认值为0，此时用户是可以<strong>自己定义Session ID</strong>的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我们在Cookie里设置PHPSESSID&#x3D;flag，PHP将会在服务器上创建一个文件：&#x2F;tmp&#x2F;sess_flag</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>session.upload_progress.prefix由我们构造的session.upload_progress.name值组成，最后被写入sess_文件里。</p>
+</li>
+</ul>
+<p><strong>所以：</strong></p>
+<ul>
+<li>这个文件名是PHPSESSID=flag，文件名可控</li>
+<li>内容也是可以通过PHP_SESSION_UPLOAD_PROGRESS写入的</li>
+<li><strong>如果有文件包含</strong>，就可以 getshell</li>
+</ul>
+<p>一般情况还需要<strong>条件竞争</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在默认情况下，session.upload_progress.cleanup是开启的</span><br><span class="line">所以要是处理了所有POST数据，它就会清除进度信息，这个文件就没了</span><br><span class="line"></span><br><span class="line">所以需要使用条件竞争：</span><br><span class="line">要在没有处理完post数据的时候就要去触发</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x02-题目"><a href="#0x02-题目" class="headerlink" title="0x02 题目"></a>0x02 题目</h1><p>这个题是第五空间CTF的一道WEB题</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">isset</span>($_GET[<span class="string">'mode'</span>]))&#123;</span><br><span class="line">    highlight_file(<span class="keyword">__file__</span>);</span><br><span class="line">&#125;<span class="keyword">else</span> <span class="keyword">if</span>($_GET[<span class="string">'mode'</span>] == <span class="string">"eval"</span>)&#123;</span><br><span class="line">    $shell = $_GET[<span class="string">'shell'</span>] ?? <span class="string">'phpinfo();'</span>;</span><br><span class="line">    <span class="keyword">if</span>(strlen($shell) &gt; <span class="number">15</span> | filter($shell) | checkNums($shell)) <span class="keyword">exit</span>(<span class="string">"hacker"</span>);</span><br><span class="line">    <span class="keyword">eval</span>($shell);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'file'</span>]))&#123;</span><br><span class="line">    <span class="keyword">if</span>(strlen($_GET[<span class="string">'file'</span>]) &gt; <span class="number">15</span> | filter($_GET[<span class="string">'file'</span>])) <span class="keyword">exit</span>(<span class="string">"hacker"</span>);</span><br><span class="line">    <span class="keyword">include</span> $_GET[<span class="string">'file'</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">filter</span><span class="params">($var)</span>: <span class="title">bool</span></span>&#123;</span><br><span class="line">    $banned = [<span class="string">"while"</span>, <span class="string">"for"</span>, <span class="string">"\$_"</span>, <span class="string">"include"</span>, <span class="string">"env"</span>, <span class="string">"require"</span>, <span class="string">"?"</span>, <span class="string">":"</span>, <span class="string">"^"</span>, <span class="string">"+"</span>, <span class="string">"-"</span>, <span class="string">"%"</span>, <span class="string">"*"</span>, <span class="string">"`"</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">foreach</span>($banned <span class="keyword">as</span> $ban)&#123;</span><br><span class="line">        <span class="keyword">if</span>(strstr($var, $ban)) <span class="keyword">return</span> <span class="keyword">True</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">False</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkNums</span><span class="params">($var)</span>: <span class="title">bool</span></span>&#123;</span><br><span class="line">    $alphanum = <span class="string">'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'</span>;</span><br><span class="line">    $cnt = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>($i = <span class="number">0</span>; $i &lt; strlen($alphanum); $i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>($j = <span class="number">0</span>; $j &lt; strlen($var); $j++)&#123;</span><br><span class="line">            <span class="keyword">if</span>($var[$j] == $alphanum[$i])&#123;</span><br><span class="line">                $cnt += <span class="number">1</span>;</span><br><span class="line">                <span class="keyword">if</span>($cnt &gt; <span class="number">8</span>) <span class="keyword">return</span> <span class="keyword">True</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">False</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="0x03-利用"><a href="#0x03-利用" class="headerlink" title="0x03 利用"></a>0x03 利用</h1><h3 id="上传HTML："><a href="#上传HTML：" class="headerlink" title="上传HTML："></a>上传HTML：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name 要对应session.upload_progress.name中的 PHP_SESSION_UPLOAD_PROGRESS</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/fb3ae7da32899747002fa5f73fa8633c.png" alt="image-20210924103445313"></p>
+<p>HTML代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action&#x3D;&quot;http:&#x2F;&#x2F;xxxxxxxx.com:8088&#x2F;&quot; method&#x3D;&quot;POST&quot; enctype&#x3D;&quot;multipart&#x2F;form-data&quot;&gt;</span><br><span class="line">        &lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;PHP_SESSION_UPLOAD_PROGRESS&quot; value&#x3D;&quot;zzzz&quot; &#x2F;&gt;</span><br><span class="line">        &lt;input type&#x3D;&quot;file&quot; name&#x3D;&quot;file&quot; id&#x3D;&quot;file&quot;&gt;</span><br><span class="line">        &lt;input type&#x3D;&quot;submit&quot; name&#x3D;&quot;submit&quot; value&#x3D;&quot;submit&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="然后抓包，在里面插入我们的一句话木马"><a href="#然后抓包，在里面插入我们的一句话木马" class="headerlink" title="然后抓包，在里面插入我们的一句话木马"></a>然后抓包，在里面插入我们的一句话木马</h3><p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-dwKWo8Vo-1632451391682)(…/Library/Application Support/typora-user-images/image-20210924104028736.png)]</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">所以文件地址就是 &#x2F;tmp&#x2F;sess_zz5</span><br><span class="line">最终利用文件包含获取webshell</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/aff952442b184943d224ac4a05a61569.png" alt="image-20210924103851551"></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/112d8f5c53b0311f13a0feec9d769801.png" alt="image-20210924103915529"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-环境配置-amp-利用条件"><span class="toc-number">1.</span> <span class="toc-text">0x01 环境配置&amp;利用条件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-题目"><span class="toc-number">2.</span> <span class="toc-text">0x02 题目</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-利用"><span class="toc-number">3.</span> <span class="toc-text">0x03 利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#上传HTML："><span class="toc-number">3.0.1.</span> <span class="toc-text">上传HTML：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#然后抓包，在里面插入我们的一句话木马"><span class="toc-number">3.0.2.</span> <span class="toc-text">然后抓包，在里面插入我们的一句话木马</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&text=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&is_video=false&description=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell&body=Check out this article: https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&title=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&name=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2021/09/24/%E5%88%A9%E7%94%A8PHP_SESSION_UPLOAD_PROGRESS%E4%B8%8A%E4%BC%A0webshell/&t=利用PHP_SESSION_UPLOAD_PROGRESS上传webshell" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

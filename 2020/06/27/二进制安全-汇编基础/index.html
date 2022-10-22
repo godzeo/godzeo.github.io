@@ -1,0 +1,382 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>二进制安全-汇编基础 | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="进制的定义二进制：由两个符号组成，分别是0 、1 八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7 十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9 十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F 度量单位:1byte 字节 &#x3D; 8 bit 比特 char WORD &#x3D; 2 BYTE &amp;#x3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二进制安全-汇编基础">
+<meta property="og:url" content="https://godzeo.github.io/2020/06/27/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8-%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="进制的定义二进制：由两个符号组成，分别是0 、1 八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7 十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9 十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F 度量单位:1byte 字节 &#x3D; 8 bit 比特 char WORD &#x3D; 2 BYTE &amp;#x3">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-27T04:09:38.000Z">
+<meta property="article:modified_time" content="2022-10-12T16:32:06.974Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://godzeo.github.io/2020/06/27/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8-%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '二进制安全-汇编基础',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-10-13 00:32:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">二进制安全-汇编基础</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-06-27T04:09:38.000Z" title="发表于 2020-06-27 12:09:38">2020-06-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-12T16:32:06.974Z" title="更新于 2022-10-13 00:32:06">2022-10-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/">二进制安全研究</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="二进制安全-汇编基础"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<h1 id="进制的定义"><a href="#进制的定义" class="headerlink" title="进制的定义"></a>进制的定义</h1><p>二进制：由两个符号组成，分别是0 、1</p>
+<p>八进制：由八个符号组成，分别是0、1、2、3、4、5、6、7</p>
+<p>十进制：由十个符号组成，分别是0、1、2、3、4、5、6、7、8、9</p>
+<p>十六进制：由十六个符号组成，分别是0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F</p>
+<h2 id="度量单位"><a href="#度量单位" class="headerlink" title="度量单位:"></a>度量单位:</h2><p>1byte 字节 &#x3D; 8 bit 比特 char</p>
+<p>WORD &#x3D; 2 BYTE &#x3D; 16 bit short int</p>
+<p>DWORD &#x3D; 4 BYTE &#x3D; 32 bit</p>
+<p>QWORD &#x3D; 8 BYTE &#x3D; 64 bit</p>
+<p>1kb &#x3D; 1024 byte &#x3D; 8192 bit</p>
+<p>1mb &#x3D; 1024 kb</p>
+<p>1gb &#x3D; 1024 mb</p>
+<p>1tb &#x3D; 1024 gb</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>有符号</th>
+<th>无符号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>byte</td>
+<td>-128-127</td>
+<td>0-255</td>
+</tr>
+<tr>
+<td>word</td>
+<td>-32768-32767</td>
+<td>0-65535</td>
+</tr>
+<tr>
+<td>DWORD</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>qword</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>16位汇编：实模式，16位处理器内的内部，最多可以处理存储的长度为16位。</p>
+<p>32位汇编：保护模式，32位处理器内的内部，最多可以处理存储的长度为32位。</p>
+<p>64位汇编：保护模式，64位处理器的内部，最多可以处理存储的长度位64位。</p>
+<table>
+<thead>
+<tr>
+<th>位数</th>
+<th>通用寄存器</th>
+<th>扩展</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>16位通用寄存器</td>
+<td>AX、BX、 CX、 DX、 SI、 DI、 BP、 SP</td>
+<td>R8W、R9W、R10W、R11W、R12W、 R13W、R14W、R15W</td>
+</tr>
+<tr>
+<td>32位通用寄存器</td>
+<td>EAX、EBX、ECX、EDX、ESI、EDI、EBP、ESP</td>
+<td>R8D、R9D、R10D、R11D、R12D、 R13D、R14D、R15D</td>
+</tr>
+<tr>
+<td>64位通用寄存器</td>
+<td>RAX、RBX、RCX、RDX、RSI、RDI、RBP、RSP</td>
+<td>R8、R9、R10、R11、R12、 R13、R14、R15</td>
+</tr>
+</tbody></table>
+<h2 id="32位-常用寄存器"><a href="#32位-常用寄存器" class="headerlink" title="32位 常用寄存器"></a>32位 常用寄存器</h2><p>8个通用寄存器</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTAxODEzMDAucG5n?x-oss-process=image/format,png" alt="image-20200510181300829"></p>
+<p>8个通用寄存器：</p>
+<p>EAX 是”累加器”(accumulator)，操作数和结果数据累加器，返回值运算结果一般都存储在这里</p>
+<p>EBX 是”基地址”(base)寄存器, 在内存寻址时存放基地址。</p>
+<p>ECX 是计数器(counter), 是重复(REP)前缀指令和LOOP指令的内定计数器。</p>
+<p>EDX 是（destination） 用于存储部分乘法结果和部分除法被除数</p>
+<p>edi 目标索引寄存器（destination index）: 字符串操作的目标指针，ES段的数据指针</p>
+<p>esi 源索引寄存器（source index）：字符串操作的源指针，SS段的数据指针</p>
+<p>ESP：栈指针寄存器(extended stack pointer)，其内存放着一个指针，该指针永远指向<br>系统栈最上面一个栈帧的栈顶。<br>EBP：基址指针寄存器(extended base pointer)，其内存放着一个指针，该指针永远指向<br>系统栈最上面一个栈帧的底部</p>
+<p>其中一部分还可以拆开处理</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTAxODIxNDIucG5n?x-oss-process=image/format,png" alt="image-20200510182142575"></p>
+<p>EIP：指令寄存器(Extended Instruction Pointer)，其内存放着一个指针，该指针永远指向下<br>一条等待执行的指令地址</p>
+<p>可以说如果控制了 EIP 寄存器的内容，就控制了进程——我们让 EIP 指向哪里，CPU 就会<br>去执行哪里的指令</p>
+<p>XMM寄存器：（浮点寄存器）</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTAxODIyNTMucG5n?x-oss-process=image/format,png" alt="image-20200510182253226"></p>
+<p>EFLAGS寄存：包含了独立的二进制位，用于控制CPU操作，或是反应一些CPU操作的结果。有些指令可以测试和控制这些单独的处理器标识位。</p>
+<p>EFLAGS寄存器的状态标志(0、2、4、6、7以及11位)指示算术指令（如ADD, SUB, MUL以及DIV指令）的结果，这些状态标志的作用如下：</p>
+<h2 id="内部数据类型"><a href="#内部数据类型" class="headerlink" title="内部数据类型"></a>内部数据类型</h2><p>整数</p>
+<ul>
+<li>BYTE 8位</li>
+<li>SBYTE 8位 有符号</li>
+<li>WORD 16位 符号</li>
+<li>SWORD 16位 有符号</li>
+<li>DWORD 32位 符号</li>
+<li>SDWORD 32位 有符号</li>
+<li>FWORD 48位 保护模式的远指针</li>
+<li>QWORD 64位 整数</li>
+<li>TBYTE 80位 整数</li>
+</ul>
+<p>实数</p>
+<ul>
+<li>REAL4 32位 短实数</li>
+<li>REAL8 64位 长实数</li>
+<li>REAL10 80位 扩展实数</li>
+</ul>
+<p>伪指令</p>
+<ul>
+<li>db 8位整数 &#x3D;char 可以保持ascll码</li>
+<li>dw 16位整数</li>
+<li>dd 32位整数</li>
+</ul>
+<h2 id="大端序和小端序"><a href="#大端序和小端序" class="headerlink" title="大端序和小端序"></a>大端序和小端序</h2><p>首先还是先看下基本概念：</p>
+<p>1、大端模式：高字节保存在内存的低地址</p>
+<p>2、小端模式：高字节保存在内存的高地址</p>
+<p>mov arr,01234567h</p>
+<p>存储</p>
+<p>大端序：01 23 45 67</p>
+<p>小端序：67 45 23 01</p>
+<h2 id="指令集"><a href="#指令集" class="headerlink" title="指令集"></a>指令集</h2><h3 id="算数运算"><a href="#算数运算" class="headerlink" title="算数运算"></a>算数运算</h3><h4 id="加"><a href="#加" class="headerlink" title="加"></a>加</h4><p>格式：ADD OPRD1,OPRD2</p>
+<p>功能：两数相加</p>
+<p>加法指令运算的结果对CF、SF、OF、PF、ZF、AF都会有影响</p>
+<p>不允许OPRD1与OPRD2同时为存储器</p>
+<p>————————————————————————————————</p>
+<p>带进位加法指令ADC</p>
+<p>格式：ADC OPRD1,OPRD2</p>
+<p>功能：OPRD1 &#x3D; OPRD1 + OPRD2 + CF</p>
+<h4 id="减"><a href="#减" class="headerlink" title="减"></a>减</h4><p>减法指令SUB<br>格式：SUB OPRD1,OPRD2</p>
+<p>功能：两个操作数的相减，即从OPRD1减去OPRD2，其结果放在OPRD1中，指令的类型及标识位的影响与ADD指令相同，注意立即数不能用于目的操作数，两个存储器操作数之间不能直接相减，操作数可为8位或16位的无符号数或符号数</p>
+<p>————————————————————————————————</p>
+<p>带错位减法指令SBB</p>
+<p>格式：SBB OPRD1,OPRD2</p>
+<p>功能：进行两个操作数的相减再减去CF进位标志位，即从OPRD1 &#x3D; OPRD1 - OPRD2 - CF,其结果放在OPRD1中</p>
+<h4 id="乘"><a href="#乘" class="headerlink" title="乘"></a>乘</h4><p>无符号数指令MUL</p>
+<p>格式：MUL OPRD</p>
+<p>两个相乘数，要么都是8位，要么都是16位。 8位乘法，16位乘法。</p>
+<p>如果是8位，一个数字默认存放在al中，另外一个数字存放在其他8位寄存器中或者字节型内存单元中。</p>
+<p>mul 8位寄存器 ;结果存放在ax中</p>
+<p>如果是16位，一个数字默认存放在ax中，另外一个数字存放在其他16位寄存器中或者字型内存单元中。</p>
+<p>mul 16位寄存器 ;结果存放在dx, ax中</p>
+<p>8位乘法,得到一个16位数， 结果存放在ax中</p>
+<p>16位乘法，得到一个32位数， 低16位存放在ax中，高16位存放在dx中————————————————————————————————<br>带符号数指令IMUL</p>
+<p>功能：乘法操作</p>
+<p>OPRD为通用寄存器或存储器操作数</p>
+<p>本指令会影响标志位CF及OF</p>
+<h4 id="除"><a href="#除" class="headerlink" title="除"></a>除</h4><p>无符号数除法指令DIV</p>
+<p>格式：DIV OPRD</p>
+<p>功能：实现两个无符号二进制数除法运算</p>
+<p>div指令是除法指令。100001&#x2F;100，100001是被除数，100是除数。一般格式为：div reg或div 内存单元，reg和内存单元存放的是除数，除数可分为8位和16为2种。</p>
+<p>被除数：默认放在AX或DX和AX，如果除数为8位，被除数则为16位，默认在AX中存放；如果除数 为16位，被除数则为32位，在DX和AX中存放，DX存放高16位，AX存放低16位。</p>
+<p>————————————————————————————————</p>
+<p>带符号数除法指令IDIV</p>
+<p>格式：IDIV OPRD</p>
+<p>功能：实现两个带符号数的二进制除法运算</p>
+<p>比如16bit 的被除数，分别存在2个8bit寄存器AH：AL，商放在AL,余数在AH</p>
+<p>比如32bit 的被除数，分别存在16个8bit寄存器DX：AX，商放在AX,余数在DX</p>
+<p>比如64bit 的被除数，分别存在32个8bit寄存器EDX：EAX，商放在RAX,余数在EDX</p>
+<p>比如128bit 的被除数，分别存在64个8bit寄存器RDX：RAX，商放在RAX,余数在RDX</p>
+<h4 id="自增"><a href="#自增" class="headerlink" title="自增"></a>自增</h4><p>加1指令INC(INCrement by 1)</p>
+<p>格式：INC OPRD</p>
+<h4 id="自减"><a href="#自减" class="headerlink" title="自减"></a>自减</h4><p>减一指令DEC(Decrement by 1)</p>
+<p>格式：DEC OPRD</p>
+<h3 id="LOOP"><a href="#LOOP" class="headerlink" title="LOOP"></a>LOOP</h3><p>循环控制指令LOOP</p>
+<p>格式：loop 标号</p>
+<p>功能：相当于</p>
+<p>dec cx<br>Jnz<br>即先对cx减1，然后判cx是否为0，不为0，转后面给出标号所指的入口，为0，顺序执行</p>
+<h3 id="MOV指令"><a href="#MOV指令" class="headerlink" title="MOV指令"></a>MOV指令</h3><p>数据传送指令 MOV</p>
+<p>格式：MOV OPRD1,OPRD2</p>
+<p>功能：将一个源操作数送到目的操作数中，即OPRD1&lt;–OPRD2</p>
+<p>说明：</p>
+<p>OPRD1为目的操作数，可以说寄存器、存储器、累加器</p>
+<p>OPRD2为源操作数，可以数寄存器、存储器、累加器和立即数。</p>
+<h3 id="MOVS-move-string"><a href="#MOVS-move-string" class="headerlink" title="MOVS(move string)"></a><strong>MOVS(move string)</strong></h3><p>movs指令是汇编少有的两边都可以是memory的指令，MOVS在开发中通常极有可能是一串字符串的复制</p>
+<p>字符串传送指令MOVS</p>
+<p>格式：MOVS OPRD1，OPRD2</p>
+<p>功能：OPRD1&lt;—OPRD2</p>
+<p>说明： 其中OPRD2为源串符号地址，OPRD1为目的串符号地址</p>
+<h3 id="LEA"><a href="#LEA" class="headerlink" title="LEA"></a>LEA</h3><p>有效地址传送指令</p>
+<p>格式：LEA OPRD1,OPRD2</p>
+<p>功能：将源操作数给出的有效地址传送到指定的寄存器中</p>
+<p>OPRD1必须是寄存器</p>
+<h3 id="XCHG"><a href="#XCHG" class="headerlink" title="XCHG"></a>XCHG</h3><p>数据交换指令</p>
+<p>格式：XCHG OPRD1,OPRD2，其中OPRD1为目的操作数，OPRD2为源操作数</p>
+<p>功能：将两个操作数相互交换位置，该指令把源操作数OPRD2与目的操作数OPRD1交换</p>
+<h3 id="TEST"><a href="#TEST" class="headerlink" title="TEST"></a>TEST</h3><p>格式：TEST OPRD1,OPRD2</p>
+<p>功能：其中OPRD1、OPRD2的含义同AND指令一样，也是对两个操作数进行按位的‘与‘运算</p>
+<p>不同之处：是不讲’与‘的结果送目的操作数，即本指令对两个操作数的内容均不进行修改，仅数载逻辑与操作后，对标志位重新置位</p>
+<h3 id="CALL指令"><a href="#CALL指令" class="headerlink" title="CALL指令"></a>CALL指令</h3><p>过程调用指令</p>
+<p>格式：CALL OPRD</p>
+<p>功能：过程调用指令</p>
+<p>相当于：</p>
+<p>push eip</p>
+<p>amp OPRD</p>
+<h3 id="RETN指令"><a href="#RETN指令" class="headerlink" title="RETN指令"></a>RETN指令</h3><p>返回指令，相当于：</p>
+<p>pop eip</p>
+<p>jmp eip</p>
+<h1 id="常用的JCC指令"><a href="#常用的JCC指令" class="headerlink" title="常用的JCC指令"></a>常用的JCC指令</h1><p>JMP：无条件跳转</p>
+<p>JZ&#x2F;JE：ZF &#x3D; 1（jump When Zero和jump When Equal） 等于0或相等</p>
+<p>JNZ（jump no Zero）与JNE（jump no Equals ） ZF&#x3D;0 不等于0或者不相等</p>
+<p>比较两个有符号数，高低用greater和less表示：</p>
+<p>JG 前&gt;后 Jump if greater<br>JL 前&lt;后 Jump if less</p>
+<p>JL&#x3D;JNGE（jump if less,or not greater equal）</p>
+<p>JGB和JLE是用于比较带符号数的转移指专令：</p>
+<p>JGE 转移条件（Jump if greater or equal）：JGE al, bl ；al里的带符号内容大于或等于bl时跳转。</p>
+<p>JLE 转移条件 （Jump if less or equal）：JLE al, bl ；al里的带符号内容小于或等于属bl时跳转。</p>
+<p>比较两个无符号数，高低用below或者above表示：</p>
+<p><strong>JBE&#x2F;JNA(jump if below or equal,or not above)比较结果为&lt;&#x3D;时转移</strong></p>
+<p>JBE&#x2F;JNA：CF &#x3D; 1&#x2F;ZF &#x3D; 1 低于等于或者不高于跳转</p>
+<p><strong>JNBE&#x2F;JA（jump if not below or equal,or above）</strong></p>
+<p>JNBE&#x2F;JA：CF &#x3D; 0 &#x2F; ZF &#x3D; 0 不低于等于&#x2F;高于跳转</p>
+<p>JL&#x2F;JNGE：SF !&#x3D; OF 小于&#x2F;不大于等于跳转</p>
+<p>JNL&#x2F;JGE：SF &#x3D; OF 不小于&#x2F;大于等于跳转</p>
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA2MjUxODE0NDgucG5n?x-oss-process=image/format,png"></p>
+<h1 id="栈操作指令"><a href="#栈操作指令" class="headerlink" title="栈操作指令"></a>栈操作指令</h1><p>PUSH：压栈指令，32位汇编首先ESP-4，留出一个空间，然后把要压入栈中的内容压入</p>
+<p>POP：出栈指令，32位汇编首先将栈顶的数据弹出给指定的目标，然后ESP+4,清掉空间</p>
+<p>在函数栈帧中，一般包含以下几类重要信息。<br>（1）局部变量：为函数局部变量开辟的内存空间。<br>（2）栈帧状态值：保存前栈帧的顶部和底部（实际上只保存前栈帧的底部，前栈帧的顶部<br>可以通过堆栈平衡计算得到），用于在本帧被弹出后恢复出上一个栈帧。<br>（3）函数返回地址：保存当前函数调用前的“断点”信息，也就是函数调用前的指令位置，<br>以便在函数返回时能够恢复到函数被调用前的代码区中继续执行指令。</p>
+<h1 id="函数调用"><a href="#函数调用" class="headerlink" title="函数调用"></a>函数调用</h1><h2 id="函数调用大致包括以下几个步骤。"><a href="#函数调用大致包括以下几个步骤。" class="headerlink" title="函数调用大致包括以下几个步骤。"></a>函数调用大致包括以下几个步骤。</h2><p>（1）参数入栈：将参数从右向左依次压入系统栈中。<br>（2）返回地址入栈：将当前代码区调用指令的下一条指令地址压入栈中，供函数返回时继 续执行。<br>（3）代码区跳转：处理器从当前代码区跳转到被调用函数的入口处。<br>（4）栈帧调整：具体包括。<br>保存当前栈帧状态值，已备后面恢复本栈帧时使用（EBP 入栈）；<br>将当前栈帧切换到新栈帧（将 ESP 值装入 EBP，更新栈帧底部）；<br>给新栈帧分配空间（把 ESP 减去所需空间的大小，抬高栈顶）；<br>对于__stdcall 调用约定，函数调用时用到的指令序列大致如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">;func（a，b，c）</span><br><span class="line">;假设该函数有 3 个参数，将从右向左依次入栈  </span><br><span class="line"></span><br><span class="line">push 参数 c </span><br><span class="line">push 参数 b </span><br><span class="line">push 参数 a </span><br><span class="line">call 函数地址</span><br><span class="line"></span><br><span class="line">;call 指令将同时完成两项工作：</span><br><span class="line">;1）向栈中压入当前指令在内存中的位置，即保存返回地址。</span><br><span class="line">;2）跳转到所调用函数的入口地址函数入口处</span><br><span class="line"></span><br><span class="line">;下面是进入函数call之后：</span><br><span class="line">push ebp </span><br><span class="line">;保存旧栈帧的底部</span><br><span class="line">mov ebp，esp </span><br><span class="line">;设置新栈帧的底部（栈帧切换）</span><br><span class="line">sub esp，xxx </span><br><span class="line">;设置新栈帧的顶部（抬高栈顶，为新栈帧开辟空间）</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数返回的步骤如下"><a href="#函数返回的步骤如下" class="headerlink" title="函数返回的步骤如下"></a>函数返回的步骤如下</h2><p>三步：</p>
+<p>（1）保存返回值：通常将函数的返回值保存在寄存器 EAX 中。</p>
+<p>（2）弹出当前栈帧，恢复上一个栈帧。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">具体包括： </span><br><span class="line"></span><br><span class="line">在堆栈平衡的基础上，给 ESP 加上栈帧的大小，降低栈顶，回收当前栈帧的空间。 </span><br><span class="line"></span><br><span class="line">将当前栈帧底部保存的前栈帧 EBP 值弹入 EBP 寄存器，恢复出上一个栈帧。 </span><br><span class="line"></span><br><span class="line">将函数返回地址弹给 EIP 寄存器。</span><br></pre></td></tr></table></figure>
+
+<p>（3）跳转：按照函数返回地址跳回母函数中继续执行。</p>
+<h2 id="理解图示："><a href="#理解图示：" class="headerlink" title="理解图示："></a>理解图示：</h2><p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MjcxNjEyMjIucG5n?x-oss-process=image/format,png" alt="image-20200527161222527"></p>
+<h1 id="汇编练习，弹个框框"><a href="#汇编练习，弹个框框" class="headerlink" title="汇编练习，弹个框框"></a>汇编练习，弹个框框</h1><p>基础知识—-汇编代码结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.586    代表指令集</span><br><span class="line">.MODEL flat,stdcall    调用约定 内存 常用win32        </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">includelib  user32.lib</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">.data  已经定义数据段 可读可写</span><br><span class="line">.data?  未定义的数据段 可读可写</span><br><span class="line">.code	 代码段</span><br><span class="line">.const  常量数据段</span><br><span class="line">.stack  堆栈段 自动分配 可读可写可执行</span><br><span class="line"></span><br><span class="line">.data</span><br><span class="line">Number DWORD 0</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">.586</span><br><span class="line">.MODEL flat,stdcall</span><br><span class="line">option casemap:none</span><br><span class="line"></span><br><span class="line">include windows.inc</span><br><span class="line">include user32.inc</span><br><span class="line">include kernel32.inc</span><br><span class="line">includelib user32.lib</span><br><span class="line">includelib kernel32.lib</span><br><span class="line"></span><br><span class="line">.data</span><br><span class="line">text db &quot;zeo&quot;,0</span><br><span class="line"></span><br><span class="line">.code</span><br><span class="line">main proc</span><br><span class="line">	INVOKE MessageBox,0,offset text,0,0</span><br><span class="line">	INVOKE ExitProcess,0</span><br><span class="line">main ENDP</span><br><span class="line">END main</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9naXRlZS5jb20vZ29kemVvL2Jsb2dpbWcvcmF3L21hc3Rlci9pbWcvMjAyMDA1MTMyMzQwNTMucG5n?x-oss-process=image/format,png" alt="image-20200513234048034"></p>
+<p>格式化输入输出（printf scanf）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">.586</span><br><span class="line">.MODEL flat,stdcall</span><br><span class="line">option casemap:none</span><br><span class="line"></span><br><span class="line">include windows.inc</span><br><span class="line">include user32.inc</span><br><span class="line">include kernel32.inc</span><br><span class="line">include msvcrt.inc</span><br><span class="line"></span><br><span class="line">includelib user32.lib</span><br><span class="line">includelib kernel32.lib</span><br><span class="line">includelib msvcrt.lib</span><br><span class="line"> </span><br><span class="line">.data</span><br><span class="line">text db &quot;zeo&quot;,0</span><br><span class="line">Hello db &quot;HelleWord!&quot;,0</span><br><span class="line">szformat db &quot;%s&quot;,0</span><br><span class="line"></span><br><span class="line">.code</span><br><span class="line">main proc</span><br><span class="line">	lea eax,Hello</span><br><span class="line">	push eax</span><br><span class="line">	push offset szformat</span><br><span class="line">	call crt_scanf</span><br><span class="line">	add esp,8</span><br><span class="line">	push offset Hello</span><br><span class="line">	;push offset szformat</span><br><span class="line">	call crt_printf</span><br><span class="line">	add esp,4</span><br><span class="line">	call ExitProcess</span><br><span class="line">	add esp,4</span><br><span class="line">main ENDP</span><br><span class="line">END main</span><br><span class="line"></span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2020/06/27/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8-%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/">https://godzeo.github.io/2020/06/27/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8-%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/07/02/%E5%86%85%E7%BD%91%E4%B8%ADCobaltStrike4.0%EF%BC%88CS4%EF%BC%89%E7%9A%84%E6%B8%97%E9%80%8F%E4%B9%8B%E6%97%85/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">内网中CobaltStrike4.0（CS4）的渗透之旅</div></div></a></div><div class="next-post pull-right"><a href="/2020/06/23/Linux%20%E5%86%85%E7%BD%91%E6%9C%AC%E6%9C%BA%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%20%E9%80%9F%E6%9F%A5%20checklist/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux 内网本机信息收集 速查 checklist</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9B%E5%88%B6%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">1.</span> <span class="toc-text">进制的定义</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%A6%E9%87%8F%E5%8D%95%E4%BD%8D"><span class="toc-number">1.1.</span> <span class="toc-text">度量单位:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32%E4%BD%8D-%E5%B8%B8%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">1.2.</span> <span class="toc-text">32位 常用寄存器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.3.</span> <span class="toc-text">内部数据类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%A7%E7%AB%AF%E5%BA%8F%E5%92%8C%E5%B0%8F%E7%AB%AF%E5%BA%8F"><span class="toc-number">1.4.</span> <span class="toc-text">大端序和小端序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="toc-number">1.5.</span> <span class="toc-text">指令集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%97%E6%95%B0%E8%BF%90%E7%AE%97"><span class="toc-number">1.5.1.</span> <span class="toc-text">算数运算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">加</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%8F"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">减</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%98"><span class="toc-number">1.5.1.3.</span> <span class="toc-text">乘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%99%A4"><span class="toc-number">1.5.1.4.</span> <span class="toc-text">除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%A2%9E"><span class="toc-number">1.5.1.5.</span> <span class="toc-text">自增</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%87%8F"><span class="toc-number">1.5.1.6.</span> <span class="toc-text">自减</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LOOP"><span class="toc-number">1.5.2.</span> <span class="toc-text">LOOP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MOV%E6%8C%87%E4%BB%A4"><span class="toc-number">1.5.3.</span> <span class="toc-text">MOV指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MOVS-move-string"><span class="toc-number">1.5.4.</span> <span class="toc-text">MOVS(move string)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LEA"><span class="toc-number">1.5.5.</span> <span class="toc-text">LEA</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XCHG"><span class="toc-number">1.5.6.</span> <span class="toc-text">XCHG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TEST"><span class="toc-number">1.5.7.</span> <span class="toc-text">TEST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CALL%E6%8C%87%E4%BB%A4"><span class="toc-number">1.5.8.</span> <span class="toc-text">CALL指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RETN%E6%8C%87%E4%BB%A4"><span class="toc-number">1.5.9.</span> <span class="toc-text">RETN指令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%9A%84JCC%E6%8C%87%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">常用的JCC指令</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%88%E6%93%8D%E4%BD%9C%E6%8C%87%E4%BB%A4"><span class="toc-number">3.</span> <span class="toc-text">栈操作指令</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">函数调用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A4%A7%E8%87%B4%E5%8C%85%E6%8B%AC%E4%BB%A5%E4%B8%8B%E5%87%A0%E4%B8%AA%E6%AD%A5%E9%AA%A4%E3%80%82"><span class="toc-number">4.1.</span> <span class="toc-text">函数调用大致包括以下几个步骤。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%9A%84%E6%AD%A5%E9%AA%A4%E5%A6%82%E4%B8%8B"><span class="toc-number">4.2.</span> <span class="toc-text">函数返回的步骤如下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%90%86%E8%A7%A3%E5%9B%BE%E7%A4%BA%EF%BC%9A"><span class="toc-number">4.3.</span> <span class="toc-text">理解图示：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B1%87%E7%BC%96%E7%BB%83%E4%B9%A0%EF%BC%8C%E5%BC%B9%E4%B8%AA%E6%A1%86%E6%A1%86"><span class="toc-number">5.</span> <span class="toc-text">汇编练习，弹个框框</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Zeo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

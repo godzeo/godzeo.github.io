@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Django-数据库操作-未完 | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &amp;#x27;default&amp;#x27;: &amp;#123;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django-数据库操作-未完">
+<meta property="og:url" content="https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="Django-数据库操作 在settings.py文件中： 12345678910111213import pymysql         # 一定要添加这两行！通过pip install pymysql！pymysql.install_as_MySQLdb()# 修改DATABASES的值DATABASES &#x3D; &amp;#123;    &amp;#x27;default&amp;#x27;: &amp;#123;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-02-07T07:19:15.000Z">
+<meta property="article:modified_time" content="2022-10-12T16:32:06.973Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Django-数据库操作-未完',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-10-13 00:32:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Django-数据库操作-未完</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-02-07T07:19:15.000Z" title="发表于 2020-02-07 15:19:15">2020-02-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-12T16:32:06.973Z" title="更新于 2022-10-13 00:32:06">2022-10-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">安全开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Django-数据库操作-未完"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<p>Django-数据库操作</p>
+<p>在settings.py文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql         <span class="comment"># 一定要添加这两行！通过pip install pymysql！</span></span><br><span class="line">pymysql.install_as_MySQLdb()</span><br><span class="line"><span class="comment"># 修改DATABASES的值</span></span><br><span class="line">DATABASES = &#123;</span><br><span class="line">    <span class="string">&#x27;default&#x27;</span>: &#123;</span><br><span class="line">        <span class="string">&#x27;ENGINE&#x27;</span>: <span class="string">&#x27;django.db.backends.mysql&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;NAME&#x27;</span>: <span class="string">&#x27;mysite&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;HOST&#x27;</span>: <span class="string">&#x27;192.168.1.1&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;USER&#x27;</span>: <span class="string">&#x27;root&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;PASSWORD&#x27;</span>: <span class="string">&#x27;pwd&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;PORT&#x27;</span>: <span class="string">&#x27;3306&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建数据 数据类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserInfo</span>(models.Model):</span><br><span class="line">    uid = models.AutoField(primary_key=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 自增长ID,必须带参数为primary_key=True,并且是唯一主键</span></span><br><span class="line">    user = models.CharField(max_length=<span class="number">10</span>)</span><br><span class="line">    <span class="comment"># 字符串类型，最大长度为10</span></span><br><span class="line">    age = models.IntegerField(default=<span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 数字类型，默认为1</span></span><br><span class="line">    sex = models.BooleanField()</span><br><span class="line">    <span class="comment"># BOOL类型</span></span><br><span class="line">    email = models.EmailField()</span><br><span class="line">    <span class="comment"># 自带检查 Email 合法性的 CharField</span></span><br><span class="line">    Intor = models.TextField()</span><br><span class="line">    <span class="comment"># 长文本类型</span></span><br><span class="line">    Blog = models.URLField()</span><br><span class="line">    <span class="comment"># 自带检查 URL 合法性的 CharField</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># -------------------文件上传-----------------</span></span><br><span class="line">    upload = models.FileField(upload_to=<span class="string">&#x27;uploads/&#x27;</span>)</span><br><span class="line">    <span class="comment"># 文件上传到 MEDIA_ROOT/uploads</span></span><br><span class="line">    <span class="comment"># 这个字段不能设置primary_key和unique选项.在数据库中存储类型是varchar，默认最大长度为100.</span></span><br><span class="line">    upload_s = models.FileField(upload_to=<span class="string">&#x27;uploads/%Y/%m/%d/&#x27;</span>)</span><br><span class="line">    <span class="comment"># 文件上传到 MEDIA_ROOT/uploads/2019/07/04</span></span><br><span class="line"></span><br><span class="line">    upload_e = models.FilePathField(path=<span class="string">&quot;/home/images&quot;</span>, <span class="keyword">match</span>=<span class="string">&quot;foo.*&quot;</span>, recursive=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 这个字段的值被限制在系统上某个目录中的所有文件名集合中。有三个参数</span></span><br><span class="line">    <span class="comment"># 　　　　path = &#x27;&#x27;:  该参数必需。上行所说的‘某个目录’的绝对路径。Example: &quot;/home/images&quot;.</span></span><br><span class="line">    <span class="comment"># 　　　　match = &#x27;pattern&#x27;:  可选参数。格式是正则表达式。用来拣选符合匹配正则表达式的文件</span></span><br><span class="line">    <span class="comment"># 　　　　recursive = True / False: 可选参数，默认为False。设定是否递归该目录下所有子目录的所有文件</span></span><br><span class="line"></span><br><span class="line">    add_date = models.DateTimeField(auto_now_add=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 设置初次创建的时间</span></span><br><span class="line">    update_date = models.DateTimeField(auto_now=<span class="literal">True</span>)</span><br><span class="line">    <span class="comment"># 设置最后修改的时间</span></span><br></pre></td></tr></table></figure>
+
+<p>创建数据库一共需要三步：</p>
+<p>修改models.py中模型<br>运行python3 manage.py makemigrations为改动创建迁移记录<br>运行python3 manage.py migrate，将操作同步到数据库。</p>
+<h2 id="数据增删改查"><a href="#数据增删改查" class="headerlink" title="数据增删改查"></a>数据增删改查</h2><p>数据的添加方法：一步到位的方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data.objects.create(User=<span class="string">&#x27;zz&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>单个赋值的方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">datas = data()</span><br><span class="line">datas.User = <span class="string">&#x27;陈二狗&#x27;</span></span><br><span class="line">datas.save()</span><br></pre></td></tr></table></figure>
+
+<h4 id="查"><a href="#查" class="headerlink" title="查"></a>查</h4><h2 id="常规的有5种方法获取数据，返回都是数据集"><a href="#常规的有5种方法获取数据，返回都是数据集" class="headerlink" title="常规的有5种方法获取数据，返回都是数据集"></a>常规的有5种方法获取数据，返回都是数据集</h2><p>第一种是 data.objects.all()</p>
+<p>这种方法获取的是这张表里面的所有数据</p>
+<p>第二种是 data.objects.get(id&#x3D;1)</p>
+<p><strong>这个比较坑，不常用，找不到直接异常</strong><br>这种方法必须确保获取的结果只有一个（多个对象会直接异常），没有匹配条件的时候会报异常，获取的条件是id&#x3D;1</p>
+<p>第三种方法是 data.objects.filter(id&#x3D;2)</p>
+<p>这种方法是筛选出id&#x3D;2的数据,括号内还能有多个条件，比如(id&#x3D;2,gender&#x3D;’boy’)</p>
+<p>第四种方法是 data.objects.exclude(id&#x3D;2)</p>
+<p>这种方法是获取到id不等于2的数据</p>
+<p>第五种方法是 data.objects.order_by(name)</p>
+<p>这种方法获取到的结果是按照name进行排序后的结果</p>
+<h4 id="获取单个对象"><a href="#获取单个对象" class="headerlink" title="获取单个对象"></a>获取单个对象</h4><p>第一种方法是 data.objects.first(name&#x3D;’zeo’)<br>data.objects.last(name&#x3D;’zeo’)</p>
+<p>这种方法获取到的结果是符合条件的第一个对象，当然还有最后一个对象，使用的是.last(name&#x3D;’小桃红’)</p>
+<p><strong>注释：这些方法都可迭代使用</strong></p>
+<p>按照日期获取当天数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.utils <span class="keyword">import</span> timezone</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> timedelta</span><br><span class="line">now = timezone.now()</span><br><span class="line">start = now - timedelta(hours=<span class="number">23</span>,minutes=<span class="number">59</span>,seconds=<span class="number">59</span>)</span><br><span class="line">CurrentDaySubdomain = URL.objects.<span class="built_in">filter</span>(change_time__gt=start)</span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> CurrentDaySubdomain:</span><br><span class="line">    <span class="built_in">print</span>(c.url)</span><br></pre></td></tr></table></figure>
+
+<p><em><strong>其他按照时间获取数据方法</strong></em></p>
+<p>1、gt：大于某个时间<br>now &#x3D; datetime.datetime.now()</p>
+<p>start &#x3D; now – datetime.timedelta(hours&#x3D;23, minutes&#x3D;59, seconds&#x3D;59)<br>a&#x3D;yourobject.objects .filter(youdatetimcolumn__gt&#x3D;start)#前一天</p>
+<p>2、gte：大于等于某个时间：<br>a&#x3D;yourobject.objects .filter(youdatetimcolumn__gte&#x3D;start)</p>
+<p>3、lt：小于<br>a&#x3D;yourobject.objects .filter(youdatetimcolumn__lt&#x3D;start)</p>
+<p>4、lte：小于等于<br>a&#x3D;yourobject.objects .filter(youdatetimcolumn__lte&#x3D;start)</p>
+<p>5、range：查询时间段<br>start_date &#x3D; datetime.date(2005, 1, 1)<br>end_date &#x3D; datetime.date(2005, 3, 31)<br>Entry.objects.filter(pub_date__range&#x3D;(start_date, end_date))</p>
+<p>6、year：查询某年<br>Entry.objects.filter(pub_date__year&#x3D;2005)</p>
+<p>7、month：查询某月<br>Entry.objects.filter(pub_date__month&#x3D;12)</p>
+<p>8、day：某天<br>Entry.objects.filter(pub_date__day&#x3D;3)</p>
+<p>9、week_day：星期几<br>Entry.objects.filter(pub_date__week_day&#x3D;2)</p>
+<p>10、获取今天的日期，日期格式为yyyy-MM-dd</p>
+<p>from django.utils.timezone import now, timedelta<br>date &#x3D; now().date() + timedelta(days&#x3D;-1) #昨天<br>date &#x3D; now().date() + timedelta(days&#x3D;0) #今天<br>date &#x3D; now().date() + timedelta(days&#x3D;1) #明天</p>
+<p><strong>以上方法获取的数据的结果是QuerySet()类型的数据，是一个结果类，想要获取最后的实际结果，需要使用索引获取</strong></p>
+<p>datas &#x3D; data.objects.filter(id&#x3D;2).values()[0]<br>这样的结果是一个字典，索引0即是获取values()列表的第一个结果</p>
+<p>当然你也可以使用赋予变量的形式进行获取</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">datas = data.objects.get(<span class="built_in">id</span>=<span class="number">1</span>)</span><br><span class="line">u_id = datas.<span class="built_in">id</span></span><br><span class="line">u_User = datas.User</span><br><span class="line"></span><br><span class="line">这种方式进行获取数据，这个前提是在只有一个数据的情况下进行</span><br></pre></td></tr></table></figure>
+
+<p>如果是all()或者其他方法获取较多的数据集时候，也可以这样获取每个结果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">data_0 = data.objects.<span class="built_in">all</span>()</span><br><span class="line"><span class="comment"># 这里的结果是一个数据集合，可以循环迭代和使用索引获取值</span></span><br><span class="line">data_1 = data_0[<span class="number">0</span>]</span><br><span class="line">u_id = data_1.<span class="built_in">id</span></span><br><span class="line">u_User = data_1.User</span><br><span class="line"><span class="comment"># 通过这样的方式，就可以实现进行单独数据的获取</span></span><br></pre></td></tr></table></figure>
+
+<p>像这种的集合，如果想要把里面的数据全都打印出来，可以这么处理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ret = <span class="string">&#x27;&#x27;</span></span><br><span class="line">data_0 = data.objects.<span class="built_in">all</span>()</span><br><span class="line"><span class="keyword">for</span> data_1 <span class="keyword">in</span> data_0:</span><br><span class="line">    ret += data_1.<span class="built_in">id</span> + <span class="string">&#x27;|&#x27;</span> + data_1.User + <span class="string">&#x27;&lt;br&gt;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>批量操作，查询加修改</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">all_subdomains.<span class="built_in">filter</span>(subdomain_ip=all_subdomain_one.subdomain_ip).update(nmapscan=result_domain_ports_numbners)</span><br><span class="line">all_subdomains.<span class="built_in">filter</span>(subdomain_ip=all_subdomain_one.subdomain_ip).update(nmapscan_ports=result_domain_ports)</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/">https://godzeo.github.io/2020/02/07/Django-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C-%E6%9C%AA%E5%AE%8C/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/02/12/ThinkPHP%206.0.1%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%EF%BC%89/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">ThinkPHP 6.0.1 漏洞分析（任意文件操作）</div></div></a></div><div class="next-post pull-right"><a href="/2020/02/07/Django-%E7%AC%94%E8%AE%B0-%E5%88%9B%E5%BB%BA/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Django-笔记-创建</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5"><span class="toc-number">1.</span> <span class="toc-text">数据增删改查</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5"><span class="toc-number">1.0.1.</span> <span class="toc-text">查</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%84%E7%9A%84%E6%9C%895%E7%A7%8D%E6%96%B9%E6%B3%95%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE%EF%BC%8C%E8%BF%94%E5%9B%9E%E9%83%BD%E6%98%AF%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">常规的有5种方法获取数据，返回都是数据集</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%8D%95%E4%B8%AA%E5%AF%B9%E8%B1%A1"><span class="toc-number">2.0.1.</span> <span class="toc-text">获取单个对象</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Zeo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

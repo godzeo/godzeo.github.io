@@ -1,0 +1,269 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>内网安全学习从入门到入狱-知识-内网基础知识 | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="内网安全学习从入门到入狱-知识-内网基础知识文章目录 内网安全学习从入门到入狱-知识-内网基础知识  内网渗透基础  基本的名词介绍  工作组 域 活动目录（AD） DC 域控制器（DC） DNS域名服务器   安全域的划分  DMZ是什么？ 域中有哪些电脑？   域内的权限分类  域本地组 全局组 通用组   A-G-DL-P 策略 常用本地域组的权限      内网渗透基础 首先本文章基本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网安全学习从入门到入狱-知识-内网基础知识">
+<meta property="og:url" content="https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="内网安全学习从入门到入狱-知识-内网基础知识文章目录 内网安全学习从入门到入狱-知识-内网基础知识  内网渗透基础  基本的名词介绍  工作组 域 活动目录（AD） DC 域控制器（DC） DNS域名服务器   安全域的划分  DMZ是什么？ 域中有哪些电脑？   域内的权限分类  域本地组 全局组 通用组   A-G-DL-P 策略 常用本地域组的权限      内网渗透基础 首先本文章基本">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp">
+<meta property="article:published_time" content="2020-03-06T02:19:05.000Z">
+<meta property="article:modified_time" content="2022-10-12T16:32:06.973Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp"><link rel="shortcut icon" href="/img/WX20211124-162855.png"><link rel="canonical" href="https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '内网安全学习从入门到入狱-知识-内网基础知识',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-10-13 00:32:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">内网安全学习从入门到入狱-知识-内网基础知识</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-03-06T02:19:05.000Z" title="发表于 2020-03-06 10:19:05">2020-03-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-12T16:32:06.973Z" title="更新于 2022-10-13 00:32:06">2022-10-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/">内网安全研究</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="内网安全学习从入门到入狱-知识-内网基础知识"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<h1 id="内网安全学习从入门到入狱-知识-内网基础知识"><a href="#内网安全学习从入门到入狱-知识-内网基础知识" class="headerlink" title="内网安全学习从入门到入狱-知识-内网基础知识"></a>内网安全学习从入门到入狱-知识-内网基础知识</h1><h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_0">内网安全学习从入门到入狱-知识-内网基础知识</a></li>
+<li><ul>
+<li><a href="#_3">内网渗透基础</a></li>
+<li><ul>
+<li><a href="#_10">基本的名词介绍</a></li>
+<li><ul>
+<li><a href="#_12">工作组</a></li>
+<li><a href="#_20">域</a></li>
+<li><a href="#AD_32">活动目录（AD）</a></li>
+<li><a href="#DC_DC_51">DC 域控制器（DC）</a></li>
+<li><a href="#DNS_63">DNS域名服务器</a></li>
+</ul>
+</li>
+<li><a href="#_73">安全域的划分</a></li>
+<li><ul>
+<li><a href="#DMZ_75">DMZ是什么？</a></li>
+<li><a href="#_94">域中有哪些电脑？</a></li>
+</ul>
+</li>
+<li><a href="#_106">域内的权限分类</a></li>
+<li><ul>
+<li><a href="#_108">域本地组</a></li>
+<li><a href="#_114">全局组</a></li>
+<li><a href="#_122">通用组</a></li>
+</ul>
+</li>
+<li><a href="#AGDLP__134">A-G-DL-P 策略</a></li>
+<li><a href="#_153">常用本地域组的权限</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="内网渗透基础"><a href="#内网渗透基础" class="headerlink" title="内网渗透基础"></a>内网渗透基础</h2><ul>
+<li>首先本文章基本上学习笔记</li>
+<li></li>
+</ul>
+<hr>
+<h3 id="基本的名词介绍"><a href="#基本的名词介绍" class="headerlink" title="基本的名词介绍"></a>基本的名词介绍</h3><h4 id="工作组"><a href="#工作组" class="headerlink" title="工作组"></a>工作组</h4><ul>
+<li>工作组(Work Group)是最常见最简单最普通的资源管理模式，就是将不同的电脑按功能分别列入不同的组中，以方便管理。</li>
+<li>工作组简单来说就是计算机在一个局域网中的的一个圈子，这个圈子大家都是平等的，想来就来想走就走，基本上没有什么约束，自我感觉就是一个组织的名称而已没有什么管理功能。</li>
+</ul>
+<hr>
+<h4 id="域"><a href="#域" class="headerlink" title="域"></a>域</h4><ul>
+<li><p>域是一个有安全边界的计算机集合,在同一个域中的计算机, _计算机域_彼此之间已经建立了信任关系,在域内访问其他机器,不再需要被访问机器的许可。</p>
+</li>
+<li><p>和工作组比较，相当于加入了管理功能，有一些身份验证的功能，更加智能和安全</p>
+</li>
+</ul>
+<hr>
+<h4 id="活动目录（AD）"><a href="#活动目录（AD）" class="headerlink" title="活动目录（AD）"></a>活动目录（AD）</h4><ul>
+<li>活动目录（Active Directory，AD）是指域环境中提供目录服务的组件</li>
+<li>活动目录主要提供以下功能。<br> 账号集中管理：所有账号均存储在服务器上，以便对账号进行重置命令&#x2F;重置密码等。<br> 软件集中管理：统一推送软件、安装网络打印机等。利用软件发布策略分发软件，可以让<br>用户自由选择要安装的软件。<br> 环境集中管理：统一客户端桌面、IE、TCP&#x2F;IP 协议等的设置。<br> 增强安全性：统一部署杀毒软件和扫毒任务、集中管理用户的计算机权限、统一制订用户<br>密码策略等。可以监控网络，对资料进行统一管理。<br> 更可靠，更短的宕机时间：例如，利用活动目录控制用户访问权限，利用群集、负载均衡<br>等技术对文件服务器进行容灾设定。更可靠，宕机时间更短。</li>
+</ul>
+<hr>
+<h4 id="DC-域控制器（DC）"><a href="#DC-域控制器（DC）" class="headerlink" title="DC 域控制器（DC）"></a>DC 域控制器（DC）</h4><ul>
+<li><p>域控制器( Domain controller，DC)是活动目录的存储位置,安装了活动目录（AD）的计算机称为域控制器。在第一次安装活动目录时,安装活动目录的那台计算机就成为域控制器,简称“域控”</p>
+</li>
+<li><p>是一个域中的一台类似管理员一台机子，域控制器负责每一台联入的计算机和用户的验证工作，可以控制域中的计算机，鉴别是不是我们域中的机子。</p>
+</li>
+</ul>
+<hr>
+<h4 id="DNS域名服务器"><a href="#DNS域名服务器" class="headerlink" title="DNS域名服务器"></a>DNS域名服务器</h4><ul>
+<li><p>DNS（Domain Name Server，域名服务器）是进行域名(domain name)和与之相对应的IP地址 (IP address)转换的服务器。DNS中保存了一张域名(domain name)和与之相对应的IP地址 (IP address)的表，以解析消息的域名。 域名是Internet上某一台计算机或计算机组的名称，用于在数据传输时标识计算机的电子方位（有时也指地理位置）。域名是由一串用点分隔的名字组成的，通常包含组织名，而且始终包括两到三个字母的后缀，以指明组织的类型或该域所在的国家或地区</p>
+</li>
+<li><p>一般情况下DC和DNS是一个服务器</p>
+</li>
+</ul>
+<hr>
+<h3 id="安全域的划分"><a href="#安全域的划分" class="headerlink" title="安全域的划分"></a>安全域的划分</h3><h4 id="DMZ是什么？"><a href="#DMZ是什么？" class="headerlink" title="DMZ是什么？"></a>DMZ是什么？</h4><p>英文全名“Demilitarized Zone”，中文含义是“隔离区”。在安全领域的具体含义是“内外网防火墙之间的区域”。</p>
+<p>俗称非军事化区</p>
+<p>最主要的知识点，访问控制的情况：</p>
+<ol>
+<li>内网可以访问外网：内网用户访问外网，内网的人也是要上网办公的。</li>
+<li>内网可以访问 DMZ：也得管理自己的网站邮箱服务器</li>
+<li>外网不能访问内网</li>
+<li>外网可以访问DMZ：DMZ中的服务器需要为外界提供服务</li>
+<li>DMZ 不能访问内网</li>
+<li>DMZ 不能访问外网，这个也是不一定，有些服务也是需要访问的，所以这个看情况</li>
+</ol>
+<hr>
+<h4 id="域中有哪些电脑？"><a href="#域中有哪些电脑？" class="headerlink" title="域中有哪些电脑？"></a>域中有哪些电脑？</h4><p>域控制器：DC一般是一个或者两个</p>
+<p>成员服务器：域控底下没有按照AD的普通电脑</p>
+<p>客户机：有一些办公的电脑，例如运维的电脑</p>
+<p>独立的服务器：在一个网里面，但是没加入域环境</p>
+<hr>
+<h3 id="域内的权限分类"><a href="#域内的权限分类" class="headerlink" title="域内的权限分类"></a>域内的权限分类</h3><h4 id="域本地组"><a href="#域本地组" class="headerlink" title="域本地组"></a>域本地组</h4><p>单个域里面自己指派屋多个域来访问，就是把我自己本域的资源授权别人，但是只能在本地使用，只有自己是特权</p>
+<p>全林 干 我</p>
+<h4 id="全局组"><a href="#全局组" class="headerlink" title="全局组"></a>全局组</h4><p>Donain Admin是最大全局组</p>
+<p>单域用户访问多域资源（必须是同一个域里面的用户），我就是域管理员。</p>
+<p>本域 干 全林</p>
+<h4 id="通用组"><a href="#通用组" class="headerlink" title="通用组"></a>通用组</h4><p>通用组成员来自域森林中任何域的用户</p>
+<p>账户非常适于域森林中的跨域访问</p>
+<p>全林 干 全林</p>
+<hr>
+<h3 id="A-G-DL-P-策略"><a href="#A-G-DL-P-策略" class="headerlink" title="A-G-DL-P 策略"></a>A-G-DL-P 策略</h3><p>常用的策略形式</p>
+<ul>
+<li>A（Account）表示用户账号。</li>
+<li>G（Global Group）表示全局组。</li>
+<li>U（Universal Group）表示通用组。</li>
+<li>DL（Domain Local Group）表示域本地组。</li>
+<li>P（Permission，许可）表示资源权限。</li>
+<li>按照 A-G-DL-P 策略对用户进行组织和管理会更容易</li>
+<li>A-G-DL-P 策略是指，将用户账号添加到全局组中，将全局组添加到域本地组中，然后为域本<br>地组分配资源权限。</li>
+</ul>
+<hr>
+<h3 id="常用本地域组的权限"><a href="#常用本地域组的权限" class="headerlink" title="常用本地域组的权限"></a>常用本地域组的权限</h3><p><strong>管理员组（Administrators）的成员可以完全不受限制地存取计算机&#x2F;域的资源，最强组吧。</strong></p>
+<p>备份操作员组（Backup Operators）的成员可以在域控制器上执行备份和还原操作，并可以<br>在本地登录和关闭域控制器。</p>
+<p>远程登录组（Remote Desktop Users）的成员被授予远程登录的权限</p>
+<p><strong>域管理员组（Domain Admins）的成员在所有加入域的服务器和工作站、域控制器和活动目</strong><br><strong>录上均默认拥有完整的管理员权限。 我们俗称的域管理员。</strong></p>
+<p><strong>企业系统管理员组（Enterprise Admins）是域森林根域中的一个组。该组在域森林中的每个</strong><br><strong>域内都是 Administrators 组的成员，因此对所有域控制器都有完全访问权</strong></p>
+<p>打印机操作员组（Print Operators）的成员可以管理网络打印机</p>
+<p>账号操作员组（Account Operators）的成员可以创建和管理该域中的用户和组，并可以设置<br>其权限</p>
+<p>域用户组（Domain Users）是所有域的成员</p>
+<hr>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">https://godzeo.github.io/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/03/06/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%A5%9E%E5%99%A8-Cobalt%20Strike-%E4%B8%80-CS%E7%9A%84%E5%9F%BA%E7%A1%80%E5%92%8C%E4%BB%8B%E7%BB%8D/"><img class="prev-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">内网安全学习从入门到入狱-神器-Cobalt Strike-一-CS的基础和介绍</div></div></a></div><div class="next-post pull-right"><a href="/2020/03/04/docker%E5%9F%BA%E7%A1%80%E7%AF%87-%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE/"><img class="next-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">docker基础篇-安装和配置</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/godzeo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/godzeo" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zzzhhhaaaiiii@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Weclome my blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E7%8B%B1-%E7%9F%A5%E8%AF%86-%E5%86%85%E7%BD%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">内网安全学习从入门到入狱-知识-内网基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E7%9B%AE%E5%BD%95"><span class="toc-number">1.0.1.</span> <span class="toc-text">文章目录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80"><span class="toc-number">1.1.</span> <span class="toc-text">内网渗透基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%90%8D%E8%AF%8D%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.1.</span> <span class="toc-text">基本的名词介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E7%BB%84"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%9F"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">域</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%EF%BC%88AD%EF%BC%89"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DC-%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%88DC%EF%BC%89"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">DC 域控制器（DC）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">DNS域名服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E5%9F%9F%E7%9A%84%E5%88%92%E5%88%86"><span class="toc-number">1.1.2.</span> <span class="toc-text">安全域的划分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DMZ%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">DMZ是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%9F%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E7%94%B5%E8%84%91%EF%BC%9F"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">域中有哪些电脑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%86%85%E7%9A%84%E6%9D%83%E9%99%90%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.3.</span> <span class="toc-text">域内的权限分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%9F%E6%9C%AC%E5%9C%B0%E7%BB%84"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">域本地组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E7%BB%84"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">全局组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E7%94%A8%E7%BB%84"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">通用组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-G-DL-P-%E7%AD%96%E7%95%A5"><span class="toc-number">1.1.4.</span> <span class="toc-text">A-G-DL-P 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%9C%AC%E5%9C%B0%E5%9F%9F%E7%BB%84%E7%9A%84%E6%9D%83%E9%99%90"><span class="toc-number">1.1.5.</span> <span class="toc-text">常用本地域组的权限</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2022 By Zeo</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

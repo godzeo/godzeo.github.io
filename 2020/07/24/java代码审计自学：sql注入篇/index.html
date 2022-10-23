@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>java代码审计自学：sql注入篇 | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="0x00 前提主要是因为自己的学习Java 代码审计中的学习思路吧，主要自己一个人学习，有点闭门造车，百度学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。 0x01 漏洞原理虽然基础，但是还是介绍一下吧 SQL 注入老生常谈，就是 SQL 命令插入请求中，并在服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java代码审计自学：sql注入篇">
+<meta property="og:url" content="https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6%EF%BC%9Asql%E6%B3%A8%E5%85%A5%E7%AF%87/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="0x00 前提主要是因为自己的学习Java 代码审计中的学习思路吧，主要自己一个人学习，有点闭门造车，百度学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。 0x01 漏洞原理虽然基础，但是还是介绍一下吧 SQL 注入老生常谈，就是 SQL 命令插入请求中，并在服务">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp">
+<meta property="article:published_time" content="2020-07-24T08:07:30.000Z">
+<meta property="article:modified_time" content="2022-10-12T16:32:06.972Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="java 代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp"><link rel="shortcut icon" href="/img/WX20211124-162855.png"><link rel="canonical" href="https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6%EF%BC%9Asql%E6%B3%A8%E5%85%A5%E7%AF%87/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'java代码审计自学：sql注入篇',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-10-13 00:32:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">java代码审计自学：sql注入篇</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-07-24T08:07:30.000Z" title="发表于 2020-07-24 16:07:30">2020-07-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-12T16:32:06.972Z" title="更新于 2022-10-13 00:32:06">2022-10-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="java代码审计自学：sql注入篇"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<h1 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h1><p>主要是因为自己的学习Java 代码审计中的学习思路吧，主要自己一个人学习，有点闭门造车，百度学习法，但是还是记录一下，也分享一下，也便于将来的总结和反思，如果我能终能学到什么，我也会重新梳理思路，为那些自学者提供一个好的思路，所以有了下面的系列文章java代码审计自学篇。</p>
+<h1 id="0x01-漏洞原理"><a href="#0x01-漏洞原理" class="headerlink" title="0x01 漏洞原理"></a>0x01 漏洞原理</h1><p>虽然基础，但是还是介绍一下吧</p>
+<p>SQL 注入老生常谈，就是 SQL 命令插入请求中，并在服务器端被接收后用，没有有效的过滤，导致服务器执行了意料之外的恶意的 SQL 命令，最终达到恶意的脱数据。</p>
+<p>Java 的 SQL 注入和 PHP 中的 SQL 注入，其实原理都是一样的，理论上只要是与数据库存在数据交互，只要传入的数据完全受用户控制，没有有效的过滤都有可能出现 SQL 注入的。</p>
+<p>java的特殊是有一些框架会托管一部分的数据库的操作，我们要了解一下</p>
+<h1 id="0x02-分类：拼接和预编译"><a href="#0x02-分类：拼接和预编译" class="headerlink" title="0x02 分类：拼接和预编译"></a>0x02 分类：拼接和预编译</h1><h2 id="1、直接拼接，未进行过滤"><a href="#1、直接拼接，未进行过滤" class="headerlink" title="1、直接拼接，未进行过滤"></a>1、直接拼接，未进行过滤</h2><p>将<code>request.getParameter(&quot;id&quot;)</code>获取的id直接放在SQL语句，没有过滤而且是拼接的情况</p>
+<p>以前的JDBC的方式，的直接拼接方式，存在sql注入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">request.getParameter(&quot;userId&quot;)</span><br><span class="line"></span><br><span class="line">private String getNameByUserId(String userId) &#123;</span><br><span class="line">    Connection conn = getConn();//获得连接</span><br><span class="line">    String sql = &quot;select name from user where id=&quot; + userId;</span><br><span class="line">    PreparedStatement pstmt =  conn.prepareStatement(sql);</span><br><span class="line">    ResultSet rs=pstmt.executeUpdate();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>全局搜索查看：<code>=&quot;</code>或者<code>sql</code>的问题</p>
+<p><strong>防止措施，修复方法</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//安全的，预编译的，防止了sql注入</span><br><span class="line">Connection conn = getConn();//获得连接</span><br><span class="line">String sql = &quot;select id, username, password, role from user where id=?&quot;; //执行sql前会预编译号该条语句</span><br><span class="line">PreparedStatement pstmt = conn.prepareStatement(sql); </span><br><span class="line">pstmt.setString(1, id); </span><br><span class="line">ResultSet rs=pstmt.executeUpdate(); </span><br></pre></td></tr></table></figure>
+
+<h2 id="2、Mybatis和Hibernate-框架"><a href="#2、Mybatis和Hibernate-框架" class="headerlink" title="2、Mybatis和Hibernate 框架"></a>2、Mybatis和Hibernate 框架</h2><p>主要是预编译的错误使用</p>
+<p>框架主要都是使用注解或者xml将java对象与数据库sql操作对应。</p>
+<p>下面以 Mybatis 讲解一下</p>
+<ul>
+<li>mybatis的maven配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.mybatis&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;mybatis&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.5.2&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>config.xml 配置数据库连接的文件</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span><br><span class="line">&lt;!DOCTYPE configuration</span><br><span class="line">        PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;</span><br><span class="line">        &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;</span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;environments default=&quot;dev&quot;&gt;</span><br><span class="line">        &lt;environment id=&quot;dev&quot;&gt;</span><br><span class="line">            &lt;transactionManager type=&quot;JDBC&quot;/&gt;</span><br><span class="line">            &lt;dataSource type=&quot;POOLED&quot;&gt;</span><br><span class="line">                &lt;property name=&quot;driver&quot; value=&quot;com.mysql.cj.jdbc.Driver&quot;/&gt;</span><br><span class="line">                &lt;property name=&quot;url&quot;</span><br><span class="line">                          value=&quot;jdbc:mysql://localhost:3306/mybatistest&quot;/&gt;</span><br><span class="line">                &lt;property name=&quot;username&quot; value=&quot;root&quot;/&gt;</span><br><span class="line">                &lt;property name=&quot;password&quot; value=&quot;root&quot;/&gt;</span><br><span class="line">            &lt;/dataSource&gt;</span><br><span class="line">        &lt;/environment&gt;</span><br><span class="line">    &lt;/environments&gt;</span><br><span class="line">    &lt;mappers&gt;</span><br><span class="line">        &lt;mapper resource=&quot;UserMapper.xml&quot;/&gt;</span><br><span class="line">    &lt;/mappers&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p>主要注意的点！</p>
+<ul>
+<li>UserMapper.xml</li>
+</ul>
+<p>正常预编译</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByNameAndPassword&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;java.util.Map&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;BaseResultMap&quot;</span>&gt;</span></span><br><span class="line">select id, username, password, role</span><br><span class="line">from user</span><br><span class="line">where username = #&#123;username,jdbcType=VARCHAR&#125;</span><br><span class="line">and password = #&#123;password,jdbcType=VARCHAR&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>存在漏洞的预编译</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByNameAndPassword&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;java.util.Map&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;BaseResultMap&quot;</span>&gt;</span></span><br><span class="line">select id, username, password, role</span><br><span class="line">from user</span><br><span class="line">where username = $&#123;username,jdbcType=VARCHAR&#125;</span><br><span class="line">and password = $&#123;password,jdbcType=VARCHAR&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="和-的区别："><a href="#和-的区别：" class="headerlink" title="#和$的区别："></a><strong>#和$的区别：</strong></h3><p>1、#将传入的数据都当成一个字符串，会对自动传入的数据加一个双引号，正确的预编译，输入的参数会全部变成查询的部分</p>
+<p>2、 将 传 入 的 数 据 直 接 拼 接 在 s q l 中 。 造 成 s q l 注 入 如 ： w h e r e u s e r n a m e &#x3D; 将传入的数据直接拼接在sql中。造成sql注入 如：where username&#x3D; 将传入的数据直接拼接在sql中。造成sql注入如：whereusername={username}，如果传入的值是111,那么解析成sql时的值为where username&#x3D;111；<br>如果传入的值是1 and 1&#x3D;1 ;，则解析成的sql为：select id, username, password, role from user where username&#x3D;1 and 1&#x3D;1</p>
+<h1 id="0x03-MyBatis框架易产生SQL注入漏洞的三种情况："><a href="#0x03-MyBatis框架易产生SQL注入漏洞的三种情况：" class="headerlink" title="0x03 MyBatis框架易产生SQL注入漏洞的三种情况："></a>0x03 MyBatis框架易产生SQL注入漏洞的三种情况：</h1><h2 id="1、模糊查询"><a href="#1、模糊查询" class="headerlink" title="1、模糊查询"></a>1、模糊查询</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select * from news where title like ‘%#&#123;title&#125;%’</span><br></pre></td></tr></table></figure>
+
+<p>在这种情况下使用#程序会报错，新手程序员就把#号改成了$,这样如果java代码层面没有对用户输入的内容做处理势必会产生SQL注入漏洞。</p>
+<p>正确写法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from news where tile like concat(‘%’,#&#123;title&#125;, ‘%’)</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、in-之后的多个参数"><a href="#2、in-之后的多个参数" class="headerlink" title="2、in 之后的多个参数"></a>2、in 之后的多个参数</h2><p>in之后多个id查询时使用# 同样会报错</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select * from news where id in (#&#123;ids&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>正确用法为使用foreach，而不是将#替换为$</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id in&lt;foreach collection=&quot;ids&quot; item=&quot;item&quot; open=&quot;(&quot;separatosr=&quot;,&quot; close=&quot;)&quot;&gt;#&#123;ids&#125; &lt;/foreach&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、order-by-之后"><a href="#3、order-by-之后" class="headerlink" title="3、order by 之后"></a>3、order by 之后</h2><p>默认情况下，使用＃{}格式的语法会导致MyBatis的创建的PreparedStatement参数并安全地设置参数（就像使用？一样）。这样做更安全，更迅速，通常也是首选做法。</p>
+<p>当根据发布时间、点击量等信息对新闻进行排序的时候，如果考虑安全编码规范问题，其对应的SQL语句如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select * from news where title =‘123’ order by #&#123;time&#125; asc</span><br></pre></td></tr></table></figure>
+
+<p>但由于发布时间time不是用户输入的参数，无法使用预编译。研发人员将SQL查询语句修改如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Select * from news where title =‘123’ order by $&#123;time&#125; asc</span><br></pre></td></tr></table></figure>
+
+<p>修改之后，程序通过预编译，但是产生了SQL语句拼接问题，极有可能引发SQL注入漏洞。</p>
+<p>不过有时你就是想直接在SQL语句中插入一个不转义的字符串。比如，像ORDER BY，你可以这样来使用：ORDER BY $ {COLUMNNAME}。这里的MyBatis不会修改或者转义字符串。</p>
+<p>需要注意的是在mybatis-generator自动生成的SQL语句中，order by使用的也是$，而like和in没有问题。</p>
+<h1 id="0x04-Hibernate防止SQL注入"><a href="#0x04-Hibernate防止SQL注入" class="headerlink" title="0x04 Hibernate防止SQL注入"></a><strong>0x04 Hibernate防止SQL注入</strong></h1><p><strong>对参数名称进行绑定</strong>在HQL语句中定义命名参数要用”:”开头，形式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Query query=session.createQuery(“from User user where user.name=:customername and user:customerage=:age ”); </span><br><span class="line">query.setString(“customername”,name); </span><br><span class="line">query.setInteger(“customerage”,age); </span><br></pre></td></tr></table></figure>
+
+<p><strong>按参数位置邦定：</strong><br>在HQL查询语句中用”?”来定义参数位置，形式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Query query=session.createQuery(“from User user where user.name=? and user.age =? ”); </span><br><span class="line">query.setString(0,name); </span><br><span class="line">query.setInteger(1,age); </span><br></pre></td></tr></table></figure>
+
+<p><strong>setParameter()方法： ,</strong><br>在Hibernate的HQL查询中可以通过setParameter()方法邦定任意类型的参数，如下代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String hql=”from User user where user.name=:customername ”; </span><br><span class="line">Query query=session.createQuery(hql); </span><br><span class="line">query.setParameter(“customername”,name,Hibernate.STRING); </span><br></pre></td></tr></table></figure>
+
+<p><strong>setProperties()方法：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Entity entity=new Entity();</span><br><span class="line">entity.setXx(“xx”);</span><br><span class="line">entity.setYy(100);</span><br><span class="line">Query query=session.createQuery(“from Entity c where c.xx=:xx and c.yy=:yy ”); </span><br><span class="line">query.setProperties(entity);</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x05-挖掘方法"><a href="#0x05-挖掘方法" class="headerlink" title="0x05 挖掘方法"></a>0x05 挖掘方法</h1><p>使用idea 搜索$关键字</p>
+<p>可以先筛选xml文件搜索$,逐个分析，要特别注意mybatis-generator的order by注入</p>
+<p>Ctrl+shift+F 调出Find in Path，筛选后缀xml，搜索$关键字</p>
+<p>找到是mybatis的数据库文件</p>
+<p>找到调用函数后，alt+f7查看调用链，检查中间是否被过滤</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6%EF%BC%9Asql%E6%B3%A8%E5%85%A5%E7%AF%87/">https://godzeo.github.io/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6%EF%BC%9Asql%E6%B3%A8%E5%85%A5%E7%AF%87/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java-%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">java 代码审计</a></div><div class="post_share"><div class="social-share" data-image="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/07/24/java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E8%87%AA%E5%AD%A6!%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/"><img class="prev-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">java代码审计自学:反射机制</div></div></a></div><div class="next-post pull-right"><a href="/2020/07/05/%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BC%8F%E6%B4%9E%EF%BC%9A%E4%BB%8E%E7%AE%80%E5%8D%95%E6%A0%88%E6%BA%A2%E5%87%BA%E5%88%B0%E5%86%99%E8%87%AA%E5%B7%B1%E7%BC%96%E5%86%99shellcode/"><img class="next-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">二进制漏洞：从简单栈溢出到写自己编写shellcode</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/godzeo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/godzeo" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zzzhhhaaaiiii@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Weclome my blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E5%89%8D%E6%8F%90"><span class="toc-number">1.</span> <span class="toc-text">0x00 前提</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">0x01 漏洞原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E5%88%86%E7%B1%BB%EF%BC%9A%E6%8B%BC%E6%8E%A5%E5%92%8C%E9%A2%84%E7%BC%96%E8%AF%91"><span class="toc-number">3.</span> <span class="toc-text">0x02 分类：拼接和预编译</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E7%9B%B4%E6%8E%A5%E6%8B%BC%E6%8E%A5%EF%BC%8C%E6%9C%AA%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="toc-number">3.1.</span> <span class="toc-text">1、直接拼接，未进行过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Mybatis%E5%92%8CHibernate-%E6%A1%86%E6%9E%B6"><span class="toc-number">3.2.</span> <span class="toc-text">2、Mybatis和Hibernate 框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%92%8C-%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9A"><span class="toc-number">3.2.1.</span> <span class="toc-text">#和$的区别：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-MyBatis%E6%A1%86%E6%9E%B6%E6%98%93%E4%BA%A7%E7%94%9FSQL%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E7%9A%84%E4%B8%89%E7%A7%8D%E6%83%85%E5%86%B5%EF%BC%9A"><span class="toc-number">4.</span> <span class="toc-text">0x03 MyBatis框架易产生SQL注入漏洞的三种情况：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%A8%A1%E7%B3%8A%E6%9F%A5%E8%AF%A2"><span class="toc-number">4.1.</span> <span class="toc-text">1、模糊查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81in-%E4%B9%8B%E5%90%8E%E7%9A%84%E5%A4%9A%E4%B8%AA%E5%8F%82%E6%95%B0"><span class="toc-number">4.2.</span> <span class="toc-text">2、in 之后的多个参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81order-by-%E4%B9%8B%E5%90%8E"><span class="toc-number">4.3.</span> <span class="toc-text">3、order by 之后</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-Hibernate%E9%98%B2%E6%AD%A2SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">5.</span> <span class="toc-text">0x04 Hibernate防止SQL注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-%E6%8C%96%E6%8E%98%E6%96%B9%E6%B3%95"><span class="toc-number">6.</span> <span class="toc-text">0x05 挖掘方法</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2022 By Zeo</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

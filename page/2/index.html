@@ -1,0 +1,279 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Zeo's Security Lab - Zeo Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="专注于安全,分享生活,分享知识">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Zeo&#39;s Security Lab">
+<meta property="og:url" content="https://godzeo.github.io/page/2/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="专注于安全,分享生活,分享知识">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="WEB安全">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="内网">
+<meta property="article:tag" content="渗透">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png"><link rel="shortcut icon" href="/img/WX20211124-162855.png"><link rel="canonical" href="https://godzeo.github.io/page/2/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Zeo\'s Security Lab',
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2022-10-23 12:29:12'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url('https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231216806.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Zeo's Security Lab</h1><div id="site_social_icons"><a class="social-icon" href="https://github.com/godzeo" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zzzhhhaaaiiii@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left"><a href="/2022/02/09/Spring%20Boot%20Actuator%20%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/" title="Spring Boot Actuator 漏洞复现合集"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Boot Actuator 漏洞复现合集"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/02/09/Spring%20Boot%20Actuator%20%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/" title="Spring Boot Actuator 漏洞复现合集">Spring Boot Actuator 漏洞复现合集</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-02-09T03:00:57.000Z" title="发表于 2022-02-09 11:00:57">2022-02-09</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/spring-boot/">spring boot</a></span></div><div class="content">
+
+前言Spring Boot Actuator 未授权访问漏洞在日常的测试中还是能碰到一些的，这种未授权在某些情况下是可以达到RCE的效果的，所以还有有一定价值的，下面就是对这一系列漏洞复现。
+基本上就是参考这篇文章的做的复现：
+LandGrey&#x2F;SpringBootVulExploit: SpringBoot 相关漏洞学习资料，利用方法和技巧合集，黑盒安全评估 check list (github.com)
+Spring Boot Actuator简介Spring Boot Actuator端点通过 JMX 和HTTP 公开暴露给外界访问，大多数时候我们使用基于HTTP的Actuator端点，因为它们很容易通过浏览器、CURL命令、shell脚本等方式访问。
+一些有用的执行器端点是：
+Spring Boot Actuator未授权访问
+12345678910111213/dump - 显示线程转储（包括堆栈跟踪）/autoconfig - 显示自动配置报告/configprops - 显示配置属性/trace - 显示最后几条HTTP消息（可能包含会话标识符）/logfi ...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/" title="SonarQube 未授权漏洞"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SonarQube 未授权漏洞"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/" title="SonarQube 未授权漏洞">SonarQube 未授权漏洞</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-01-29T06:47:26.000Z" title="发表于 2022-01-29 14:47:26">2022-01-29</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="content">
+
+0x01 漏洞影响产品概述SonarQube是一款开源静态代码质量分析管理工具，支持Java、Python、PHP、JavaScript、CSS等27种以上目前极为流程的编程开发语言，同时它能够便捷集成在各种IDE、Jenkins、Git等服务中，方便及时查看代码质量分析报告。该工具在github开源社区获得6.3K的关注量，在全球颇具影响力，深得全球各研发工作者的喜爱。
+0x02 漏洞描述SonarQube是一款开源静态代码质量分析管理工具，在默认配置的情况下，缺少对API 接口的访问权限控制，攻击者可利用该漏洞在未授权的情况下，通过访问api&#x2F;settings&#x2F;values接口从而获取到 SMTP、SVN、GitLab 凭据，进一步获取源代码数据仓库中的源代码，造成项目源代码泄露。同时还可以对使用默认账号密码的用户进行攻击，系统安装完成后，默认弱口令为admin&#x2F;admin，攻击者通过输入默认账号密码，同样可以获得敏感配置信息，从而进一步窃取企业源代码。
+0x03 影响版本此次受影响 SonarQube 版本如下：
+
+
+
+SonarQube版本
+是 ...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2022/01/26/CVE-2021-4034%20Linux%20Polkit%20pkexec%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E/" title="CVE-2021-4034 Linux Polkit pkexec权限提升漏洞"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CVE-2021-4034 Linux Polkit pkexec权限提升漏洞"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/01/26/CVE-2021-4034%20Linux%20Polkit%20pkexec%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E/" title="CVE-2021-4034 Linux Polkit pkexec权限提升漏洞">CVE-2021-4034 Linux Polkit pkexec权限提升漏洞</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-01-26T08:04:26.000Z" title="发表于 2022-01-26 16:04:26">2022-01-26</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="content">
+
+0x01 CVE-2021-4034 漏洞详情Polkit（PolicyKit）是一个用于控制类Unix系统中系统范围权限的组件，它为非特权进程与特权进程的通信提供了一种有组织的方式。pkexec是Polkit开源应用框架的一部分，它负责协商特权进程和非特权进程之间的互动，允许授权用户以另一个用户的身份执行命令，是sudo的替代方案。
+1月25日，研究人员公开披露了在 polkit 的 pkexec 中发现的一个权限提升漏洞（CVE-2021-4034 ，也称PwnKit)，它存在于所有主流的 Linux 发行版的默认配置中。受影响版本的 pkexec 无法正确处理调用参数计数，最终尝试将环境变量作为命令执行，攻击者可以通过修改环境变量来利用此漏洞，诱使 pkexec 执行任意代码，从而导致将本地权限提升为root。
+0x02 影响范围自2009年以来的所有 Polkit 版本（存在于所有主流的 Linux 发行版中）
+CentOS系列：
+CentOS 6：polkit-0.96-11.el6_10.2
+CentOS 7：polkit-0.112-26.el7_9.1
+CentOS ...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/" title="钓鱼指北 Gophish钓鱼平台和邮件服务器搭建"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="钓鱼指北 Gophish钓鱼平台和邮件服务器搭建"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/" title="钓鱼指北 Gophish钓鱼平台和邮件服务器搭建">钓鱼指北 Gophish钓鱼平台和邮件服务器搭建</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-01-20T13:44:10.000Z" title="发表于 2022-01-20 21:44:10">2022-01-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/">内网安全研究</a></span></div><div class="content">
+
+0x00 攻防演练钓鱼起因，在大型攻防演练中，传统的web层面Nday打点突破难点变大，于是越来越多的攻击队会加入钓鱼行动中，本文章就常规邮件的钓鱼进行介绍，后续还有IM这种也是很有效的方式。
+0x01 搭建Gophish钓鱼平台Gophish 是一个功能强大的开源网络钓框架，安装运行都非常简单。
+Github 地址：https://github.com/gophish/gophish
+1、下载https://github.com/gophish/gophish/releases
+下载对应的版本
+
+123wget https://github.com/gophish/gophish/releases/download/v0.11.0/gophish-v0.11.0-linux-64bit.zipunzip gophish-v0.11.0-linux-64bit.zip
+
+
+2、修改 config.json1vim config.json
+
+
+
+admin_server 把 127.0.0.1 改为 0.0.0.0,外网直接访问就要0.0.0.0
+
+listen_url也要是0.0. ...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2021/12/24/docker%20denied!%20requested%20access%20to%20the%20resource%20is%20denied/" title="docker denied/ requested access to the resource is denied"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="docker denied/ requested access to the resource is denied"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/12/24/docker%20denied!%20requested%20access%20to%20the%20resource%20is%20denied/" title="docker denied/ requested access to the resource is denied">docker denied/ requested access to the resource is denied</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-12-24T02:59:32.000Z" title="发表于 2021-12-24 10:59:32">2021-12-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E9%85%8D%E7%8E%AF%E5%A2%83/">配环境</a></span></div><div class="content">
+
+将自己创建的docker镜像push到dockerhub上去，结果出现了以上错误
+docker denied&#x2F; requested access to the resource is denied.md
+原因分析：在build自己的镜像的时候添加tag时必须在前面加上自己的dockerhub的username，
+例如我要往我账号里push本地镜像，命令
+第一步要将容器打包成镜像：1docker commit -a=&quot;test&quot; -m=&quot;test&quot; 58b8cae10a89 test/zyimage:0.0.1
+
+
+test&#x2F;zyimage:0.0.1
+test是你在docker.hub上面的账户名，
+zyimage是镜像名称，
+0.0.1是镜像的tag。
+
+
+第二部上传镜像，pull 对应的镜像就好了1docker push test/zyimage:0.0.1
+
+完成后，在docker.hub里My Profile里的Repositories里就可以看到刚刚push的镜像
+</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2021/11/23/Apache%20ShenYu%20JWT%E8%AE%A4%E8%AF%81%E7%BC%BA%E9%99%B7%E6%BC%8F%E6%B4%9E(CVE-2021-37580)/" title="Apache ShenYu JWT认证缺陷漏洞(CVE-2021-37580)"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Apache ShenYu JWT认证缺陷漏洞(CVE-2021-37580)"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/11/23/Apache%20ShenYu%20JWT%E8%AE%A4%E8%AF%81%E7%BC%BA%E9%99%B7%E6%BC%8F%E6%B4%9E(CVE-2021-37580)/" title="Apache ShenYu JWT认证缺陷漏洞(CVE-2021-37580)">Apache ShenYu JWT认证缺陷漏洞(CVE-2021-37580)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-11-23T12:47:07.000Z" title="发表于 2021-11-23 20:47:07">2021-11-23</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="content">
+
+0x01 漏洞说明Apache ShenYu 是应用于所有微服务场景的，可扩展、高性能、响应式的 API 网关解决方案。
+Apache ShenYu Admin 存在身份验证绕过漏洞**（CVE-2021-37580）*，该漏洞的CVSS评分为9.8***。由于ShenyuAdminBootstrap 中 JWT 的错误使用允许攻击者绕过身份验证，攻击者可通过该漏洞直接进入系统后台。
+0x02 影响版本Apache ShenYu 2.3.0
+Apache ShenYu 2.4.0
+0x03 漏洞复现Fofa搜索标题
+body&#x3D;“id&#x3D;“httpPath””&amp;&amp;body&#x3D;“th:text&#x3D;”${domain}“”
+
+验证POC：1/dashboardUser
+
+
+修复升级到最新版
+</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2021/11/17/Apache%20Druid%20LoadData%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%20%E6%BC%8F%E6%B4%9E%20CVE-2021-36749/" title="Apache Druid LoadData 任意文件读取 漏洞 CVE-2021-36749"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Apache Druid LoadData 任意文件读取 漏洞 CVE-2021-36749"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/11/17/Apache%20Druid%20LoadData%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%20%E6%BC%8F%E6%B4%9E%20CVE-2021-36749/" title="Apache Druid LoadData 任意文件读取 漏洞 CVE-2021-36749">Apache Druid LoadData 任意文件读取 漏洞 CVE-2021-36749</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-11-17T09:21:38.000Z" title="发表于 2021-11-17 17:21:38">2021-11-17</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="content">
+
+Apache Druid LoadData 任意文件读取 漏洞 CVE-2021-367490x01 漏洞简介在 Druid 系统中，InputSource 用于从某个数据源读取数据。但是，HTTP InputSource 允许经过身份验证的用户以 Druid 服务器进程的权限从其他来源读取数据，例如本地文件系统。
+这不是用户直接访问 Druid 时的权限提升，因为 Druid 还提供了 Local InputSource，它允许相同级别的访问。但是当用户通过允许用户指定 HTTP InputSource 而不是 Local InputSource 的应用程序间接与 Druid 交互时，这是有问题的。
+在这种情况下，用户可以通过将文件 URL 传递给 HTTP InputSource 来绕过应用程序级别的限制。这个问题之前提到过，根据 CVE-2021-26920 在 0.21.0 中已修复，但在 0.21.0 或 0.21.1 中未修复。
+0x02 影响范围影响范围 : Apache Druid &lt; 0.21.0
+0x03 漏洞复现
+URLS写入payload
+1file: ...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2021/11/16/jumpserver%20%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8CRCE%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%A9%E7%94%A8/" title="jumpserver 远程命令执行RCE漏洞复现和利用"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="jumpserver 远程命令执行RCE漏洞复现和利用"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/11/16/jumpserver%20%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8CRCE%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%A9%E7%94%A8/" title="jumpserver 远程命令执行RCE漏洞复现和利用">jumpserver 远程命令执行RCE漏洞复现和利用</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-11-16T14:03:04.000Z" title="发表于 2021-11-16 22:03:04">2021-11-16</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="content">
+
+0x01 简介
+JumpServer远程执行漏洞 RCE EXP
+Jumpserver 是一款由python编写开源的跳板机(堡垒机)系统，是内网中的一种集权系统，拿下后基本上都是可以控制大量的服务器。
+项目地址：https://github.com/jumpserver/jumpserver
+
+0x02 漏洞原理远程命令执行漏洞：由于 JumpServer 某些接口未做授权限制，攻击者可构造恶意请求获取到日志文件获取敏感信息，再通过敏感信息获取一个20s的token，最后利用这个token去执行相关API操作控制其中所有机器或者执行任意命令。
+0x03 影响版本：
+JumpServer &lt; v2.6.2
+JumpServer &lt; v2.5.4
+JumpServer &lt; v2.4.5
+JumpServer &#x3D; v1.5.9
+
+0x04 复现环境搭建注意坑点环境搭建推荐使用一键安装，因为环境比较麻烦，而且还得是旧版的，这里是v2.6.1
+安装脚本V2.6.1 https://www.o2oxy.cn/wp-content/uploads/2021/01/q ...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2021/10/31/Gitlab%20%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8CRCE%E6%BC%8F%E6%B4%9ECVE-2021-22205%E9%99%84exp/" title="Gitlab 远程命令执行RCE漏洞CVE-2021-22205附exp"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Gitlab 远程命令执行RCE漏洞CVE-2021-22205附exp"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/Gitlab%20%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8CRCE%E6%BC%8F%E6%B4%9ECVE-2021-22205%E9%99%84exp/" title="Gitlab 远程命令执行RCE漏洞CVE-2021-22205附exp">Gitlab 远程命令执行RCE漏洞CVE-2021-22205附exp</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-10-31T06:28:29.000Z" title="发表于 2021-10-31 14:28:29">2021-10-31</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">WEB 漏洞复现和分析</a></span></div><div class="content">
+
+0x01 漏洞介绍&amp;原理GitLab 是由GitLab Inc.开发的一个用于仓库管理系统的开源项目，是一款Ruby开发的Git项目管理平台。由于在11.9以后的GitLab中，使用了图片处理工具ExifTool，而此图片处理工具又受到了漏洞CVE-2021-22204的影响：
+漏洞触发ExifTool功能处，ExifTool是用于从图像中移除元数据的开源工具，在解析上传图像中的元数据时，并没有完全解析某些元数据，导致攻击者上传带有恶意元数据的图片，从而导致远程命令执行。
+攻击者可以通过一个存在未授权的接口，上传一张恶意构造的图片，进而导致该漏洞在无需进行身份验证的情况下即可进行RCE
+0x02 影响版本123Gitlab CE/EE &lt; 13.10.3Gitlab CE/EE &lt; 13.9.6Gitlab CE/EE &lt; 13.8.8
+
+0x03 漏洞检测主页
+1http://127.0.0.1/users/sign_in
+
+
+1FOFA指纹：title=&quot;GitLab&quot;
+
+EXP代码贴最后,直接运行
+1python3 CVE-202 ...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2021/10/29/%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E6%B5%81%E9%87%8F%EF%BC%9ASocks5%E5%8D%8F%E8%AE%AE%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%92%8C%E7%BC%96%E7%A8%8B/" title="内网代理流量：Socks5协议原理分析和编程"><img class="post_bg" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="内网代理流量：Socks5协议原理分析和编程"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/29/%E5%86%85%E7%BD%91%E4%BB%A3%E7%90%86%E6%B5%81%E9%87%8F%EF%BC%9ASocks5%E5%8D%8F%E8%AE%AE%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%92%8C%E7%BC%96%E7%A8%8B/" title="内网代理流量：Socks5协议原理分析和编程">内网代理流量：Socks5协议原理分析和编程</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-10-29T13:42:22.000Z" title="发表于 2021-10-29 21:42:22">2021-10-29</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/">内网安全研究</a></span></div><div class="content">
+
+0x00 前情提要日常渗透演练中，代理是必不可少的，我们用的一般也都是CS自带socks4和代理工具的socks5协议，我们此时还要考虑在这个过程中的流量免杀的问题，所以还是要对底层的协议详细的看一下，然后对流量中的特征分析和修改一下
+0x01 简介和流程以下摘自维基百科
+
+SOCKS是一种网络传输协议，主要用于客户端与外网服务器之间通讯的中间传递。SOCKS是”SOCKetS”的缩写[注 1]。 当防火墙后的客户端要访问外部的服务器时，就跟SOCKS代理服务器连接。这个代理服务器控制客户端访问外网的资格，允许的话，就将客户端的请求发往外部的服务器。 这个协议最初由David Koblas开发，而后由NEC的Ying-Da Lee将其扩展到SOCKS4。最新协议是SOCKS5，与前一版本相比，增加支持UDP、验证，以及IPv6。 根据OSI模型，SOCKS是会话层的协议，位于表示层与传输层之间。 SOCKS协议不提供加密。
+
+小知识点：SOCKS 5 扩展了第 4 版本，加入了 UDP 协议支持
+SOCKS5协议主要分为分为三个阶段：
+
+(1) 协议版本及认证方式
+(2) 根据认证 ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#content-inner">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/#content-inner">14</a><a class="extend next" rel="next" href="/page/3/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">134</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/godzeo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/godzeo" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zzzhhhaaaiiii@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Weclome my blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java代码审计： ClassLoader应用"/></a><div class="content"><a class="title" href="/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/" title="Java代码审计： ClassLoader应用">Java代码审计： ClassLoader应用</a><time datetime="2022-05-10T08:21:21.000Z" title="发表于 2022-05-10 16:21:21">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CodeQL基础语法"/></a><div class="content"><a class="title" href="/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" title="CodeQL基础语法">CodeQL基础语法</a><time datetime="2022-04-22T04:01:39.000Z" title="发表于 2022-04-22 12:01:39">2022-04-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Spring Rce 漏洞分析CVE-2022-22965"/></a><div class="content"><a class="title" href="/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/" title="Spring Rce 漏洞分析CVE-2022-22965">Spring Rce 漏洞分析CVE-2022-22965</a><time datetime="2022-04-07T15:20:11.000Z" title="发表于 2022-04-07 23:20:11">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="转载：Gitee 图床 外链问题 处理"/></a><div class="content"><a class="title" href="/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/" title="转载：Gitee 图床 外链问题 处理">转载：Gitee 图床 外链问题 处理</a><time datetime="2022-03-27T10:27:24.000Z" title="发表于 2022-03-27 18:27:24">2022-03-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Codeql 环境手模手搭建和简单使用"/></a><div class="content"><a class="title" href="/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Codeql 环境手模手搭建和简单使用">Codeql 环境手模手搭建和简单使用</a><time datetime="2022-03-14T04:26:04.000Z" title="发表于 2022-03-14 12:26:04">2022-03-14</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            <a class="card-more-btn" href="/categories/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a>
+            </div>
+            <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"><span class="card-category-list-name">WEB 漏洞复现和分析</span><span class="card-category-list-count">51</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"><span class="card-category-list-name">WEB漏洞复现和分析</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/app%E6%B8%97%E9%80%8F/"><span class="card-category-list-name">app渗透</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/spring-boot/"><span class="card-category-list-name">spring boot</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/"><span class="card-category-list-name">二进制安全研究</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6%E9%83%A8/"><span class="card-category-list-name">人工智能机器学习与安全研究部</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"><span class="card-category-list-name">代码审计</span><span class="card-category-list-count">20</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8%E7%A0%94%E7%A9%B6/"><span class="card-category-list-name">内网安全研究</span><span class="card-category-list-count">21</span></a></li>
+            </ul></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/05/"><span class="card-archive-list-date">五月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/04/"><span class="card-archive-list-date">四月 2022</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/03/"><span class="card-archive-list-date">三月 2022</span><span class="card-archive-list-count">5</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/02/"><span class="card-archive-list-date">二月 2022</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/01/"><span class="card-archive-list-date">一月 2022</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/12/"><span class="card-archive-list-date">十二月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/11/"><span class="card-archive-list-date">十一月 2021</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/10/"><span class="card-archive-list-date">十月 2021</span><span class="card-archive-list-count">5</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">134</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2022-10-23T04:29:11.089Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2022 By Zeo</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

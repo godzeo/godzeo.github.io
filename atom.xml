@@ -6,7 +6,7 @@
   <link href="https://godzeo.github.io/atom.xml" rel="self"/>
   
   <link href="https://godzeo.github.io/"/>
-  <updated>2022-11-05T10:05:40.760Z</updated>
+  <updated>2023-01-26T13:02:06.256Z</updated>
   <id>https://godzeo.github.io/</id>
   
   <author>
@@ -17,11 +17,122 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>应急/linux 挂D盾扫描方法</title>
+    <link href="https://godzeo.github.io/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/"/>
+    <id>https://godzeo.github.io/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/</id>
+    <published>2023-01-02T11:49:32.000Z</published>
+    <updated>2023-01-26T13:02:06.256Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
+
+&lt;h2 id=&quot;0x00-linux-挂D盾扫描方法&quot;&gt;&lt;a href=&quot;#0x00-linux-挂D盾扫描方法&quot; class=&quot;headerlink&quot; title=&quot;0x00 linux 挂D盾扫描方法&quot;&gt;&lt;/a&gt;0x00</summary>
+        
+      
+    
+    
+    
+    <category term="应急响应" scheme="https://godzeo.github.io/categories/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/"/>
+    
+    
+    <category term="linux ssh 运维" scheme="https://godzeo.github.io/tags/linux-ssh-%E8%BF%90%E7%BB%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2022年终总结.md</title>
+    <link href="https://godzeo.github.io/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93.md/"/>
+    <id>https://godzeo.github.io/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93.md/</id>
+    <published>2022-12-31T03:17:07.000Z</published>
+    <updated>2023-01-26T13:02:06.256Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
+
+&lt;p&gt;&lt;code&gt;文章已经加密&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;最后送大家今年感受比较深的一句话：&lt;/p&gt;
+&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td</summary>
+        
+      
+    
+    
+    
+    <category term="配环境" scheme="https://godzeo.github.io/categories/%E9%85%8D%E7%8E%AF%E5%A2%83/"/>
+    
+    
+    <category term="安全架构" scheme="https://godzeo.github.io/tags/%E5%AE%89%E5%85%A8%E6%9E%B6%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Nosql inject注入</title>
+    <link href="https://godzeo.github.io/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/"/>
+    <id>https://godzeo.github.io/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/</id>
+    <published>2022-11-28T07:28:02.000Z</published>
+    <updated>2023-01-26T13:02:06.257Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
+
+&lt;h1 id=&quot;0x00-Nosql-inject&quot;&gt;&lt;a href=&quot;#0x00-Nosql-inject&quot; class=&quot;headerlink&quot; title=&quot;0x00 Nosql inject&quot;&gt;&lt;/a&gt;0x00</summary>
+        
+      
+    
+    
+    
+    <category term="代码审计" scheme="https://godzeo.github.io/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
+    
+    
+    <category term="nosql mongodb 数据库" scheme="https://godzeo.github.io/tags/nosql-mongodb-%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>企业 SDLC 安全生命周期管理</title>
+    <link href="https://godzeo.github.io/2022/11/15/%E4%BC%81%E4%B8%9A%20SDLC%20%E5%AE%89%E5%85%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86/"/>
+    <id>https://godzeo.github.io/2022/11/15/%E4%BC%81%E4%B8%9A%20SDLC%20%E5%AE%89%E5%85%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86/</id>
+    <published>2022-11-15T14:03:44.000Z</published>
+    <updated>2023-01-26T13:02:06.256Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
+
+&lt;p&gt;最近看了很多SDLC的东西，把其中比较重要关键的记录一下，用简洁的语言说清楚&lt;/p&gt;
+&lt;h1 id=&quot;0x01-SDL-介绍&quot;&gt;&lt;a href=&quot;#0x01-SDL-介绍&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="安全开发" scheme="https://godzeo.github.io/categories/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/"/>
+    
+    
+    <category term="安全 运维 php" scheme="https://godzeo.github.io/tags/%E5%AE%89%E5%85%A8-%E8%BF%90%E7%BB%B4-php/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Go 代码审计漏洞(File Operation\Redirect\Cors)</title>
     <link href="https://godzeo.github.io/2022/11/05/Go%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E6%BC%8F%E6%B4%9E(File%20Operation!Redirect!Cors)/"/>
     <id>https://godzeo.github.io/2022/11/05/Go%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E6%BC%8F%E6%B4%9E(File%20Operation!Redirect!Cors)/</id>
     <published>2022-11-05T09:15:28.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.256Z</updated>
     
     
       
@@ -31,7 +142,8 @@
     <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
 
 &lt;p&gt;go 代码审计去的一些其他漏洞&lt;br&gt;文件操作、路径穿越、重定向、CORS&lt;/p&gt;
-&lt;h1 id=&quot;0x04-File-Operation-文件操作&quot;&gt;&lt;a href=&quot;#0x04-File-Operation-文件操作&quot;</summary>
+&lt;p&gt;一个go写的WEB漏洞靶场，实际自己写一下，加固一下知识&lt;/p&gt;
+&lt;p&gt;&lt;a</summary>
         
       
     
@@ -49,7 +161,7 @@
     <link href="https://godzeo.github.io/2022/10/30/Go%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E9%AB%98%E5%8D%B1%E6%BC%8F%E6%B4%9E(sqli!cmd!ssrf)/"/>
     <id>https://godzeo.github.io/2022/10/30/Go%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E9%AB%98%E5%8D%B1%E6%BC%8F%E6%B4%9E(sqli!cmd!ssrf)/</id>
     <published>2022-10-30T06:57:14.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.256Z</updated>
     
     
       
@@ -76,7 +188,7 @@
     <link href="https://godzeo.github.io/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/"/>
     <id>https://godzeo.github.io/2022/05/10/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%EF%BC%9A%20ClassLoader%E5%BA%94%E7%94%A8/</id>
     <published>2022-05-10T08:21:21.000Z</published>
-    <updated>2022-11-05T10:05:40.762Z</updated>
+    <updated>2023-01-26T13:02:06.256Z</updated>
     
     
       
@@ -103,7 +215,7 @@
     <link href="https://godzeo.github.io/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/"/>
     <id>https://godzeo.github.io/2022/04/22/CodeQL%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/</id>
     <published>2022-04-22T04:01:39.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
+    <updated>2023-01-26T13:02:06.256Z</updated>
     
     
       
@@ -130,7 +242,7 @@
     <link href="https://godzeo.github.io/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/"/>
     <id>https://godzeo.github.io/2022/04/07/Spring%20Rce%20%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90CVE-2022-22965/</id>
     <published>2022-04-07T15:20:11.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.256Z</updated>
     
     
       
@@ -157,7 +269,7 @@
     <link href="https://godzeo.github.io/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/"/>
     <id>https://godzeo.github.io/2022/03/27/%E8%BD%AC%E8%BD%BD%EF%BC%9AGitee%20%E5%9B%BE%E5%BA%8A%20%E5%A4%96%E9%93%BE%E9%97%AE%E9%A2%98%20%E5%A4%84%E7%90%86/</id>
     <published>2022-03-27T10:27:24.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.256Z</updated>
     
     
       
@@ -184,7 +296,7 @@
     <link href="https://godzeo.github.io/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/"/>
     <id>https://godzeo.github.io/2022/03/14/Codeql%20%E7%8E%AF%E5%A2%83%E6%89%8B%E6%A8%A1%E6%89%8B%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/</id>
     <published>2022-03-14T04:26:04.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.256Z</updated>
     
     
       
@@ -211,7 +323,7 @@
     <link href="https://godzeo.github.io/2022/03/12/Java%E9%A2%84%E7%BC%96%E8%AF%91%E4%B8%80%E4%BA%9B%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E5%B1%80%E9%99%90.md/"/>
     <id>https://godzeo.github.io/2022/03/12/Java%E9%A2%84%E7%BC%96%E8%AF%91%E4%B8%80%E4%BA%9B%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E5%B1%80%E9%99%90.md/</id>
     <published>2022-03-12T11:55:17.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -238,7 +350,7 @@
     <link href="https://godzeo.github.io/2022/03/08/CVE-2022-0847%20DirtyPipe%20%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%20%E5%A4%8D%E7%8E%B0/"/>
     <id>https://godzeo.github.io/2022/03/08/CVE-2022-0847%20DirtyPipe%20%E6%8F%90%E6%9D%83%E6%BC%8F%E6%B4%9E%20%E5%A4%8D%E7%8E%B0/</id>
     <published>2022-03-08T02:24:33.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -265,7 +377,7 @@
     <link href="https://godzeo.github.io/2022/03/06/Spring%20Cloud%20Gateway%20Actuator%20API%20SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%EF%BC%88CVE-2022-22947%EF%BC%89/"/>
     <id>https://godzeo.github.io/2022/03/06/Spring%20Cloud%20Gateway%20Actuator%20API%20SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%EF%BC%88CVE-2022-22947%EF%BC%89/</id>
     <published>2022-03-06T09:59:05.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -293,7 +405,7 @@
     <link href="https://godzeo.github.io/2022/02/18/%E5%8F%8D%E7%88%AC%E8%99%ABSSL%20TLS%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%92%8C%E7%BB%95%E8%BF%87JA3%E7%AE%97%E6%B3%95.md/"/>
     <id>https://godzeo.github.io/2022/02/18/%E5%8F%8D%E7%88%AC%E8%99%ABSSL%20TLS%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%92%8C%E7%BB%95%E8%BF%87JA3%E7%AE%97%E6%B3%95.md/</id>
     <published>2022-02-18T12:26:42.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -320,7 +432,7 @@
     <link href="https://godzeo.github.io/2022/02/16/%E9%92%89%E9%92%89%20RCE%20%E6%BC%8F%E6%B4%9E/"/>
     <id>https://godzeo.github.io/2022/02/16/%E9%92%89%E9%92%89%20RCE%20%E6%BC%8F%E6%B4%9E/</id>
     <published>2022-02-16T06:25:40.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -347,7 +459,7 @@
     <link href="https://godzeo.github.io/2022/02/09/Spring%20Boot%20Actuator%20%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/"/>
     <id>https://godzeo.github.io/2022/02/09/Spring%20Boot%20Actuator%20%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/</id>
     <published>2022-02-09T03:00:57.000Z</published>
-    <updated>2022-11-05T10:05:40.760Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -374,7 +486,7 @@
     <link href="https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/"/>
     <id>https://godzeo.github.io/2022/01/29/SonarQube%20%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E/</id>
     <published>2022-01-29T06:47:26.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -399,7 +511,7 @@
     <link href="https://godzeo.github.io/2022/01/26/CVE-2021-4034%20Linux%20Polkit%20pkexec%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E/"/>
     <id>https://godzeo.github.io/2022/01/26/CVE-2021-4034%20Linux%20Polkit%20pkexec%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E/</id>
     <published>2022-01-26T08:04:26.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -426,7 +538,7 @@
     <link href="https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/"/>
     <id>https://godzeo.github.io/2022/01/20/%E9%92%93%E9%B1%BC%E6%8C%87%E5%8C%97%20Gophish%E9%92%93%E9%B1%BC%E5%B9%B3%E5%8F%B0%E5%92%8C%E9%82%AE%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/</id>
     <published>2022-01-20T13:44:10.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
+    <updated>2023-01-26T13:02:06.257Z</updated>
     
     
       
@@ -445,116 +557,6 @@
     
     
     <category term="服务器 运维 安全" scheme="https://godzeo.github.io/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8-%E8%BF%90%E7%BB%B4-%E5%AE%89%E5%85%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>docker denied/ requested access to the resource is denied</title>
-    <link href="https://godzeo.github.io/2021/12/24/docker%20denied!%20requested%20access%20to%20the%20resource%20is%20denied/"/>
-    <id>https://godzeo.github.io/2021/12/24/docker%20denied!%20requested%20access%20to%20the%20resource%20is%20denied/</id>
-    <published>2021-12-24T02:59:32.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
-
-&lt;p&gt;将自己创建的docker镜像push到dockerhub上去，结果出现了以上错误&lt;/p&gt;
-&lt;p&gt;docker denied&amp;#x2F; requested access to the resource is</summary>
-        
-      
-    
-    
-    
-    <category term="配环境" scheme="https://godzeo.github.io/categories/%E9%85%8D%E7%8E%AF%E5%A2%83/"/>
-    
-    
-    <category term="docker 容器 运维" scheme="https://godzeo.github.io/tags/docker-%E5%AE%B9%E5%99%A8-%E8%BF%90%E7%BB%B4/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Apache ShenYu JWT认证缺陷漏洞(CVE-2021-37580)</title>
-    <link href="https://godzeo.github.io/2021/11/23/Apache%20ShenYu%20JWT%E8%AE%A4%E8%AF%81%E7%BC%BA%E9%99%B7%E6%BC%8F%E6%B4%9E(CVE-2021-37580)/"/>
-    <id>https://godzeo.github.io/2021/11/23/Apache%20ShenYu%20JWT%E8%AE%A4%E8%AF%81%E7%BC%BA%E9%99%B7%E6%BC%8F%E6%B4%9E(CVE-2021-37580)/</id>
-    <published>2021-11-23T12:47:07.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
-
-&lt;h1 id=&quot;0x01-漏洞说明&quot;&gt;&lt;a href=&quot;#0x01-漏洞说明&quot; class=&quot;headerlink&quot; title=&quot;0x01 漏洞说明&quot;&gt;&lt;/a&gt;&lt;strong&gt;0x01</summary>
-        
-      
-    
-    
-    
-    <category term="WEB 漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
-    
-    
-    <category term="web安全 安全 漏洞" scheme="https://godzeo.github.io/tags/web%E5%AE%89%E5%85%A8-%E5%AE%89%E5%85%A8-%E6%BC%8F%E6%B4%9E/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Apache Druid LoadData 任意文件读取 漏洞 CVE-2021-36749</title>
-    <link href="https://godzeo.github.io/2021/11/17/Apache%20Druid%20LoadData%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%20%E6%BC%8F%E6%B4%9E%20CVE-2021-36749/"/>
-    <id>https://godzeo.github.io/2021/11/17/Apache%20Druid%20LoadData%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%20%E6%BC%8F%E6%B4%9E%20CVE-2021-36749/</id>
-    <published>2021-11-17T09:21:38.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
-
-&lt;h1 id=&quot;Apache-Druid-LoadData-任意文件读取-漏洞-CVE-2021-36749&quot;&gt;&lt;a href=&quot;#Apache-Druid-LoadData-任意文件读取-漏洞-CVE-2021-36749&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="WEB 漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
-    
-    
-    <category term="linux ssh centos" scheme="https://godzeo.github.io/tags/linux-ssh-centos/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>jumpserver 远程命令执行RCE漏洞复现和利用</title>
-    <link href="https://godzeo.github.io/2021/11/16/jumpserver%20%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8CRCE%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%A9%E7%94%A8/"/>
-    <id>https://godzeo.github.io/2021/11/16/jumpserver%20%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8CRCE%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%A9%E7%94%A8/</id>
-    <published>2021-11-16T14:03:04.000Z</published>
-    <updated>2022-11-05T10:05:40.761Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;span id=&quot;more&quot;&gt;&lt;/span&gt;
-
-&lt;h1 id=&quot;0x01-简介&quot;&gt;&lt;a href=&quot;#0x01-简介&quot; class=&quot;headerlink&quot; title=&quot;0x01 简介&quot;&gt;&lt;/a&gt;0x01 简介&lt;/h1&gt;&lt;ul&gt;
-&lt;li&gt;JumpServer远程执行漏洞</summary>
-        
-      
-    
-    
-    
-    <category term="WEB 漏洞复现和分析" scheme="https://godzeo.github.io/categories/WEB-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/"/>
-    
-    
-    <category term="windows linux ssh" scheme="https://godzeo.github.io/tags/windows-linux-ssh/"/>
     
   </entry>
   

